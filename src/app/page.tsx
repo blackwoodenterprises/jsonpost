@@ -79,8 +79,6 @@ export default function Home() {
               Free tier • No credit card • 100 submissions/month
             </p>
           </div>
-
-
         </div>
       </section>
 
@@ -109,7 +107,8 @@ export default function Home() {
                 <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
                   <div className="text-blue-400">&lt;form</div>
                   <div className="text-blue-400 ml-2">
-                    action=&quot;{process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact&quot;
+                    action=&quot;{process.env.NEXT_PUBLIC_APP_URL}
+                    /api/submit/your-id/contact&quot;
                   </div>
                   <div className="text-blue-400 ml-2">
                     method=&quot;POST&quot;&gt;
@@ -143,7 +142,8 @@ export default function Home() {
                     const response = await fetch(
                   </div>
                   <div className="text-green-400 ml-2">
-                    &apos;{process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact&apos;,
+                    &apos;{process.env.NEXT_PUBLIC_APP_URL}
+                    /api/submit/your-id/contact&apos;,
                   </div>
                   <div className="text-blue-400 ml-2">{`{`}</div>
                   <div className="text-blue-400 ml-4">
@@ -175,7 +175,8 @@ export default function Home() {
                 <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
                   <div className="text-yellow-400">curl -X POST \</div>
                   <div className="text-green-400 ml-2">
-                    {process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact \
+                    {process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact
+                    \
                   </div>
                   <div className="text-blue-400 ml-2">
                     -H &quot;Content-Type: application/json&quot; \
@@ -518,18 +519,18 @@ export default function Home() {
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li>
-                  <Link href="/about" className="hover:text-white">
-                    About
+                  <Link href="/privacy-policy" className="hover:text-white">
+                    Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-white">
-                    Privacy
+                  <Link href="/terms-of-service" className="hover:text-white">
+                    Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-white">
-                    Terms
+                  <Link href="/refund-policy" className="hover:text-white">
+                    Refund Policy
                   </Link>
                 </li>
               </ul>
