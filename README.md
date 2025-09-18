@@ -1,206 +1,279 @@
-# JSONPost
+# JSONPost - Developer-Friendly Form Processing SaaS
 
-A modern form backend service that allows you to collect form submissions without writing backend code. Built with Next.js, Supabase, and TypeScript.
+JSONPost is a headless form backend service that allows developers to create form endpoints instantly and start collecting submissions without setting up their own backend infrastructure. Perfect for developers, founders, and freelancers who need forms fast.
 
-## Features
+## 🚀 Features
 
-- 🚀 **Easy Setup**: Create form endpoints in minutes
-- 📊 **Dashboard**: Manage projects and view submissions
-- 🔔 **Notifications**: Email alerts and webhook integrations
-- 🔒 **Secure**: Built-in authentication and data protection
-- 📱 **Responsive**: Works on all devices
-- 🎨 **Modern UI**: Clean and intuitive interface
+- **Instant Form Endpoints**: Create form endpoints in seconds
+- **Multiple Content Types**: Support for JSON, form-data, and URL-encoded submissions
+- **Email Notifications**: Get notified when forms are submitted
+- **Webhook Integration**: Forward submissions to your own endpoints
+- **Spam Protection**: Built-in spam filtering capabilities
+- **Real-time Analytics**: Track submission metrics and trends
+- **Custom Redirects**: Redirect users after successful submissions
+- **Secure & Scalable**: Built with Supabase and Next.js
 
-## Getting Started
+## 🏗️ Architecture
+
+JSONPost is built using modern web technologies:
+
+- **Frontend**: Next.js 15 with React 19, TypeScript, and Tailwind CSS
+- **Backend**: Next.js API Routes with Supabase integration
+- **Database**: PostgreSQL via Supabase with Row Level Security (RLS)
+- **Authentication**: Supabase Auth with email/password and OAuth
+- **UI Components**: Radix UI primitives with custom styling
+- **Form Handling**: React Hook Form with Zod validation
+- **Email Service**: Custom email service integration
+- **Deployment**: Vercel-ready configuration
+
+## 📁 Project Structure
+
+```
+jsonpost/
+├── public/                     # Static assets
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/                # API Routes
+│   │   │   └── submit/         # Form submission endpoints
+│   │   │       └── [projectId]/
+│   │   │           └── [endpointPath]/
+│   │   │               └── route.ts
+│   │   ├── auth/               # Authentication pages
+│   │   │   ├── callback/       # OAuth callback
+│   │   │   ├── forgot-password/
+│   │   │   ├── login/
+│   │   │   ├── reset-password/
+│   │   │   └── signup/
+│   │   ├── dashboard/          # Dashboard pages
+│   │   │   ├── profile/        # User profile
+│   │   │   └── projects/       # Project management
+│   │   │       ├── new/        # Create new project
+│   │   │       └── [id]/       # Project details
+│   │   │           ├── endpoints/    # Endpoint management
+│   │   │           ├── settings/     # Project settings
+│   │   │           └── submissions/  # View submissions
+│   │   ├── globals.css         # Global styles
+│   │   ├── layout.tsx          # Root layout
+│   │   └── page.tsx            # Landing page
+│   ├── components/             # Reusable components
+│   │   ├── auth/               # Authentication components
+│   │   ├── dashboard/          # Dashboard components
+│   │   └── ui/                 # UI primitives
+│   ├── lib/                    # Utility libraries
+│   │   ├── email.ts            # Email service
+│   │   ├── supabase.ts         # Supabase client
+│   │   ├── supabase-server.ts  # Server-side Supabase
+│   │   └── utils.ts            # Utility functions
+│   └── middleware.ts           # Next.js middleware
+├── supabase/
+│   └── schema.sql              # Database schema
+├── package.json                # Dependencies
+├── next.config.ts              # Next.js configuration
+├── tsconfig.json               # TypeScript configuration
+├── tailwind.config.js          # Tailwind CSS configuration
+└── README.md                   # This file
+```
+
+## 🛣️ Routes & Pages
+
+### Public Routes
+- `/` - Landing page with features and pricing
+- `/auth/login` - User login page
+- `/auth/signup` - User registration page
+- `/auth/forgot-password` - Password reset request
+- `/auth/reset-password` - Password reset form
+- `/auth/callback` - OAuth callback handler
+
+### Protected Routes (Dashboard)
+- `/dashboard` - Main dashboard with project overview
+- `/dashboard/profile` - User profile management
+- `/dashboard/projects/new` - Create new project
+- `/dashboard/projects/[id]` - Project details and overview
+- `/dashboard/projects/[id]/settings` - Project settings
+- `/dashboard/projects/[id]/endpoints/new` - Create new endpoint
+- `/dashboard/projects/[id]/endpoints/[endpointId]` - Endpoint details
+- `/dashboard/projects/[id]/endpoints/[endpointId]/edit` - Edit endpoint
+- `/dashboard/projects/[id]/submissions` - All project submissions
+- `/dashboard/projects/[id]/submissions/[submissionId]` - Individual submission details
+
+## 🔌 API Endpoints
+
+### Form Submission API
+- `POST /api/submit/[projectId]/[endpointPath]` - Submit form data
+- `PUT /api/submit/[projectId]/[endpointPath]` - Submit form data (alias)
+- `PATCH /api/submit/[projectId]/[endpointPath]` - Submit form data (alias)
+- `OPTIONS /api/submit/[projectId]/[endpointPath]` - CORS preflight
+
+### Authentication API
+- `GET /auth/callback` - Handle OAuth callbacks
+
+### Features of Form Submission API:
+- **Multiple Content Types**: Supports `application/json`, `multipart/form-data`, and `application/x-www-form-urlencoded`
+- **Webhook Integration**: Forwards submissions to configured webhook URLs
+- **Email Notifications**: Sends email notifications when enabled
+- **Spam Protection**: Built-in spam filtering (when enabled)
+- **Custom Responses**: Configurable success/error messages
+- **Redirect Support**: Automatic redirects after successful submissions
+- **CORS Support**: Cross-origin requests allowed
+
+## 🖥️ Application Screens
+
+### Landing Page
+- Hero section with value proposition
+- Feature highlights and benefits
+- Code examples for different frameworks
+- Pricing information
+- Call-to-action buttons
+
+### Authentication Screens
+- **Login**: Email/password authentication with OAuth options
+- **Signup**: User registration with email verification
+- **Forgot Password**: Password reset request form
+- **Reset Password**: New password setup form
+
+### Dashboard Screens
+- **Main Dashboard**: Project overview with quick stats
+- **Profile**: User account management and settings
+- **Projects List**: Overview of all user projects
+- **Project Details**: Individual project dashboard with endpoints and recent submissions
+- **Project Settings**: Project configuration and danger zone
+- **Endpoint Management**: Create, edit, and configure form endpoints
+- **Endpoint Details**: Individual endpoint analytics and settings
+- **Submissions**: View and filter all form submissions
+- **Submission Details**: Individual submission data and metadata
+
+## 🗄️ Database Schema
+
+The application uses PostgreSQL with the following main tables:
+
+### Core Tables
+- **profiles** - User profile information (extends auth.users)
+- **projects** - User projects/workspaces
+- **endpoints** - Form endpoints within projects
+- **submissions** - Form submission data
+
+### Key Features
+- **Row Level Security (RLS)** - Ensures data isolation between users
+- **UUID Primary Keys** - For better security and scalability
+- **Automatic Timestamps** - Created/updated timestamps on all tables
+- **JSONB Storage** - Flexible submission data storage
+- **Indexes** - Optimized for common query patterns
+
+## ⚙️ Setup Instructions
 
 ### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+ and npm
 - Supabase account
+- Git
 
-### Installation
-
-1. Clone the repository:
+### 1. Clone the Repository
 ```bash
 git clone <repository-url>
 cd jsonpost
 ```
 
-2. Install dependencies:
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-3. Set up environment variables:
-```bash
-cp .env.example .env.local
-```
+### 3. Environment Variables
+Create a `.env.local` file in the root directory:
 
-Edit `.env.local` with your Supabase credentials:
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Email Configuration (Resend)
+RESEND_API_KEY=your_resend_api_key
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-4. Set up the database:
-   - Go to your Supabase dashboard
-   - Run the SQL from `supabase/schema.sql` in the SQL editor
+### 4. Database Setup
+1. Create a new Supabase project
+2. Run the SQL schema from `supabase/schema.sql` in your Supabase SQL editor
+3. Enable Row Level Security on all tables
+4. Configure authentication providers if needed
 
-5. Start the development server:
+### 5. Development Server
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the application.
+The application will be available at `http://localhost:3000`
 
-## Usage
-
-### Creating a Form Endpoint
-
-1. Sign up and log in to your dashboard
-2. Create a new project
-3. Add an endpoint to your project
-4. Configure notifications and response messages
-5. Use the generated endpoint URL in your forms
-
-### Example HTML Form
-
-```html
-<form action="https://yourapp.com/api/submit/project-id/endpoint-path" method="POST">
-  <input type="text" name="name" placeholder="Your Name" required>
-  <input type="email" name="email" placeholder="Your Email" required>
-  <textarea name="message" placeholder="Your Message" required></textarea>
-  <button type="submit">Send Message</button>
-</form>
+### 6. Build for Production
+```bash
+npm run build
+npm start
 ```
 
-### JavaScript/Fetch Example
+## 🔧 Configuration
 
-```javascript
-const formData = {
-  name: 'John Doe',
-  email: 'john@example.com',
-  message: 'Hello from JSONPost!'
-}
-
-fetch('https://yourapp.com/api/submit/project-id/endpoint-path', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(formData)
-})
-.then(response => response.json())
-.then(data => console.log('Success:', data))
-.catch(error => console.error('Error:', error))
-```
-
-## API Reference
-
-### Submit Form Data
-
-**Endpoint:** `POST /api/submit/[projectId]/[endpointPath]`
-
-**Content Types Supported:**
-- `application/json`
-- `application/x-www-form-urlencoded`
-- `multipart/form-data`
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Submission received successfully",
-  "submission_id": "uuid"
-}
-```
-
-**Error Response:**
-```json
-{
-  "error": "Error message"
-}
-```
-
-## Features in Detail
-
-### Projects
-- Organize your form endpoints into projects
-- Each project can have multiple endpoints
-- Project-level settings and analytics
-
-### Endpoints
-- Custom paths and HTTP methods
-- Configurable response messages
-- Email notifications
-- Webhook integrations
-- Redirect URLs after submission
-
-### Notifications
-- **Email Alerts**: Get notified when forms are submitted
-- **Webhooks**: Send data to external services
-- **Real-time Dashboard**: View submissions as they come in
-
-### Security
-- User authentication required
-- Row Level Security (RLS) in database
-- CORS support for cross-origin requests
-- IP address logging for submissions
-
-## Database Schema
-
-The application uses the following main tables:
-
-- `profiles`: User profiles linked to Supabase auth
-- `projects`: User projects for organizing endpoints
-- `endpoints`: Form endpoints with configuration
-- `submissions`: Form submission data
-
-See `supabase/schema.sql` for the complete schema.
-
-## Environment Variables
+### Environment Variables Reference
 
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | Yes |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key | Yes |
-| `RESEND_API_KEY` | Resend API key for emails | No |
+| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key | Yes |
+| `RESEND_API_KEY` | Your Resend API key for email notifications | Yes |
+| `NEXT_PUBLIC_APP_URL` | Your application URL | Yes |
 
-## Deployment
+### Supabase Configuration
+1. Enable Email Auth in Supabase Auth settings
+2. Configure OAuth providers (optional)
+3. Set up email templates for auth flows
+4. Configure RLS policies (included in schema.sql)
+
+## 🚀 Deployment
 
 ### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
+1. Connect your repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
 ### Other Platforms
-
-The app can be deployed to any platform that supports Next.js:
+The application is a standard Next.js app and can be deployed to:
 - Netlify
 - Railway
 - DigitalOcean App Platform
 - AWS Amplify
+- Any Node.js hosting provider
 
-## Email Integration
+## 📊 Key Features Explained
 
-The application includes a flexible email service that can be configured with various providers:
+### Form Submission Flow
+1. User creates a project and endpoint
+2. Endpoint generates a unique URL: `/api/submit/[projectId]/[endpointPath]`
+3. Forms POST data to this URL
+4. System validates endpoint and stores submission
+5. Optional webhook and email notifications are sent
+6. User can view submissions in dashboard
 
-### Supported Providers (with configuration)
-- Resend (recommended)
-- SendGrid
-- AWS SES
-- Nodemailer with SMTP
+### Security Features
+- Row Level Security ensures data isolation
+- CORS support for cross-origin requests
+- Input validation and sanitization
+- Rate limiting (can be implemented)
+- Spam protection capabilities
 
-To enable email notifications:
-1. Choose an email provider
-2. Add your API key to environment variables
-3. Update the email service configuration
-4. Enable notifications in your endpoint settings
+### Analytics & Monitoring
+- Submission tracking and counting
+- IP address and user agent logging
+- Timestamp tracking for all submissions
+- Project-level and endpoint-level analytics
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -208,23 +281,17 @@ To enable email notifications:
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Support
+## 🆘 Support
 
-- 📧 Email: support@jsonpost.com
-- 💬 Discord: [Join our community](https://discord.gg/jsonpost)
-- 📖 Documentation: [docs.jsonpost.com](https://docs.jsonpost.com)
+For support and questions:
+- Create an issue in the repository
+- Check the documentation
+- Review the code examples in the landing page
 
-## Roadmap
+---
 
-- [ ] File upload support
-- [ ] Advanced analytics
-- [ ] Team collaboration
-- [ ] API rate limiting
-- [ ] Custom domains
-- [ ] Zapier integration
-- [ ] Form builder UI
-- [ ] Spam protection
+Built with ❤️ using Next.js, Supabase, and modern web technologies.

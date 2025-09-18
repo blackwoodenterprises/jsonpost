@@ -43,11 +43,14 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
-  endpoints: {
-    id: string;
-    name: string;
-    path: string;
-  };
+}
+
+interface Endpoint {
+  id: string;
+  name: string;
+  path: string;
+  description: string | null;
+  project_id: string;
 }
 
 interface Project {
@@ -58,13 +61,15 @@ interface Project {
 
 const ITEMS_PER_PAGE = 20;
 
-export default function AllSubmissionsPage() {
+export default function EndpointSubmissionsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const params = useParams();
   const projectId = params.id as string;
+  const endpointId = params.endpointId as string;
 
   const [project, setProject] = useState<Project | null>(null);
+  const [endpoint, setEndpoint] = useState<Endpoint | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,70 +78,51 @@ export default function AllSubmissionsPage() {
   // Pagination and filtering state
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedEndpoint, setSelectedEndpoint] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
-  const [endpoints, setEndpoints] = useState<
-    Array<{ id: string; name: string; path: string }>
-  >([]);
 
-  const fetchProjectData = useCallback(async () => {
+  const fetchProjectAndEndpointData = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch project data
+      const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .select("id, name, description")
         .eq("id", projectId)
         .eq("user_id", user?.id)
         .single();
 
-      if (error || !data) {
+      if (projectError || !projectData) {
         setError("Project not found");
         return;
       }
 
-      setProject(data);
-    } catch {
-      setError("Failed to load project data");
-    }
-  }, [projectId, user?.id]);
+      setProject(projectData);
 
-  const fetchEndpoints = useCallback(async () => {
-    try {
-      const { data } = await supabase
+      // Fetch endpoint data
+      const { data: endpointData, error: endpointError } = await supabase
         .from("endpoints")
-        .select("id, name, path")
+        .select("id, name, path, description, project_id")
+        .eq("id", endpointId)
         .eq("project_id", projectId)
-        .order("name");
+        .single();
 
-      if (data) {
-        setEndpoints(data);
+      if (endpointError || !endpointData) {
+        setError("Endpoint not found");
+        return;
       }
+
+      setEndpoint(endpointData);
     } catch {
-      console.error("Failed to fetch endpoints");
+      setError("Failed to load data");
     }
-  }, [projectId]);
+  }, [projectId, endpointId, user?.id]);
 
   const fetchSubmissions = useCallback(async () => {
     setIsLoading(true);
     try {
       let query = supabase
         .from("submissions")
-        .select(
-          `
-          *,
-          endpoints!submissions_endpoint_id_fkey(
-            id,
-            name,
-            path
-          )
-        `,
-          { count: "exact" }
-        )
-        .eq("endpoints.project_id", projectId);
-
-      // Apply endpoint filter
-      if (selectedEndpoint !== "all") {
-        query = query.eq("endpoint_id", selectedEndpoint);
-      }
+        .select("*", { count: "exact" })
+        .eq("endpoint_id", endpointId);
 
       // Apply date filter
       if (dateFilter !== "all") {
@@ -189,7 +175,7 @@ export default function AllSubmissionsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, selectedEndpoint, dateFilter, searchTerm, currentPage]);
+  }, [endpointId, dateFilter, searchTerm, currentPage]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -199,27 +185,21 @@ export default function AllSubmissionsPage() {
       return;
     }
 
-    if (user && projectId) {
-      fetchProjectData();
-      fetchEndpoints();
+    if (user && projectId && endpointId) {
+      fetchProjectAndEndpointData();
     }
-  }, [user, loading, projectId, router, fetchProjectData, fetchEndpoints]);
+  }, [user, loading, projectId, endpointId, router, fetchProjectAndEndpointData]);
 
   useEffect(() => {
-    if (user && projectId) {
+    if (user && endpointId) {
       fetchSubmissions();
     }
-  }, [user, projectId, fetchSubmissions]);
+  }, [user, endpointId, fetchSubmissions]);
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
-    setCurrentPage(1);
-  };
-
-  const handleEndpointFilter = (value: string) => {
-    setSelectedEndpoint(value);
     setCurrentPage(1);
   };
 
@@ -244,14 +224,14 @@ export default function AllSubmissionsPage() {
     );
   }
 
-  if (error || !project) {
+  if (error || !project || !endpoint) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <DashboardHeader />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              {error || "Project not found"}
+              {error || "Not found"}
             </h1>
             <Button asChild>
               <Link href="/dashboard">
@@ -268,19 +248,45 @@ export default function AllSubmissionsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardHeader
-        title="All Submissions"
-        subtitle={project.name}
+        title="Endpoint Submissions"
+        subtitle={`${endpoint.name} • ${project.name}`}
         actions={
           <Button variant="outline" asChild>
-            <Link href={`/dashboard/projects/${projectId}`}>
+            <Link href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Project
+              Back to Endpoint
             </Link>
           </Button>
         }
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Endpoint Info */}
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center">
+                  <Globe className="h-5 w-5 mr-2" />
+                  {endpoint.name}
+                </CardTitle>
+                <CardDescription className="font-mono text-sm mt-1">
+                  {endpoint.path}
+                </CardDescription>
+                {endpoint.description && (
+                  <CardDescription className="mt-2">
+                    {endpoint.description}
+                  </CardDescription>
+                )}
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">{totalCount}</div>
+                <div className="text-sm text-gray-500">Total Submissions</div>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>
@@ -289,11 +295,11 @@ export default function AllSubmissionsPage() {
               Filters
             </CardTitle>
             <CardDescription>
-              Filter and search through submissions
+              Filter and search through submissions for this endpoint
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Search</label>
                 <div className="relative">
@@ -305,27 +311,6 @@ export default function AllSubmissionsPage() {
                     className="pl-10"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Endpoint
-                </label>
-                <Select
-                  value={selectedEndpoint}
-                  onValueChange={handleEndpointFilter}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="All endpoints" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All endpoints</SelectItem>
-                    {endpoints.map((endpoint) => (
-                      <SelectItem key={endpoint.id} value={endpoint.id}>
-                        {endpoint.name} ({endpoint.path})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">
@@ -348,7 +333,6 @@ export default function AllSubmissionsPage() {
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedEndpoint("all");
                     setDateFilter("all");
                     setCurrentPage(1);
                   }}
@@ -404,20 +388,15 @@ export default function AllSubmissionsPage() {
                 No submissions found
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                {searchTerm ||
-                selectedEndpoint !== "all" ||
-                dateFilter !== "all"
+                {searchTerm || dateFilter !== "all"
                   ? "Try adjusting your filters to see more results."
-                  : "This project hasn't received any submissions yet."}
+                  : "This endpoint hasn't received any submissions yet."}
               </p>
-              {searchTerm ||
-              selectedEndpoint !== "all" ||
-              dateFilter !== "all" ? (
+              {searchTerm || dateFilter !== "all" ? (
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
-                    setSelectedEndpoint("all");
                     setDateFilter("all");
                     setCurrentPage(1);
                   }}
@@ -426,8 +405,8 @@ export default function AllSubmissionsPage() {
                 </Button>
               ) : (
                 <Button asChild>
-                  <Link href={`/dashboard/projects/${projectId}`}>
-                    View Project Details
+                  <Link href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}>
+                    Back to Endpoint
                   </Link>
                 </Button>
               )}
@@ -440,7 +419,7 @@ export default function AllSubmissionsPage() {
                 key={submission.id}
                 submission={submission}
                 projectId={projectId}
-                showEndpointInfo={true}
+                showEndpointInfo={false}
                 showActions={true}
                 variant="default"
               />

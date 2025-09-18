@@ -119,30 +119,26 @@ export default function SubmissionDetailPage() {
 
       setSubmission(submissionData);
 
-      // Fetch webhook logs if webhook is configured
-      if (submissionData.endpoints?.webhook_url) {
-        const { data: webhookData } = await supabase
-          .from("webhook_logs")
-          .select("*")
-          .eq("submission_id", submissionId)
-          .order("created_at", { ascending: false });
+      // Always fetch webhook logs (since we now support multiple webhooks)
+      const { data: webhookData } = await supabase
+        .from("webhook_logs")
+        .select("*")
+        .eq("submission_id", submissionId)
+        .order("created_at", { ascending: false });
 
-        if (webhookData) {
-          setWebhookLogs(webhookData);
-        }
+      if (webhookData) {
+        setWebhookLogs(webhookData);
       }
 
-      // Fetch email logs if email notifications are enabled
-      if (submissionData.endpoints?.email_notifications) {
-        const { data: emailData } = await supabase
-          .from("email_logs")
-          .select("*")
-          .eq("submission_id", submissionId)
-          .order("created_at", { ascending: false });
+      // Always fetch email logs (since we now support multiple email addresses)
+      const { data: emailData } = await supabase
+        .from("email_logs")
+        .select("*")
+        .eq("submission_id", submissionId)
+        .order("created_at", { ascending: false });
 
-        if (emailData) {
-          setEmailLogs(emailData);
-        }
+      if (emailData) {
+        setEmailLogs(emailData);
       }
     } catch {
       setError("Failed to load submission data");
@@ -258,121 +254,117 @@ export default function SubmissionDetailPage() {
             </Card>
 
             {/* Webhook Logs */}
-            {submission.endpoints?.webhook_url && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <ExternalLink className="h-5 w-5 mr-2" />
-                    Webhook Delivery
-                  </CardTitle>
-                  <CardDescription>
-                    Webhook delivery status and logs
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {webhookLogs.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <ExternalLink className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No webhook delivery logs found</p>
-                      <p className="text-sm">
-                        Webhook may still be processing or failed to deliver
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {webhookLogs.map((log) => (
-                        <div key={log.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center">
-                              {log.status_code >= 200 &&
-                              log.status_code < 300 ? (
-                                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                              ) : (
-                                <XCircle className="h-4 w-4 text-red-500 mr-2" />
-                              )}
-                              <span className="text-sm font-medium">
-                                Status: {log.status_code}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-500">
-                              {new Date(log.created_at).toLocaleString()}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <ExternalLink className="h-5 w-5 mr-2" />
+                  Webhook Delivery
+                </CardTitle>
+                <CardDescription>
+                  Webhook delivery status and logs
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {webhookLogs.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <ExternalLink className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No webhook delivery logs found</p>
+                    <p className="text-sm">
+                      No webhooks configured or delivery may still be processing
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {webhookLogs.map((log) => (
+                      <div key={log.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            {log.status_code >= 200 &&
+                            log.status_code < 300 ? (
+                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500 mr-2" />
+                            )}
+                            <span className="text-sm font-medium">
+                              Status: {log.status_code}
                             </span>
                           </div>
-                          <div className="text-sm text-gray-600 mb-2">
-                            URL: {log.webhook_url}
-                          </div>
-                          {log.response_body && (
-                            <div className="bg-gray-50 dark:bg-gray-800 rounded p-3">
-                              <pre className="text-xs overflow-x-auto">
-                                {log.response_body}
-                              </pre>
-                            </div>
-                          )}
+                          <span className="text-xs text-gray-500">
+                            {new Date(log.created_at).toLocaleString()}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                        <div className="text-sm text-gray-600 mb-2">
+                          URL: {log.webhook_url}
+                        </div>
+                        {log.response_body && (
+                          <div className="bg-gray-50 dark:bg-gray-800 rounded p-3">
+                            <pre className="text-xs overflow-x-auto">
+                              {log.response_body}
+                            </pre>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Email Logs */}
-            {submission.endpoints?.email_notifications && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Mail className="h-5 w-5 mr-2" />
-                    Email Notifications
-                  </CardTitle>
-                  <CardDescription>
-                    Email notification delivery status
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {emailLogs.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No email delivery logs found</p>
-                      <p className="text-sm">
-                        Email may still be processing or failed to send
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {emailLogs.map((log) => (
-                        <div key={log.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center">
-                              {log.status === "sent" ? (
-                                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                              ) : (
-                                <XCircle className="h-4 w-4 text-red-500 mr-2" />
-                              )}
-                              <span className="text-sm font-medium">
-                                {log.status === "sent" ? "Sent" : "Failed"}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-500">
-                              {new Date(log.created_at).toLocaleString()}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Mail className="h-5 w-5 mr-2" />
+                  Email Notifications
+                </CardTitle>
+                <CardDescription>
+                  Email notification delivery status
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {emailLogs.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Mail className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No email delivery logs found</p>
+                    <p className="text-sm">
+                      No email notifications configured or delivery may still be processing
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {emailLogs.map((log) => (
+                      <div key={log.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            {log.status === "sent" ? (
+                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500 mr-2" />
+                            )}
+                            <span className="text-sm font-medium">
+                              {log.status === "sent" ? "Sent" : "Failed"}
                             </span>
                           </div>
-                          <div className="text-sm text-gray-600 mb-2">
-                            To: {log.recipient_email}
-                          </div>
-                          {log.error_message && (
-                            <div className="bg-red-50 dark:bg-red-900/20 rounded p-3">
-                              <p className="text-sm text-red-700 dark:text-red-300">
-                                Error: {log.error_message}
-                              </p>
-                            </div>
-                          )}
+                          <span className="text-xs text-gray-500">
+                            {new Date(log.created_at).toLocaleString()}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                        <div className="text-sm text-gray-600 mb-2">
+                          To: {log.recipient_email}
+                        </div>
+                        {log.error_message && (
+                          <div className="bg-red-50 dark:bg-red-900/20 rounded p-3">
+                            <p className="text-sm text-red-700 dark:text-red-300">
+                              Error: {log.error_message}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Sidebar */}

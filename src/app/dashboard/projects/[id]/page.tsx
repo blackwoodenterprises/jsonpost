@@ -37,6 +37,7 @@ interface Endpoint {
   name: string;
   path: string;
   description: string | null;
+  method: string;
   created_at: string;
   submission_count: number;
 }
@@ -121,6 +122,7 @@ export default function ProjectPage() {
           name,
           path,
           description,
+          method,
           created_at
         `
         )
@@ -362,43 +364,61 @@ export default function ProjectPage() {
                 {endpoints.map((endpoint) => (
                   <Card
                     key={endpoint.id}
-                    className="hover:shadow-md transition-shadow"
+                    className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500 hover:border-l-blue-600"
                   >
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">
-                          {endpoint.name}
-                        </CardTitle>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyEndpointUrl(endpoint.path)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link
-                              href={`/dashboard/projects/${projectId}/endpoints/${endpoint.id}`}
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </Link>
-                          </Button>
+                    <Link
+                      href={`/dashboard/projects/${projectId}/endpoints/${endpoint.id}`}
+                      className="block"
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <Globe className="h-5 w-5 text-blue-600" />
+                              <CardTitle className="text-lg">
+                                {endpoint.name}
+                              </CardTitle>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                              {endpoint.method || 'POST'}
+                            </span>
+                            <ExternalLink className="h-4 w-4 text-gray-400" />
+                          </div>
                         </div>
-                      </div>
-                      {endpoint.description && (
-                        <CardDescription>
-                          {endpoint.description}
-                        </CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-300">
-                          {endpoint.submission_count} submissions
-                        </span>
-                      </div>
-                    </CardContent>
+                        {endpoint.description && (
+                          <CardDescription className="mt-2">
+                            {endpoint.description}
+                          </CardDescription>
+                        )}
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                            <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs font-mono">
+                              {endpoint.path}
+                            </code>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center space-x-4">
+                              <div className="flex items-center space-x-1">
+                                <Mail className="h-3 w-3 text-gray-500" />
+                                <span className="text-gray-600 dark:text-gray-300">
+                                  {endpoint.submission_count} submissions
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Created {new Date(endpoint.created_at).toLocaleDateString()}
+                              </div>
+                            </div>
+                            <div className="text-xs text-blue-600 font-medium">
+                              View Details →
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Link>
                   </Card>
                 ))}
               </div>

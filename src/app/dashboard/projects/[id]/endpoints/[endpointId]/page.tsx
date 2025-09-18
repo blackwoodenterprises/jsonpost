@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -13,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -28,10 +31,16 @@ import {
   ExternalLink,
   Settings,
   Trash2,
+  Plus,
   Eye,
+  Edit,
+  Mail,
+  Webhook,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
+import { SubmissionCard } from "@/components/dashboard/submission-card";
+import { IntegrationExamples } from "@/components/dashboard/integration-examples";
 
 interface Endpoint {
   id: string;
@@ -45,6 +54,8 @@ interface Endpoint {
   success_message: string;
   error_message: string;
   created_at: string;
+  email_addresses?: string[];
+  webhook_urls?: string[];
 }
 
 interface Project {
@@ -111,7 +122,29 @@ export default function EndpointDetailsPage() {
         .single();
 
       if (endpointError) throw endpointError;
-      setEndpoint(endpointData);
+
+      // Fetch email addresses for this endpoint
+      const { data: emailAddresses } = await supabase
+        .from('endpoint_emails')
+        .select('email_address')
+        .eq('endpoint_id', endpointId)
+        .eq('is_active', true);
+
+      // Fetch webhook URLs for this endpoint
+      const { data: webhookUrls } = await supabase
+        .from('endpoint_webhooks')
+        .select('webhook_url')
+        .eq('endpoint_id', endpointId)
+        .eq('is_active', true);
+
+      // Combine endpoint data with email addresses and webhook URLs
+      const endpointWithExtras = {
+        ...endpointData,
+        email_addresses: emailAddresses?.map(e => e.email_address) || [],
+        webhook_urls: webhookUrls?.map(w => w.webhook_url) || []
+      };
+
+      setEndpoint(endpointWithExtras);
 
       // Fetch recent submissions
       const { data: submissionsData, error: submissionsError } = await supabase
@@ -266,9 +299,11 @@ export default function EndpointDetailsPage() {
                     Endpoint URL
                   </label>
                   <div className="mt-1 flex items-center space-x-2">
-                    <code className="flex-1 px-3 py-2 bg-gray-100 rounded-md text-sm font-mono">
-                      {endpointUrl}
-                    </code>
+                    <Input
+                      value={endpointUrl}
+                      readOnly
+                      className="flex-1 font-mono text-sm bg-gray-50 border-gray-200"
+                    />
                     <Button
                       size="sm"
                       variant="outline"
@@ -302,27 +337,77 @@ export default function EndpointDetailsPage() {
                       </Badge>
                     </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">
-                      Webhook URL
-                    </label>
-                    <div className="mt-1 text-sm text-gray-900">
-                      {endpoint.webhook_url ? (
-                        <a
-                          href={endpoint.webhook_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 inline-flex items-center"
-                        >
-                          {endpoint.webhook_url}
-                          <ExternalLink className="h-3 w-3 ml-1" />
-                        </a>
-                      ) : (
-                        "Not configured"
-                      )}
-                    </div>
+                  <div className="flex items-center justify-end">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      asChild
+                    >
+                      <Link href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Configuration
+                      </Link>
+                    </Button>
                   </div>
                 </div>
+
+                {/* Email Addresses Section */}
+                {endpoint.email_addresses && endpoint.email_addresses.length > 0 && (
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Mail className="h-4 w-4 text-gray-500" />
+                      <label className="text-sm font-medium text-gray-500">
+                        Email Addresses ({endpoint.email_addresses.length})
+                      </label>
+                    </div>
+                    <div className="space-y-2">
+                      {endpoint.email_addresses.map((email, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md"
+                        >
+                          <code className="flex-1 text-sm font-mono text-gray-700">
+                            {email}
+                          </code>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Webhook URLs Section */}
+                {endpoint.webhook_urls && endpoint.webhook_urls.length > 0 && (
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Webhook className="h-4 w-4 text-gray-500" />
+                      <label className="text-sm font-medium text-gray-500">
+                        Webhook URLs ({endpoint.webhook_urls.length})
+                      </label>
+                    </div>
+                    <div className="space-y-2">
+                      {endpoint.webhook_urls.map((url, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center space-x-2"
+                        >
+                          <Input
+                            value={url}
+                            readOnly
+                            className="flex-1 font-mono text-sm bg-gray-50 border-gray-200"
+                          />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(url, '_blank')}
+                            className="shrink-0"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {endpoint.redirect_url && (
                   <div>
@@ -345,13 +430,30 @@ export default function EndpointDetailsPage() {
               </CardContent>
             </Card>
 
+            {/* Integration Examples */}
+            <IntegrationExamples 
+              endpointUrl={endpointUrl}
+              method={endpoint.method}
+            />
+
             {/* Recent Submissions */}
             <Card>
-              <CardHeader>
-                <CardTitle>Recent Submissions</CardTitle>
-                <CardDescription>
-                  Latest form submissions for this endpoint
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div>
+                  <CardTitle>Recent Submissions</CardTitle>
+                  <CardDescription>
+                    Latest form submissions for this endpoint
+                  </CardDescription>
+                </div>
+                {submissions.length > 0 && (
+                  <Link
+                    href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/submissions`}
+                  >
+                    <Button variant="outline" size="sm">
+                      View All Submissions
+                    </Button>
+                  </Link>
+                )}
               </CardHeader>
               <CardContent>
                 {submissions.length === 0 ? (
@@ -365,34 +467,14 @@ export default function EndpointDetailsPage() {
                 ) : (
                   <div className="space-y-4">
                     {submissions.map((submission) => (
-                      <div
+                      <SubmissionCard
                         key={submission.id}
-                        className="border rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
-                      >
-                        <Link
-                          href={`/dashboard/projects/${projectId}/submissions/${submission.id}`}
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium">
-                              Submission {submission.id.slice(0, 8)}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {new Date(submission.created_at).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="text-sm text-gray-600 mb-2">
-                            From: {submission.ip_address}
-                          </div>
-                          <div className="bg-gray-50 rounded p-3">
-                            <p className="text-sm text-gray-700">
-                              {createSubmissionExcerpt(submission.data)}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-2">
-                              Click to view full details
-                            </p>
-                          </div>
-                        </Link>
-                      </div>
+                        submission={submission}
+                        projectId={projectId}
+                        showEndpointInfo={false}
+                        showActions={false}
+                        variant="compact"
+                      />
                     ))}
                   </div>
                 )}
@@ -463,37 +545,4 @@ export default function EndpointDetailsPage() {
       </div>
     </div>
   );
-}
-
-// Helper function to create submission excerpt
-function createSubmissionExcerpt(
-  data: Record<string, unknown>,
-  maxLength: number = 100
-): string {
-  if (!data || typeof data !== "object") return "No data";
-
-  const entries = Object.entries(data);
-  if (entries.length === 0) return "No data";
-
-  // Get first few key-value pairs
-  const preview = entries
-    .slice(0, 3)
-    .map(([key, value]) => {
-      const valueStr =
-        typeof value === "string" ? value : JSON.stringify(value);
-      const truncatedValue =
-        valueStr.length > 30 ? valueStr.substring(0, 30) + "..." : valueStr;
-      return `${key}: ${truncatedValue}`;
-    })
-    .join(", ");
-
-  const totalFields = entries.length;
-  const excerpt =
-    preview.length > maxLength
-      ? preview.substring(0, maxLength) + "..."
-      : preview;
-
-  return totalFields > 3
-    ? `${excerpt} (+${totalFields - 3} more fields)`
-    : excerpt;
 }

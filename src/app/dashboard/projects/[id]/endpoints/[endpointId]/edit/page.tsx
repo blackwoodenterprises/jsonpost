@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { MultiInput } from "@/components/ui/multi-input";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -52,7 +53,8 @@ export default function EditEndpointPage() {
     method: "POST",
     path: "",
     email_notifications: false,
-    webhook_url: "",
+    email_addresses: [] as string[],
+    webhook_urls: [] as string[],
     redirect_url: "",
     success_message: "Thank you for your submission!",
     error_message: "There was an error processing your submission.",
@@ -92,6 +94,20 @@ export default function EditEndpointPage() {
       if (endpointError) throw endpointError;
       setEndpoint(endpointData);
 
+      // Fetch existing email addresses
+      const { data: emailData } = await supabase
+        .from("endpoint_emails")
+        .select("email_address")
+        .eq("endpoint_id", endpointId)
+        .eq("is_active", true);
+
+      // Fetch existing webhook URLs
+      const { data: webhookData } = await supabase
+        .from("endpoint_webhooks")
+        .select("webhook_url")
+        .eq("endpoint_id", endpointId)
+        .eq("is_active", true);
+
       // Set form data
       setFormData({
         name: endpointData.name || "",
@@ -99,7 +115,8 @@ export default function EditEndpointPage() {
         method: endpointData.method || "POST",
         path: endpointData.path || "",
         email_notifications: endpointData.email_notifications || false,
-        webhook_url: endpointData.webhook_url || "",
+        email_addresses: emailData?.map(e => e.email_address) || [],
+        webhook_urls: webhookData?.map(w => w.webhook_url) || [],
         redirect_url: endpointData.redirect_url || "",
         success_message:
           endpointData.success_message || "Thank you for your submission!",
@@ -120,7 +137,8 @@ export default function EditEndpointPage() {
     setIsSaving(true);
 
     try {
-      const { error } = await supabase
+      // Update the endpoint
+      const { error: endpointError } = await supabase
         .from("endpoints")
         .update({
           name: formData.name,
@@ -128,15 +146,58 @@ export default function EditEndpointPage() {
           method: formData.method,
           path: formData.path,
           email_notifications: formData.email_notifications,
-          webhook_url: formData.webhook_url || null,
+          webhook_url: formData.webhook_urls.length > 0 ? formData.webhook_urls[0] : null, // Keep backward compatibility
           redirect_url: formData.redirect_url || null,
           success_message: formData.success_message,
           error_message: formData.error_message,
+          uses_multiple_emails: formData.email_addresses.length > 0,
+          uses_multiple_webhooks: formData.webhook_urls.length > 0,
           updated_at: new Date().toISOString(),
         })
         .eq("id", endpointId);
 
-      if (error) throw error;
+      if (endpointError) throw endpointError;
+
+      // Delete existing email addresses and webhooks
+      await supabase
+        .from("endpoint_emails")
+        .delete()
+        .eq("endpoint_id", endpointId);
+
+      await supabase
+        .from("endpoint_webhooks")
+        .delete()
+        .eq("endpoint_id", endpointId);
+
+      // Insert new email addresses if any
+      if (formData.email_addresses.length > 0) {
+        const emailInserts = formData.email_addresses.map(email => ({
+          endpoint_id: endpointId,
+          email_address: email,
+          is_active: true,
+        }));
+
+        const { error: emailError } = await supabase
+          .from("endpoint_emails")
+          .insert(emailInserts);
+
+        if (emailError) throw emailError;
+      }
+
+      // Insert new webhook URLs if any
+      if (formData.webhook_urls.length > 0) {
+        const webhookInserts = formData.webhook_urls.map(url => ({
+          endpoint_id: endpointId,
+          webhook_url: url,
+          is_active: true,
+        }));
+
+        const { error: webhookError } = await supabase
+          .from("endpoint_webhooks")
+          .insert(webhookInserts);
+
+        if (webhookError) throw webhookError;
+      }
 
       router.push(`/dashboard/projects/${projectId}/endpoints/${endpointId}`);
     } catch (error) {
@@ -307,16 +368,40 @@ export default function EditEndpointPage() {
                   Enable Email Notifications
                 </Label>
               </div>
-              <div>
-                <Label htmlFor="webhook_url">Webhook URL (Optional)</Label>
-                <Input
-                  id="webhook_url"
+              
+              {formData.email_notifications && (
+                <div className="space-y-2">
+                  <MultiInput
+                    label="Email Addresses"
+                    type="email"
+                    values={formData.email_addresses}
+                    onChange={(emails) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        email_addresses: emails,
+                      }))
+                    }
+                    placeholder="Enter email address"
+                    description="Add multiple email addresses to receive notifications when forms are submitted."
+                    maxItems={10}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <MultiInput
+                  label="Webhook URLs"
                   type="url"
-                  value={formData.webhook_url}
-                  onChange={(e) =>
-                    handleInputChange("webhook_url", e.target.value)
+                  values={formData.webhook_urls}
+                  onChange={(urls) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      webhook_urls: urls,
+                    }))
                   }
-                  placeholder="https://example.com/webhook"
+                  placeholder="Enter webhook URL"
+                  description="Add webhook URLs to receive HTTP POST requests with form data."
+                  maxItems={10}
                 />
               </div>
             </CardContent>

@@ -8,6 +8,43 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Helper function to extract real IP address for Vercel hosting
+function getClientIP(request: NextRequest): string {
+  // Vercel-specific headers (in order of preference)
+  const vercelIP = request.headers.get('x-vercel-forwarded-for')
+  if (vercelIP) {
+    // x-vercel-forwarded-for can contain multiple IPs, take the first one (original client)
+    return vercelIP.split(',')[0].trim()
+  }
+
+  // Standard forwarded headers
+  const forwardedFor = request.headers.get('x-forwarded-for')
+  if (forwardedFor) {
+    // x-forwarded-for can contain multiple IPs, take the first one (original client)
+    return forwardedFor.split(',')[0].trim()
+  }
+
+  // Other common headers
+  const realIP = request.headers.get('x-real-ip')
+  if (realIP) {
+    return realIP.trim()
+  }
+
+  // Cloudflare header (if using Cloudflare in front of Vercel)
+  const cfConnectingIP = request.headers.get('cf-connecting-ip')
+  if (cfConnectingIP) {
+    return cfConnectingIP.trim()
+  }
+
+  // Fallback to connection remote address (may not be available in serverless)
+  const remoteAddr = request.headers.get('x-forwarded-host')
+  if (remoteAddr) {
+    return remoteAddr.trim()
+  }
+
+  return 'unknown'
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; endpointPath: string }> }
@@ -110,12 +147,13 @@ export async function POST(
     }
 
     // Store the submission
+    const clientIP = getClientIP(request)
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
       .insert({
         endpoint_id: endpoint.id,
         data: submissionData,
-        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        ip_address: clientIP,
         user_agent: request.headers.get('user-agent') || 'unknown'
       })
       .select()
@@ -129,52 +167,118 @@ export async function POST(
       )
     }
 
-    // Send webhook if configured
-    if (endpoint.webhook_url) {
-      try {
-        await fetch(endpoint.webhook_url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'User-Agent': 'JSONPost-Webhook/1.0'
-          },
-          body: JSON.stringify({
-            endpoint: {
-              id: endpoint.id,
-              name: endpoint.name,
-              project_id: projectId
+    // Fetch multiple webhook URLs for this endpoint
+    const { data: webhookUrls } = await supabase
+      .from('endpoint_webhooks')
+      .select('id, webhook_url')
+      .eq('endpoint_id', endpoint.id)
+      .eq('is_active', true)
+
+    // Send webhooks if configured
+    if (webhookUrls && webhookUrls.length > 0) {
+      const webhookPromises = webhookUrls.map(async (webhookConfig) => {
+        try {
+          const webhookResponse = await fetch(webhookConfig.webhook_url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'JSONPost-Webhook/1.0'
             },
-            submission: {
-              id: submission.id,
-              data: submissionData,
-              created_at: submission.created_at
-            }
+            body: JSON.stringify(submissionData)
           })
-        })
-      } catch (webhookError) {
-        console.error('Webhook delivery failed:', webhookError)
-        // Don't fail the request if webhook fails
-      }
+
+          // Log webhook delivery
+          await supabase
+            .from('webhook_logs')
+            .insert({
+              submission_id: submission.id,
+              endpoint_webhook_id: webhookConfig.id,
+              webhook_url: webhookConfig.webhook_url,
+              status_code: webhookResponse.status,
+              response_body: await webhookResponse.text(),
+              status: 'sent',
+              sent_at: new Date().toISOString()
+            })
+
+          return { success: true, url: webhookConfig.webhook_url }
+        } catch (webhookError) {
+          console.error('Webhook delivery failed:', webhookError)
+          
+          // Log failed webhook delivery
+          await supabase
+            .from('webhook_logs')
+            .insert({
+              submission_id: submission.id,
+              endpoint_webhook_id: webhookConfig.id,
+              webhook_url: webhookConfig.webhook_url,
+              status_code: 0,
+              error_message: webhookError instanceof Error ? webhookError.message : 'Unknown error',
+              status: 'failed',
+              sent_at: new Date().toISOString()
+            })
+
+          return { success: false, url: webhookConfig.webhook_url, error: webhookError }
+        }
+      })
+
+      await Promise.allSettled(webhookPromises)
     }
 
-    // Send email notification if enabled
-    if (endpoint.email_notifications && endpoint.project?.user?.email) {
-      try {
-        await emailService.sendSubmissionNotification(
-          endpoint.project.user.email,
-          {
-            endpointName: endpoint.name,
-            projectName: endpoint.project.name,
-            submissionData,
-            submissionId: submission.id,
-            submittedAt: new Date(submission.created_at).toLocaleString(),
-            ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
-          }
-        )
-      } catch (emailError) {
-        console.error('Email notification failed:', emailError)
-        // Don't fail the request if email fails
-      }
+    // Fetch multiple email addresses for this endpoint
+    const { data: emailAddresses } = await supabase
+      .from('endpoint_emails')
+      .select('id, email_address')
+      .eq('endpoint_id', endpoint.id)
+      .eq('is_active', true)
+
+    // Send email notifications if enabled
+    if (endpoint.email_notifications && emailAddresses && emailAddresses.length > 0) {
+      const emailPromises = emailAddresses.map(async (emailConfig) => {
+        try {
+          await emailService.sendSubmissionNotification(
+            emailConfig.email_address,
+            {
+              endpointName: endpoint.name,
+              projectName: endpoint.project.name,
+              submissionData,
+              submissionId: submission.id,
+              submittedAt: new Date(submission.created_at).toLocaleString(),
+              ipAddress: clientIP
+            }
+          )
+
+          // Log email delivery
+          await supabase
+            .from('email_logs')
+            .insert({
+              submission_id: submission.id,
+              endpoint_email_id: emailConfig.id,
+              recipient_email: emailConfig.email_address,
+              status: 'sent',
+              sent_at: new Date().toISOString()
+            })
+
+          return { success: true, email: emailConfig.email_address }
+        } catch (emailError) {
+          console.error('Email notification failed:', emailError)
+          
+          // Log failed email delivery
+          await supabase
+            .from('email_logs')
+            .insert({
+              submission_id: submission.id,
+              endpoint_email_id: emailConfig.id,
+              recipient_email: emailConfig.email_address,
+              status: 'failed',
+              error_message: emailError instanceof Error ? emailError.message : 'Unknown error',
+              sent_at: new Date().toISOString()
+            })
+
+          return { success: false, email: emailConfig.email_address, error: emailError }
+        }
+      })
+
+      await Promise.allSettled(emailPromises)
     }
 
     // Return success response
