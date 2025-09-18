@@ -8,6 +8,18 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Helper function to create responses with CORS headers
+function createCorsResponse(data: any, status: number = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
+
 // Helper function to extract real IP address for Vercel hosting
 function getClientIP(request: NextRequest): string {
   // Vercel-specific headers (in order of preference)
@@ -76,9 +88,9 @@ export async function POST(
             submissionData[key] = value
           }
         } catch {
-          return NextResponse.json(
+          return createCorsResponse(
             { error: 'Invalid request format. Please send JSON or form data.' },
-            { status: 400 }
+            400
           )
         }
       }
@@ -132,17 +144,17 @@ export async function POST(
       
       console.log('All endpoints for project:', projectEndpoints)
       
-      return NextResponse.json(
+      return createCorsResponse(
         { error: 'Endpoint not found' },
-        { status: 404 }
+        404
       )
     }
 
     // Check if method matches
     if (endpoint.method !== request.method) {
-      return NextResponse.json(
+      return createCorsResponse(
         { error: `Method ${request.method} not allowed. Expected ${endpoint.method}` },
-        { status: 405 }
+        405
       )
     }
 
@@ -161,9 +173,9 @@ export async function POST(
 
     if (submissionError) {
       console.error('Error storing submission:', submissionError)
-      return NextResponse.json(
+      return createCorsResponse(
         { error: endpoint.error_message || 'Failed to process submission' },
-        { status: 500 }
+        500
       )
     }
 
@@ -293,13 +305,13 @@ export async function POST(
       return NextResponse.redirect(endpoint.redirect_url, 302)
     }
 
-    return NextResponse.json(response, { status: 200 })
+    return createCorsResponse(response, 200)
 
   } catch (error) {
     console.error('API Error:', error)
-    return NextResponse.json(
+    return createCorsResponse(
       { error: 'Internal server error' },
-      { status: 500 }
+      500
     )
   }
 }
