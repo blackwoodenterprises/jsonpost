@@ -22,6 +22,28 @@ export const metadata: Metadata = {
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
+  openGraph: {
+    title: "JSONPost - Simple Form Backend Service",
+    description:
+      "A lightweight form backend + automation trigger service for developers and entrepreneurs",
+    images: [
+      {
+        url: "/ogimage.png",
+        width: 1700,
+        height: 1022,
+        alt: "JSONPost - Simple Form Backend Service",
+      },
+    ],
+    type: "website",
+    siteName: "JSONPost",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JSONPost - Simple Form Backend Service",
+    description:
+      "A lightweight form backend + automation trigger service for developers and entrepreneurs",
+    images: ["/ogimage.png"],
+  },
 };
 
 export default function RootLayout({
