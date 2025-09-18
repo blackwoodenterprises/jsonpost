@@ -9,7 +9,7 @@ const supabase = createClient(
 )
 
 // Helper function to create responses with CORS headers
-function createCorsResponse(data: any, status: number = 200) {
+function createCorsResponse(data: Record<string, unknown> | { error: string } | { success: boolean; message: string; submission_id: string }, status: number = 200) {
   return NextResponse.json(data, {
     status,
     headers: {
