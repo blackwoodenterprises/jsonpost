@@ -166,8 +166,35 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO profiles (id, email, full_name)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'full_name');
+  VALUES (
+    NEW.id, 
+    NEW.email, 
+    COALESCE(
+      NEW.raw_user_meta_data->>'full_name',
+      NEW.raw_user_meta_data->>'name',
+      CONCAT(
+        COALESCE(NEW.raw_user_meta_data->>'given_name', ''),
+        CASE 
+          WHEN NEW.raw_user_meta_data->>'given_name' IS NOT NULL 
+               AND NEW.raw_user_meta_data->>'family_name' IS NOT NULL 
+          THEN ' ' 
+          ELSE '' 
+        END,
+        COALESCE(NEW.raw_user_meta_data->>'family_name', '')
+      ),
+      split_part(NEW.email, '@', 1)
+    )
+  );
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Log the error but don't fail the user creation
+    RAISE LOG 'Error creating profile for user %: %', NEW.id, SQLERRM;
+    -- Insert with minimal data to ensure user creation succeeds
+    INSERT INTO profiles (id, email, full_name)
+    VALUES (NEW.id, NEW.email, split_part(NEW.email, '@', 1))
+    ON CONFLICT (id) DO NOTHING;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
