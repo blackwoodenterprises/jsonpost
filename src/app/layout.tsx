@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   title: "JSONPost - Simple Form Backend Service",
   description:
     "A lightweight form backend + automation trigger service for developers and entrepreneurs",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

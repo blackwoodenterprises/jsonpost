@@ -109,7 +109,7 @@ export default function Home() {
                 <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
                   <div className="text-blue-400">&lt;form</div>
                   <div className="text-blue-400 ml-2">
-                    action=&quot;https://api.jsonpost.io/submit/your-id/contact&quot;
+                    action=&quot;{process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact&quot;
                   </div>
                   <div className="text-blue-400 ml-2">
                     method=&quot;POST&quot;&gt;
@@ -143,7 +143,7 @@ export default function Home() {
                     const response = await fetch(
                   </div>
                   <div className="text-green-400 ml-2">
-                    &apos;https://api.jsonpost.io/submit/your-id/contact&apos;,
+                    &apos;{process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact&apos;,
                   </div>
                   <div className="text-blue-400 ml-2">{`{`}</div>
                   <div className="text-blue-400 ml-4">
@@ -175,7 +175,7 @@ export default function Home() {
                 <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
                   <div className="text-yellow-400">curl -X POST \</div>
                   <div className="text-green-400 ml-2">
-                    https://api.jsonpost.io/submit/your-id/contact \
+                    {process.env.NEXT_PUBLIC_APP_URL}/api/submit/your-id/contact \
                   </div>
                   <div className="text-blue-400 ml-2">
                     -H &quot;Content-Type: application/json&quot; \
