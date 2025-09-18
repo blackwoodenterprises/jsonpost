@@ -46,7 +46,7 @@ export default function RefundPolicy() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">1. Refund Eligibility</h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  We want you to be satisfied with JSONPost. If you're not completely satisfied with our service, 
+                  We want you to be satisfied with JSONPost. If you&rsquo;re not completely satisfied with our service, 
                   you may be eligible for a refund under the conditions outlined in this policy.
                 </p>
               </section>
@@ -54,7 +54,7 @@ export default function RefundPolicy() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">2. 30-Day Money-Back Guarantee</h2>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  We offer a 30-day money-back guarantee for new subscribers. If you're not satisfied with our service 
+                  We offer a 30-day money-back guarantee for new subscribers. If you&rsquo;re not satisfied with our service 
                   within the first 30 days of your subscription, you can request a full refund. This applies to your 
                   first billing cycle only.
                 </p>
