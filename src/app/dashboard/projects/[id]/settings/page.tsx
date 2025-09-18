@@ -1,0 +1,370 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-provider";
+import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Save, Trash2, AlertTriangle } from "lucide-react";
+import Link from "next/link";
+import { DashboardHeader } from "@/components/dashboard/header";
+
+interface Project {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  user_id: string;
+}
+
+export default function ProjectSettingsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.id as string;
+
+  const [project, setProject] = useState<Project | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+  });
+
+  // Delete confirmation
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+
+  const fetchProject = useCallback(async () => {
+    try {
+      const { data: projectData, error: projectError } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
+        .eq("user_id", user?.id)
+        .single();
+
+      if (projectError) throw projectError;
+
+      setProject(projectData);
+      setFormData({
+        name: projectData.name || "",
+        description: projectData.description || "",
+      });
+    } catch (error) {
+      console.error("Error fetching project:", error);
+      router.push("/dashboard");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId, user?.id, router]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (user) {
+      fetchProject();
+    }
+  }, [user, loading, router, fetchProject]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          name: formData.name,
+          description: formData.description,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", projectId);
+
+      if (error) throw error;
+
+      // Update local state
+      setProject((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: formData.name,
+              description: formData.description,
+            }
+          : null
+      );
+
+      // Show success message (you could add a toast here)
+      console.log("Project updated successfully");
+    } catch (error) {
+      console.error("Error updating project:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleteConfirmation !== project?.name) {
+      alert("Please type the project name exactly to confirm deletion.");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Are you absolutely sure? This action cannot be undone and will delete all endpoints and submissions."
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      // Delete project (cascading deletes will handle endpoints and submissions)
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", projectId);
+
+      if (error) throw error;
+
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  if (loading || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user || !project) return null;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <DashboardHeader
+        title="Project Settings"
+        subtitle="Manage your project configuration and settings"
+        actions={
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="flex items-center space-x-2"
+          >
+            <Link href={`/dashboard/projects/${projectId}`}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to {project.name}
+            </Link>
+          </Button>
+        }
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* General Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+              <CardDescription>
+                Update your project&apos;s basic information
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Project Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder="My Project"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
+                    placeholder="Describe your project..."
+                    rows={3}
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isSaving}>
+                    <Save className="h-4 w-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Project Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Project Information</CardTitle>
+              <CardDescription>View your project details</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Project ID</Label>
+                <div className="flex items-center space-x-2">
+                  <Input value={project.id} readOnly className="bg-gray-50" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigator.clipboard.writeText(project.id)}
+                  >
+                    Copy
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label>Created</Label>
+                <Input
+                  value={new Date(project.created_at).toLocaleDateString()}
+                  readOnly
+                  className="bg-gray-50"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* API Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle>API Configuration</CardTitle>
+              <CardDescription>
+                Configure API settings for your project
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Base API URL</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    value={`${
+                      typeof window !== "undefined"
+                        ? window.location.origin
+                        : ""
+                    }/api/submit/${project.id}`}
+                    readOnly
+                    className="bg-gray-50"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        `${
+                          typeof window !== "undefined"
+                            ? window.location.origin
+                            : ""
+                        }/api/submit/${project.id}`
+                      )
+                    }
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  Append your endpoint path to this URL to create API endpoints
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Danger Zone */}
+          <Card className="border-red-200">
+            <CardHeader>
+              <CardTitle className="text-red-600 flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                Danger Zone
+              </CardTitle>
+              <CardDescription>
+                Irreversible and destructive actions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-red-50 p-4 rounded-lg">
+                <h4 className="font-medium text-red-800 mb-2">
+                  Delete Project
+                </h4>
+                <p className="text-sm text-red-700 mb-4">
+                  Once you delete a project, there is no going back. This will
+                  permanently delete:
+                </p>
+                <ul className="text-sm text-red-700 list-disc list-inside mb-4 space-y-1">
+                  <li>All endpoints in this project</li>
+                  <li>All form submissions</li>
+                  <li>All project data and settings</li>
+                </ul>
+                <div className="space-y-3">
+                  <div>
+                    <Label
+                      htmlFor="delete-confirmation"
+                      className="text-red-800"
+                    >
+                      Type &quot;{project.name}&quot; to confirm deletion
+                    </Label>
+                    <Input
+                      id="delete-confirmation"
+                      value={deleteConfirmation}
+                      onChange={(e) => setDeleteConfirmation(e.target.value)}
+                      placeholder={project.name}
+                      className="border-red-300 focus:border-red-500 focus:ring-red-500"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={deleteConfirmation !== project.name || isDeleting}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {isDeleting ? "Deleting..." : "Delete Project"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
