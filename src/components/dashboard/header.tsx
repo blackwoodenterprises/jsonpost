@@ -73,7 +73,9 @@ export function DashboardHeader({
                 <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                      {user?.email}
+                      <div className="truncate" title={user?.email}>
+                        {user?.email}
+                      </div>
                     </div>
                     <Link
                       href="/dashboard"
