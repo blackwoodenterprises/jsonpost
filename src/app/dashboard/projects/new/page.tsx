@@ -50,31 +50,7 @@ export default function NewProjectPage() {
     }
 
     try {
-      // First, ensure the user profile exists
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("id", user.id)
-        .single();
-
-      // If profile doesn't exist, create it
-      if (!existingProfile) {
-        const { error: profileError } = await supabase.from("profiles").insert([
-          {
-            id: user.id,
-            email: user.email || "",
-            full_name: user.user_metadata?.full_name || null,
-          },
-        ]);
-
-        if (profileError) {
-          setError("Failed to create user profile: " + profileError.message);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Now create the project
+      // Create the project (user profile is automatically created by database trigger)
       const { data, error } = await supabase
         .from("projects")
         .insert([

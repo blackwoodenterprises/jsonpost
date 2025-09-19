@@ -67,9 +67,14 @@ export type Database = {
           description: string | null
           project_id: string
           endpoint_key: string
+          method: string
+          path: string
           allowed_domains: string[] | null
           email_notifications: string[] | null
           webhook_url: string | null
+          redirect_url: string | null
+          success_message: string
+          error_message: string
           store_submissions: boolean
           spam_protection: boolean
           created_at: string
@@ -81,9 +86,14 @@ export type Database = {
           description?: string | null
           project_id: string
           endpoint_key?: string
+          method?: string
+          path: string
           allowed_domains?: string[] | null
           email_notifications?: string[] | null
           webhook_url?: string | null
+          redirect_url?: string | null
+          success_message?: string
+          error_message?: string
           store_submissions?: boolean
           spam_protection?: boolean
           created_at?: string
@@ -95,9 +105,14 @@ export type Database = {
           description?: string | null
           project_id?: string
           endpoint_key?: string
+          method?: string
+          path?: string
           allowed_domains?: string[] | null
           email_notifications?: string[] | null
           webhook_url?: string | null
+          redirect_url?: string | null
+          success_message?: string
+          error_message?: string
           store_submissions?: boolean
           spam_protection?: boolean
           created_at?: string
