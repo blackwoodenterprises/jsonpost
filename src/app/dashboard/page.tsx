@@ -14,7 +14,11 @@ import {
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { LoadingPage, LoadingCard } from "@/components/ui/loading";
-import { DashboardSkeleton, DashboardStatsCardSkeleton, ProjectCardSkeleton } from "@/components/ui/skeleton";
+import {
+  DashboardSkeleton,
+  DashboardStatsCardSkeleton,
+  ProjectCardSkeleton,
+} from "@/components/ui/skeleton";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Plus, FolderOpen, Globe, Mail, ChevronRight } from "lucide-react";
 

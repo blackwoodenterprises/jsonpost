@@ -240,7 +240,7 @@ export default function EditEndpointPage() {
           <Link
             href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}
           >
-            <Button variant="outline" size="sm" className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <Button variant="outline" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Endpoint Details
             </Button>

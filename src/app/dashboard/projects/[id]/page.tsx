@@ -375,7 +375,7 @@ export default function ProjectPage() {
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                              {endpoint.method || 'POST'}
+                              {endpoint.method || "POST"}
                             </span>
                             <ExternalLink className="h-4 w-4 text-gray-400" />
                           </div>
@@ -402,7 +402,10 @@ export default function ProjectPage() {
                                 </span>
                               </div>
                               <div className="text-xs text-gray-500">
-                                Created {new Date(endpoint.created_at).toLocaleDateString()}
+                                Created{" "}
+                                {new Date(
+                                  endpoint.created_at
+                                ).toLocaleDateString()}
                               </div>
                             </div>
                             <div className="text-xs text-blue-600 font-medium">
