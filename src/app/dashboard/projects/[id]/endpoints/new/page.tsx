@@ -208,7 +208,7 @@ export default function NewEndpointPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardHeader
         title="Create New Endpoint"
         subtitle="Set up a new form endpoint to collect submissions"

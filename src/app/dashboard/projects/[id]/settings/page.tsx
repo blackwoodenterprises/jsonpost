@@ -169,7 +169,7 @@ export default function ProjectSettingsPage() {
   if (!user || !project) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardHeader
         title="Project Settings"
         subtitle="Manage your project configuration and settings"

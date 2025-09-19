@@ -206,7 +206,7 @@ export default function EndpointDetailsPage() {
   }/api/submit/${projectId}/${endpoint.path}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardHeader
         title={endpoint.name}
         subtitle={endpoint.description}
@@ -285,7 +285,7 @@ export default function EndpointDetailsPage() {
                     <label className="text-sm font-medium text-gray-500">
                       Path
                     </label>
-                    <div className="mt-1 text-sm text-gray-900">
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                       {endpoint.path}
                     </div>
                   </div>
@@ -299,7 +299,7 @@ export default function EndpointDetailsPage() {
                     <Input
                       value={endpointUrl}
                       readOnly
-                      className="flex-1 font-mono text-sm bg-gray-50 border-gray-200"
+                      className="flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
                     />
                     <Button
                       size="sm"
@@ -411,7 +411,7 @@ export default function EndpointDetailsPage() {
                     <label className="text-sm font-medium text-gray-500">
                       Redirect URL
                     </label>
-                    <div className="mt-1 text-sm text-gray-900">
+                    <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
                       <a
                         href={endpoint.redirect_url}
                         target="_blank"
@@ -523,7 +523,7 @@ export default function EndpointDetailsPage() {
                   <label className="text-sm font-medium text-gray-500">
                     Success Message
                   </label>
-                  <div className="mt-1 text-sm text-gray-900 bg-green-50 p-2 rounded">
+                  <div className="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-green-50 dark:bg-green-900/20 p-2 rounded">
                     {endpoint.success_message}
                   </div>
                 </div>
@@ -531,7 +531,7 @@ export default function EndpointDetailsPage() {
                   <label className="text-sm font-medium text-gray-500">
                     Error Message
                   </label>
-                  <div className="mt-1 text-sm text-gray-900 bg-red-50 p-2 rounded">
+                  <div className="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-red-50 dark:bg-red-900/20 p-2 rounded">
                     {endpoint.error_message}
                   </div>
                 </div>
