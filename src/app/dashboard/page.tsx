@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
+import { LoadingPage, LoadingCard } from "@/components/ui/loading";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Plus, FolderOpen, Globe, Mail, ChevronRight } from "lucide-react";
 
@@ -101,11 +102,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingPage title="Loading dashboard..." />;
   }
 
   if (!user) {
@@ -195,18 +192,7 @@ export default function DashboardPage() {
         {loadingProjects ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-                  </div>
-                </CardContent>
-              </Card>
+              <LoadingCard key={i} title="Loading project..." />
             ))}
           </div>
         ) : projects.length === 0 ? (
