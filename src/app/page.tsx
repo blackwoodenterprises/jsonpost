@@ -793,12 +793,12 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
             {Object.values(PLANS).map((plan) => (
-              <Card 
-                key={plan.id} 
+              <Card
+                key={plan.id}
                 className={`relative overflow-visible transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
-                  plan.popular 
-                    ? 'border-2 border-blue-500 shadow-xl bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-800 dark:via-blue-900/20 dark:to-indigo-900/20' 
-                    : 'border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600'
+                  plan.popular
+                    ? "border-2 border-blue-500 shadow-xl bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-800 dark:via-blue-900/20 dark:to-indigo-900/20"
+                    : "border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600"
                 }`}
               >
                 {plan.popular && (
@@ -820,18 +820,28 @@ export default function Home() {
                       <span className="text-2xl">Contact Us</span>
                     ) : (
                       <>
-                        <span className={plan.popular ? 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent' : ''}>
+                        <span
+                          className={
+                            plan.popular
+                              ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                              : ""
+                          }
+                        >
                           {plan.priceDisplay}
                         </span>
-                        {plan.price > 0 && <span className="text-lg font-normal text-gray-500 dark:text-gray-400">/mo</span>}
+                        {plan.price > 0 && (
+                          <span className="text-lg font-normal text-gray-500 dark:text-gray-400">
+                            /mo
+                          </span>
+                        )}
                       </>
                     )}
                   </div>
                   <CardDescription className="text-gray-600 dark:text-gray-300 font-medium">
-                    {plan.id === 'FREE' && '🚀 Perfect for side projects'}
-                    {plan.id === 'PRO' && '📈 For growing projects'}
-                    {plan.id === 'GROWTH' && '🏢 For scaling businesses'}
-                    {plan.id === 'ENTERPRISE' && '🏛️ For large organizations'}
+                    {plan.id === "FREE" && "🚀 Perfect for side projects"}
+                    {plan.id === "PRO" && "📈 For growing projects"}
+                    {plan.id === "GROWTH" && "🏢 For scaling businesses"}
+                    {plan.id === "ENTERPRISE" && "🏛️ For large organizations"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -839,27 +849,35 @@ export default function Home() {
                     {plan.features.slice(0, 4).map((feature, index) => (
                       <li key={index} className="flex items-start">
                         <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                        <span className="text-gray-700 dark:text-gray-300">
+                          {feature}
+                        </span>
                       </li>
                     ))}
                   </ul>
-                  <Button 
+                  <Button
                     className={`w-full py-3 font-semibold transition-all duration-200 ${
-                      plan.popular 
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl' 
-                        : 'border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                      plan.popular
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl"
+                        : "border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                     }`}
-                    variant={plan.popular ? "default" : "outline"} 
+                    variant={plan.popular ? "default" : "outline"}
                     asChild
                   >
                     {plan.contactUs ? (
-                      <Link href="mailto:support@jsonpost.com" className="inline-flex items-center justify-center">
+                      <Link
+                        href="mailto:support@jsonpost.com"
+                        className="inline-flex items-center justify-center"
+                      >
                         <Mail className="w-4 h-4 mr-2" />
                         Contact Sales
                       </Link>
                     ) : (
-                      <Link href="/dashboard/billing" className="inline-flex items-center justify-center">
-                        {plan.id === 'FREE' ? (
+                      <Link
+                        href="/auth/signup"
+                        className="inline-flex items-center justify-center"
+                      >
+                        {plan.id === "FREE" ? (
                           <>
                             <Zap className="w-4 h-4 mr-2" />
                             Start Free
@@ -877,11 +895,15 @@ export default function Home() {
               </Card>
             ))}
           </div>
-          
+
           <div className="text-center mt-12">
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              All plans include SSL encryption, spam protection, and 24/7 support. 
-              <Link href="/dashboard/billing" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+              All plans include SSL encryption, spam protection, and 24/7
+              support.
+              <Link
+                href="/dashboard/billing"
+                className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
+              >
                 Need a custom plan?
               </Link>
             </p>
