@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { LoadingPage, LoadingCard } from "@/components/ui/loading";
+import { DashboardSkeleton, DashboardStatsCardSkeleton, ProjectCardSkeleton } from "@/components/ui/skeleton";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { Plus, FolderOpen, Globe, Mail, ChevronRight } from "lucide-react";
 
@@ -102,7 +103,7 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return <LoadingPage title="Loading dashboard..." />;
+    return <DashboardSkeleton />;
   }
 
   if (!user) {
@@ -128,51 +129,61 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Projects
-              </CardTitle>
-              <FolderOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{projects.length}</div>
-            </CardContent>
-          </Card>
+          {loadingProjects ? (
+            <>
+              <DashboardStatsCardSkeleton />
+              <DashboardStatsCardSkeleton />
+              <DashboardStatsCardSkeleton />
+            </>
+          ) : (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Projects
+                  </CardTitle>
+                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{projects.length}</div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Endpoints
-              </CardTitle>
-              <Globe className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {projects.reduce(
-                  (sum, project) => sum + project.endpoint_count,
-                  0
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Endpoints
+                  </CardTitle>
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {projects.reduce(
+                      (sum, project) => sum + project.endpoint_count,
+                      0
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Submissions
-              </CardTitle>
-              <Mail className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {projects.reduce(
-                  (sum, project) => sum + project.submission_count,
-                  0
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Submissions
+                  </CardTitle>
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {projects.reduce(
+                      (sum, project) => sum + project.submission_count,
+                      0
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
         </div>
 
         {/* Projects Section */}
@@ -191,8 +202,8 @@ export default function DashboardPage() {
         {/* Projects Grid */}
         {loadingProjects ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <LoadingCard key={i} title="Loading project..." />
+            {[...Array(6)].map((_, i) => (
+              <ProjectCardSkeleton key={i} />
             ))}
           </div>
         ) : projects.length === 0 ? (
