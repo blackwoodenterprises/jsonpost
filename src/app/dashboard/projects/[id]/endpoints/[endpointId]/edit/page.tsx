@@ -17,6 +17,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { MultiInput } from "@/components/ui/multi-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -233,7 +240,7 @@ export default function EditEndpointPage() {
           <Link
             href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}
           >
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Endpoint Details
             </Button>
@@ -286,17 +293,22 @@ export default function EditEndpointPage() {
               </div>
               <div>
                 <Label htmlFor="method">HTTP Method</Label>
-                <select
-                  id="method"
+                <Select
                   value={formData.method}
-                  onChange={(e) => handleInputChange("method", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onValueChange={(value: string) =>
+                    handleInputChange("method", value)
+                  }
                 >
-                  <option value="POST">POST</option>
-                  <option value="GET">GET</option>
-                  <option value="PUT">PUT</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="POST">POST</SelectItem>
+                    <SelectItem value="GET">GET</SelectItem>
+                    <SelectItem value="PUT">PUT</SelectItem>
+                    <SelectItem value="PATCH">PATCH</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>

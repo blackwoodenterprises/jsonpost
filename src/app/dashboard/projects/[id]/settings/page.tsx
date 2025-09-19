@@ -178,7 +178,7 @@ export default function ProjectSettingsPage() {
             variant="ghost"
             size="sm"
             asChild
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <Link href={`/dashboard/projects/${projectId}`}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -242,7 +242,7 @@ export default function ProjectSettingsPage() {
               <div>
                 <Label>Project ID</Label>
                 <div className="flex items-center space-x-2">
-                  <Input value={project.id} readOnly className="bg-gray-50" />
+                  <Input value={project.id} readOnly className="bg-gray-50 dark:bg-gray-800" />
                   <Button
                     type="button"
                     variant="outline"
@@ -258,7 +258,7 @@ export default function ProjectSettingsPage() {
                 <Input
                   value={new Date(project.created_at).toLocaleDateString()}
                   readOnly
-                  className="bg-gray-50"
+                  className="bg-gray-50 dark:bg-gray-800"
                 />
               </div>
             </CardContent>
@@ -283,7 +283,7 @@ export default function ProjectSettingsPage() {
                         : ""
                     }/api/submit/${project.id}`}
                     readOnly
-                    className="bg-gray-50"
+                    className="bg-gray-50 dark:bg-gray-800"
                   />
                   <Button
                     type="button"
@@ -302,7 +302,7 @@ export default function ProjectSettingsPage() {
                     Copy
                   </Button>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   Append your endpoint path to this URL to create API endpoints
                 </p>
               </div>
@@ -310,9 +310,9 @@ export default function ProjectSettingsPage() {
           </Card>
 
           {/* Danger Zone */}
-          <Card className="border-red-200">
+          <Card className="border-red-200 dark:border-red-800">
             <CardHeader>
-              <CardTitle className="text-red-600 flex items-center">
+              <CardTitle className="text-red-600 dark:text-red-400 flex items-center">
                 <AlertTriangle className="h-5 w-5 mr-2" />
                 Danger Zone
               </CardTitle>
@@ -321,15 +321,15 @@ export default function ProjectSettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-red-50 p-4 rounded-lg">
-                <h4 className="font-medium text-red-800 mb-2">
+              <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">
                   Delete Project
                 </h4>
-                <p className="text-sm text-red-700 mb-4">
+                <p className="text-sm text-red-700 dark:text-red-300 mb-4">
                   Once you delete a project, there is no going back. This will
                   permanently delete:
                 </p>
-                <ul className="text-sm text-red-700 list-disc list-inside mb-4 space-y-1">
+                <ul className="text-sm text-red-700 dark:text-red-300 list-disc list-inside mb-4 space-y-1">
                   <li>All endpoints in this project</li>
                   <li>All form submissions</li>
                   <li>All project data and settings</li>
@@ -338,7 +338,7 @@ export default function ProjectSettingsPage() {
                   <div>
                     <Label
                       htmlFor="delete-confirmation"
-                      className="text-red-800"
+                      className="text-red-800 dark:text-red-200"
                     >
                       Type &quot;{project.name}&quot; to confirm deletion
                     </Label>
@@ -347,7 +347,7 @@ export default function ProjectSettingsPage() {
                       value={deleteConfirmation}
                       onChange={(e) => setDeleteConfirmation(e.target.value)}
                       placeholder={project.name}
-                      className="border-red-300 focus:border-red-500 focus:ring-red-500"
+                      className="border-red-300 dark:border-red-600 focus:border-red-500 dark:focus:border-red-400 focus:ring-red-500 dark:focus:ring-red-400"
                     />
                   </div>
                   <Button

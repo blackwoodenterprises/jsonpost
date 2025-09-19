@@ -274,7 +274,7 @@ export default function EndpointDetailsPage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       Method
                     </label>
                     <div className="mt-1">
@@ -282,7 +282,7 @@ export default function EndpointDetailsPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       Path
                     </label>
                     <div className="mt-1 text-sm text-gray-900 dark:text-gray-100">
@@ -292,7 +292,7 @@ export default function EndpointDetailsPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500">
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     Endpoint URL
                   </label>
                   <div className="mt-1 flex items-center space-x-2">
@@ -321,7 +321,7 @@ export default function EndpointDetailsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       Email Notifications
                     </label>
                     <div className="mt-1">
@@ -352,8 +352,8 @@ export default function EndpointDetailsPage() {
                 {endpoint.email_addresses && endpoint.email_addresses.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-2 mb-2">
-                      <Mail className="h-4 w-4 text-gray-500" />
-                      <label className="text-sm font-medium text-gray-500">
+                      <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                         Email Addresses ({endpoint.email_addresses.length})
                       </label>
                     </div>
@@ -361,9 +361,9 @@ export default function EndpointDetailsPage() {
                       {endpoint.email_addresses.map((email, index) => (
                         <div
                           key={index}
-                          className="flex items-center space-x-2 p-2 bg-gray-50 rounded-md"
+                          className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
                         >
-                          <code className="flex-1 text-sm font-mono text-gray-700">
+                          <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
                             {email}
                           </code>
                         </div>
@@ -376,8 +376,8 @@ export default function EndpointDetailsPage() {
                 {endpoint.webhook_urls && endpoint.webhook_urls.length > 0 && (
                   <div>
                     <div className="flex items-center space-x-2 mb-2">
-                      <Webhook className="h-4 w-4 text-gray-500" />
-                      <label className="text-sm font-medium text-gray-500">
+                      <Webhook className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
                         Webhook URLs ({endpoint.webhook_urls.length})
                       </label>
                     </div>
@@ -390,7 +390,7 @@ export default function EndpointDetailsPage() {
                           <Input
                             value={url}
                             readOnly
-                            className="flex-1 font-mono text-sm bg-gray-50 border-gray-200"
+                            className="flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
                           />
                           <Button
                             size="sm"
@@ -416,7 +416,7 @@ export default function EndpointDetailsPage() {
                         href={endpoint.redirect_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 inline-flex items-center"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 inline-flex items-center"
                       >
                         {endpoint.redirect_url}
                         <ExternalLink className="h-3 w-3 ml-1" />

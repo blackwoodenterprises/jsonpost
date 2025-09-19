@@ -68,7 +68,7 @@ export function MultiInput({
       <div>
         <Label>{label}</Label>
         {description && (
-          <p className="text-xs text-gray-500 mt-1">{description}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{description}</p>
         )}
       </div>
       
@@ -78,15 +78,15 @@ export function MultiInput({
           {values.map((value, index) => (
             <div
               key={index}
-              className="flex items-center gap-2 p-2 bg-gray-50 rounded-md border"
+              className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-600"
             >
-              <span className="flex-1 text-sm">{value}</span>
+              <span className="flex-1 text-sm text-gray-900 dark:text-gray-100">{value}</span>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={() => removeItem(index)}
-                className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -120,7 +120,7 @@ export function MultiInput({
       )}
 
       {!isValidInput && inputValue.trim() && (
-        <p className="text-xs text-red-600">
+        <p className="text-xs text-red-600 dark:text-red-400">
           {type === "email" 
             ? "Please enter a valid email address" 
             : type === "url" 
@@ -130,7 +130,7 @@ export function MultiInput({
       )}
 
       {values.length >= maxItems && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           Maximum of {maxItems} items allowed
         </p>
       )}
