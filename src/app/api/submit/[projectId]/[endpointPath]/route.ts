@@ -179,6 +179,28 @@ export async function POST(
       )
     }
 
+    // Update monthly submission count for the user
+    const userId = endpoint.project.user.id
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth() + 1 // JavaScript months are 0-indexed
+
+    console.log('Updating monthly submission count for user:', userId, 'Year:', year, 'Month:', month)
+
+    // Use the database function to handle the counting logic
+    const { error: countError } = await supabase.rpc('increment_monthly_submission_count', {
+      p_user_id: userId,
+      p_year: year,
+      p_month: month
+    })
+    
+    if (countError) {
+      console.error('Error updating monthly submission count:', countError)
+      // Don't fail the submission if count update fails, but log it for debugging
+    } else {
+      console.log('Successfully updated monthly submission count')
+    }
+
     // Fetch multiple webhook URLs for this endpoint
     const { data: webhookUrls } = await supabase
       .from('endpoint_webhooks')
