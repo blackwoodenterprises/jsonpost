@@ -18,24 +18,24 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ),
-  title: "JSONPost - Simple Form Backend Service",
+  title: "JSONPost - Headless Form Backend Service",
   description:
-    "A lightweight form backend + automation trigger service for developers and entrepreneurs",
+    "A lightweight form backend + automation trigger service for developers, freelancers and entrepreneurs",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
   openGraph: {
-    title: "JSONPost - Simple Form Backend Service",
+    title: "JSONPost - Headless Form Backend Service",
     description:
-      "A lightweight form backend + automation trigger service for developers and entrepreneurs",
+      "A lightweight form backend + automation trigger service for developers, freelancers and entrepreneurs",
     images: [
       {
         url: "/ogimage.png",
         width: 1700,
         height: 1022,
-        alt: "JSONPost - Simple Form Backend Service",
+        alt: "JSONPost - Headless Form Backend Service",
       },
     ],
     type: "website",
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "JSONPost - Simple Form Backend Service",
+    title: "JSONPost - Headless Form Backend Service",
     description:
-      "A lightweight form backend + automation trigger service for developers and entrepreneurs",
+      "A lightweight form backend + automation trigger service for developers, freelancers and entrepreneurs",
     images: ["/ogimage.png"],
   },
 };

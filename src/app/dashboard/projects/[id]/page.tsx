@@ -146,58 +146,67 @@ export default function ProjectPage() {
         setEndpoints(endpointsWithCounts);
       }
 
-      // Fetch recent submissions
-      const { data: submissionsData, error: submissionsError } = await supabase
-        .from("submissions")
-        .select(
+      // Fetch recent submissions - first get endpoints for this project, then get submissions
+      const { data: projectEndpoints } = await supabase
+        .from("endpoints")
+        .select("id")
+        .eq("project_id", projectId);
+
+      if (projectEndpoints && projectEndpoints.length > 0) {
+        const endpointIds = projectEndpoints.map(ep => ep.id);
+        
+        const { data: submissionsData, error: submissionsError } = await supabase
+          .from("submissions")
+          .select(
+            `
+            id,
+            data,
+            created_at,
+            endpoints!submissions_endpoint_id_fkey(
+              name,
+              path,
+              project_id
+            )
           `
-          id,
-          data,
-          created_at,
-          endpoints!submissions_endpoint_id_fkey(
-            name,
-            path,
-            project_id
           )
-        `
-        )
-        .eq("endpoints.project_id", projectId)
-        .order("created_at", { ascending: false })
-        .limit(5);
+          .in("endpoint_id", endpointIds)
+          .order("created_at", { ascending: false })
+          .limit(5);
 
       console.log("Submissions query result:", {
-        submissionsData,
-        submissionsError,
-      });
-
-      if (!submissionsError && submissionsData) {
-        console.log("Raw submissions data:", submissionsData);
-
-        // Transform the data to match our interface
-        const transformedSubmissions = submissionsData.map((submission) => {
-          console.log("Processing submission:", submission);
-          console.log("Submission endpoints:", submission.endpoints);
-
-          return {
-            ...submission,
-            endpoints:
-              submission.endpoints &&
-              typeof submission.endpoints === "object" &&
-              !Array.isArray(submission.endpoints)
-                ? {
-                    name:
-                      (submission.endpoints as { name?: string }).name ||
-                      "Unknown Endpoint",
-                    path:
-                      (submission.endpoints as { path?: string }).path ||
-                      "unknown",
-                  }
-                : { name: "Unknown Endpoint", path: "unknown" },
-          };
+          submissionsData,
+          submissionsError,
         });
 
-        console.log("Transformed submissions:", transformedSubmissions);
-        setRecentSubmissions(transformedSubmissions);
+        if (!submissionsError && submissionsData) {
+          console.log("Raw submissions data:", submissionsData);
+
+          // Transform the data to match our interface
+          const transformedSubmissions = submissionsData.map((submission) => {
+            console.log("Processing submission:", submission);
+            console.log("Submission endpoints:", submission.endpoints);
+
+            return {
+              ...submission,
+              endpoints:
+                submission.endpoints &&
+                typeof submission.endpoints === "object" &&
+                !Array.isArray(submission.endpoints)
+                  ? {
+                      name:
+                        (submission.endpoints as { name?: string }).name ||
+                        "Unknown Endpoint",
+                      path:
+                        (submission.endpoints as { path?: string }).path ||
+                        "unknown",
+                    }
+                  : { name: "Unknown Endpoint", path: "unknown" },
+            };
+          });
+
+          console.log("Transformed submissions:", transformedSubmissions);
+          setRecentSubmissions(transformedSubmissions);
+        }
       }
     } catch {
       setError("Failed to load project data");

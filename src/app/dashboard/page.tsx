@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
-import { LoadingPage, LoadingCard } from "@/components/ui/loading";
 import {
   DashboardSkeleton,
   DashboardStatsCardSkeleton,

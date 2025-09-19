@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-import { Badge } from '@/components/ui/badge'
 import { DashboardHeader } from '@/components/dashboard/header'
 import { useAuth } from '@/components/auth/auth-provider'
 import { User, Settings, Bell, Shield, Mail } from 'lucide-react'

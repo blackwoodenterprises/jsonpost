@@ -53,10 +53,10 @@ export function DashboardHeader({
             {/* User Menu */}
             <div className="relative">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex items-center space-x-2 text-gray-700 dark:text-gray-300"
+                className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
                   <span className="text-sm font-medium">
@@ -81,6 +81,13 @@ export function DashboardHeader({
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Dashboard
+                    </Link>
+                    <Link
+                      href="/dashboard/billing"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Billing & Usage
                     </Link>
                     <Link
                       href="/dashboard/profile"

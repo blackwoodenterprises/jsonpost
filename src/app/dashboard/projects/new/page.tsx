@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,11 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
+import { canCreateProject } from "@/lib/billing";
+import { UpgradeModal } from "@/components/upgrade-modal";
 import { ArrowLeft, FolderPlus } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/header";
+import type { LimitCheckResult } from "@/lib/billing";
 
 export default function NewProjectPage() {
   const { user } = useAuth();
@@ -27,7 +30,28 @@ export default function NewProjectPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [limitResult, setLimitResult] = useState<LimitCheckResult | null>(null);
   const router = useRouter();
+
+  // Check project limits on component mount
+  useEffect(() => {
+    const checkLimits = async () => {
+      if (user) {
+        try {
+          const result = await canCreateProject(user.id);
+          setLimitResult(result);
+          if (!result.allowed) {
+            setShowUpgradeModal(true);
+          }
+        } catch (error) {
+          console.error("Error checking project limits:", error);
+        }
+      }
+    };
+
+    checkLimits();
+  }, [user]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -50,6 +74,15 @@ export default function NewProjectPage() {
     }
 
     try {
+      // Double-check limits before creating
+      const limitCheck = await canCreateProject(user.id);
+      if (!limitCheck.allowed) {
+        setLimitResult(limitCheck);
+        setShowUpgradeModal(true);
+        setLoading(false);
+        return;
+      }
+
       // Create the project (user profile is automatically created by database trigger)
       const { data, error } = await supabase
         .from("projects")
@@ -210,6 +243,16 @@ export default function NewProjectPage() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Upgrade Modal */}
+      {limitResult && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          limitType="projects"
+          limitResult={limitResult}
+        />
+      )}
     </div>
   );
 }

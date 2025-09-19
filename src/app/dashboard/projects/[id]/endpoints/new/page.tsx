@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
+import { canCreateEndpoint } from "@/lib/billing";
+import { UpgradeModal } from "@/components/upgrade-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +29,7 @@ import { MultiInput } from "@/components/ui/multi-input";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
+import type { LimitCheckResult } from "@/lib/billing";
 
 interface Project {
   id: string;
@@ -78,6 +81,8 @@ export default function NewEndpointPage() {
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
+  const [limitResult, setLimitResult] = useState<LimitCheckResult | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -119,7 +124,21 @@ export default function NewEndpointPage() {
         }
       };
 
+      const checkLimits = async () => {
+        try {
+          const result = await canCreateEndpoint(user.id);
+          setLimitResult(result);
+
+          if (!result.allowed) {
+            setShowUpgradeModal(true);
+          }
+        } catch (error) {
+          console.error("Error checking endpoint limits:", error);
+        }
+      };
+
       fetchProject();
+      checkLimits();
     }
   }, [user, loading, projectId, router]);
 
@@ -129,6 +148,17 @@ export default function NewEndpointPage() {
     setError("");
 
     try {
+      // Double-check limits before creating endpoint
+      if (user) {
+        const limitCheck = await canCreateEndpoint(user.id);
+      if (!limitCheck.allowed) {
+          setLimitResult(limitCheck);
+          setShowUpgradeModal(true);
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Generate endpoint path if not provided
       const endpointPath =
         formData.path || formData.name.toLowerCase().replace(/\s+/g, "-");
@@ -143,7 +173,8 @@ export default function NewEndpointPage() {
           method: formData.method,
           path: endpointPath,
           email_notifications: formData.email_notifications,
-          webhook_url: formData.webhook_urls.length > 0 ? formData.webhook_urls[0] : null, // Keep backward compatibility
+          webhook_url:
+            formData.webhook_urls.length > 0 ? formData.webhook_urls[0] : null, // Keep backward compatibility
           redirect_url: formData.redirect_url || null,
           success_message: formData.success_message,
           error_message: formData.error_message,
@@ -157,7 +188,7 @@ export default function NewEndpointPage() {
 
       // Insert multiple email addresses if any
       if (formData.email_addresses.length > 0) {
-        const emailInserts = formData.email_addresses.map(email => ({
+        const emailInserts = formData.email_addresses.map((email) => ({
           endpoint_id: endpoint.id,
           email_address: email,
           is_active: true,
@@ -172,7 +203,7 @@ export default function NewEndpointPage() {
 
       // Insert multiple webhook URLs if any
       if (formData.webhook_urls.length > 0) {
-        const webhookInserts = formData.webhook_urls.map(url => ({
+        const webhookInserts = formData.webhook_urls.map((url) => ({
           endpoint_id: endpoint.id,
           webhook_url: url,
           is_active: true,
@@ -370,7 +401,7 @@ export default function NewEndpointPage() {
                   }
                 />
               </div>
-              
+
               {formData.email_notifications && (
                 <div>
                   <MultiInput
@@ -439,6 +470,16 @@ export default function NewEndpointPage() {
           </div>
         </form>
       </div>
+
+      {/* Upgrade Modal */}
+      {limitResult && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          limitType="endpoints"
+          limitResult={limitResult}
+        />
+      )}
     </div>
   );
 }
