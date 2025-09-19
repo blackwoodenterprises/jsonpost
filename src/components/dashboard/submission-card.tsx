@@ -43,7 +43,7 @@ function createSubmissionExcerpt(
       return jsonString;
     }
     return jsonString.substring(0, maxLength) + "...";
-  } catch (error) {
+  } catch {
     return "Invalid JSON data";
   }
 }

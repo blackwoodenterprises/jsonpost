@@ -20,7 +20,6 @@ import {
   Globe,
   Mail,
   Settings,
-  Copy,
   ExternalLink,
 } from "lucide-react";
 
@@ -212,12 +211,6 @@ export default function ProjectPage() {
       fetchProjectData();
     }
   }, [user, projectId, fetchProjectData]);
-
-  const copyEndpointUrl = (path: string) => {
-    const url = `${window.location.origin}/api/submit/${projectId}/${path}`;
-    navigator.clipboard.writeText(url);
-    // You could add a toast notification here
-  };
 
   if (loading) {
     return (

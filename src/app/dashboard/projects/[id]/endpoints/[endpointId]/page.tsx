@@ -14,8 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +29,6 @@ import {
   ExternalLink,
   Settings,
   Trash2,
-  Plus,
   Eye,
   Edit,
   Mail,
