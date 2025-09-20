@@ -3,8 +3,8 @@ import { Code } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <footer className="bg-gray-900 text-white py-12">
+      <div className="container mx-auto max-w-6xl px-4">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
