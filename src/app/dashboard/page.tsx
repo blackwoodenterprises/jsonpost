@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,15 +11,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
+import {
+  getUserUsage,
+  getUserProfile,
+  type UserUsage,
+  type UserProfile,
+} from "@/lib/billing";
+import {
+  PLANS,
+  getPlanById,
+  getUsagePercentage,
+} from "@/lib/plans";
 import {
   DashboardSkeleton,
   DashboardStatsCardSkeleton,
   ProjectCardSkeleton,
 } from "@/components/ui/skeleton";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { Plus, FolderOpen, Globe, Mail, ChevronRight } from "lucide-react";
+import { Plus, FolderOpen, Globe, Mail, ChevronRight, TrendingUp } from "lucide-react";
 
 interface Project {
   id: string;
@@ -35,6 +47,27 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const router = useRouter();
+  const [usage, setUsage] = useState<UserUsage | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [usageLoading, setUsageLoading] = useState(true);
+
+  const fetchUsageData = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      setUsageLoading(true);
+      const [usageData, profileData] = await Promise.all([
+        getUserUsage(user.id),
+        getUserProfile(user.id),
+      ]);
+      setUsage(usageData);
+      setProfile(profileData);
+    } catch (err) {
+      console.error("Error fetching usage data:", err);
+    } finally {
+      setUsageLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -45,8 +78,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (user) {
       fetchProjects();
+      fetchUsageData();
     }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, fetchUsageData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProjects = async () => {
     try {
@@ -130,9 +164,9 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Stats */}
+        {/* Current Usage */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {loadingProjects ? (
+          {usageLoading || !usage || !profile ? (
             <>
               <DashboardStatsCardSkeleton />
               <DashboardStatsCardSkeleton />
@@ -140,49 +174,104 @@ export default function DashboardPage() {
             </>
           ) : (
             <>
+              {/* Projects Usage */}
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Projects
-                  </CardTitle>
-                  <FolderOpen className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{projects.length}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Total Endpoints
-                  </CardTitle>
+                  <CardTitle className="text-sm font-medium">Projects</CardTitle>
                   <Globe className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {projects.reduce(
-                      (sum, project) => sum + project.endpoint_count,
-                      0
-                    )}
+                  <div className="text-2xl font-bold mb-2">
+                    {usage.projects} /{" "}
+                    {getPlanById(profile.plan).limits.projects === Infinity
+                      ? "∞"
+                      : getPlanById(profile.plan).limits.projects}
                   </div>
+                  {getPlanById(profile.plan).limits.projects !== Infinity && (
+                    <Progress 
+                      value={getUsagePercentage(
+                        usage.projects,
+                        getPlanById(profile.plan).limits.projects
+                      )} 
+                      className="mb-2" 
+                    />
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {getPlanById(profile.plan).limits.projects === Infinity
+                      ? "Unlimited projects"
+                      : `${Math.round(getUsagePercentage(
+                          usage.projects,
+                          getPlanById(profile.plan).limits.projects
+                        ))}% of limit used`}
+                  </p>
                 </CardContent>
               </Card>
 
+              {/* Endpoints Usage */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Endpoints</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold mb-2">
+                    {usage.endpoints} /{" "}
+                    {getPlanById(profile.plan).limits.endpoints === Infinity
+                      ? "∞"
+                      : getPlanById(profile.plan).limits.endpoints}
+                  </div>
+                  {getPlanById(profile.plan).limits.endpoints !== Infinity && (
+                    <Progress 
+                      value={getUsagePercentage(
+                        usage.endpoints,
+                        getPlanById(profile.plan).limits.endpoints
+                      )} 
+                      className="mb-2" 
+                    />
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {getPlanById(profile.plan).limits.endpoints === Infinity
+                      ? "Unlimited endpoints"
+                      : `${Math.round(getUsagePercentage(
+                          usage.endpoints,
+                          getPlanById(profile.plan).limits.endpoints
+                        ))}% of limit used`}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Submissions Usage */}
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Total Submissions
+                    Monthly Submissions
                   </CardTitle>
                   <Mail className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {projects.reduce(
-                      (sum, project) => sum + project.submission_count,
-                      0
-                    )}
+                  <div className="text-2xl font-bold mb-2">
+                    {usage.submissions} /{" "}
+                    {getPlanById(profile.plan).limits.submissions === Infinity
+                      ? "∞"
+                      : getPlanById(profile.plan).limits.submissions}
                   </div>
+                  {getPlanById(profile.plan).limits.submissions !== Infinity && (
+                    <Progress 
+                      value={getUsagePercentage(
+                        usage.submissions,
+                        getPlanById(profile.plan).limits.submissions
+                      )} 
+                      className="mb-2" 
+                    />
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {getPlanById(profile.plan).limits.submissions === Infinity
+                      ? "Unlimited submissions"
+                      : `${Math.round(getUsagePercentage(
+                          usage.submissions,
+                          getPlanById(profile.plan).limits.submissions
+                        ))}% of limit used`}
+                  </p>
                 </CardContent>
               </Card>
             </>
