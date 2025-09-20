@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Code } from "lucide-react";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -99,43 +99,66 @@ export default function SignupPage() {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center text-green-600">
-              Check your email
-            </CardTitle>
-            <CardDescription className="text-center">
-              We&apos;ve sent you a confirmation link at{" "}
-              <strong>{formData.email}</strong>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-sm text-center text-muted-foreground">
-              Click the link in the email to activate your account, then you can
-              sign in.
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button asChild className="w-full">
-              <Link href="/auth/login">Go to Sign In</Link>
-            </Button>
-          </CardFooter>
-        </Card>
+        <div className="w-full max-w-md space-y-6">
+          {/* JSONPost Logo */}
+          <div className="text-center">
+            <Link href="/" className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Code className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold">JSONPost</span>
+            </Link>
+          </div>
+          
+          <Card className="w-full">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold text-center text-green-600">
+                Check your email
+              </CardTitle>
+              <CardDescription className="text-center">
+                We&apos;ve sent you a confirmation link at{" "}
+                <strong>{formData.email}</strong>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-sm text-center text-muted-foreground">
+                Click the link in the email to activate your account, then you can
+                sign in.
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full">
+                <Link href="/auth/login">Go to Sign In</Link>
+              </Button>
+            </CardFooter>
+          </Card>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Create an account
-          </CardTitle>
-          <CardDescription className="text-center">
-            Get started with JSONPost today
-          </CardDescription>
-        </CardHeader>
+      <div className="w-full max-w-md space-y-6">
+        {/* JSONPost Logo */}
+        <div className="text-center">
+          <Link href="/" className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Code className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold">JSONPost</span>
+          </Link>
+        </div>
+        
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              Create an account
+            </CardTitle>
+            <CardDescription className="text-center">
+              Get started with JSONPost today
+            </CardDescription>
+          </CardHeader>
         <CardContent className="space-y-4">
           <Button
             variant="outline"
@@ -299,7 +322,8 @@ export default function SignupPage() {
             </Link>
           </div>
         </CardFooter>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

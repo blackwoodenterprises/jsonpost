@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Code } from "lucide-react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -77,15 +77,26 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Welcome back
-          </CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your JSONPost account
-          </CardDescription>
-        </CardHeader>
+      <div className="w-full max-w-md space-y-6">
+        {/* JSONPost Logo */}
+        <div className="text-center">
+          <Link href="/" className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Code className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-bold">JSONPost</span>
+          </Link>
+        </div>
+        
+        <Card className="w-full">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">
+              Welcome back
+            </CardTitle>
+            <CardDescription className="text-center">
+              Sign in to your JSONPost account
+            </CardDescription>
+          </CardHeader>
         <CardContent className="space-y-4">
           <Button
             variant="outline"
@@ -214,7 +225,8 @@ export default function LoginForm() {
             </Link>
           </div>
         </CardFooter>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
