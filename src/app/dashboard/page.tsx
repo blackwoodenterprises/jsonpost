@@ -31,6 +31,7 @@ import {
   ProjectCardSkeleton,
 } from "@/components/ui/skeleton";
 import { DashboardHeader } from "@/components/dashboard/header";
+import { TodaysSubmissions } from "@/components/dashboard/todays-submissions";
 import { Plus, FolderOpen, Globe, Mail, ChevronRight, TrendingUp } from "lucide-react";
 
 interface Project {
@@ -287,13 +288,13 @@ export default function DashboardPage() {
 
         {/* Projects Grid */}
         {loadingProjects ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {[...Array(6)].map((_, i) => (
               <ProjectCardSkeleton key={i} />
             ))}
           </div>
         ) : projects.length === 0 ? (
-          <Card className="text-center py-12">
+          <Card className="text-center py-12 mb-8">
             <CardContent>
               <FolderOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -312,7 +313,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {projects.map((project) => (
               <Card
                 key={project.id}
@@ -351,6 +352,9 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+
+        {/* Today's Submissions Section */}
+        <TodaysSubmissions userId={user.id} />
       </main>
     </div>
   );
