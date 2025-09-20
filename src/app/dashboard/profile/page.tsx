@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -70,6 +71,13 @@ export default function ProfilePage() {
       <DashboardHeader 
         title="Profile & Settings"
         subtitle="Manage your account settings and preferences"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard">
+              Back to Dashboard
+            </Link>
+          </Button>
+        }
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -186,8 +194,10 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-500">Receive updates about your submissions</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  Configure
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard">
+                    Configure
+                  </Link>
                 </Button>
               </div>
 
@@ -201,8 +211,10 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-500">Add an extra layer of security</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  Enable 2FA
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard">
+                    Enable 2FA
+                  </Link>
                 </Button>
               </div>
 
@@ -216,8 +228,10 @@ export default function ProfilePage() {
                     <p className="text-sm text-gray-500">Manage your API access keys</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm">
-                  Manage Keys
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/dashboard">
+                    Manage Keys
+                  </Link>
                 </Button>
               </div>
             </CardContent>

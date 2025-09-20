@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,31 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, Shield } from "lucide-react";
+import { Header } from "@/components/ui/header";
+import { Footer } from "@/components/ui/footer";
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">JSONPost</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" asChild>
-              <Link href="/">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-white dark:bg-gray-900">
+      <Header />
+      
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
@@ -200,6 +181,8 @@ export default function PrivacyPolicy() {
           </CardContent>
         </Card>
       </main>
+      
+      <Footer />
     </div>
   );
 }

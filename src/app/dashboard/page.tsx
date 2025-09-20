@@ -190,16 +190,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Projects Section */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             Your Projects
           </h2>
-          <Button asChild>
-            <Link href="/dashboard/projects/new">
-              <Plus className="h-4 w-4 mr-2" />
-              New Project
-            </Link>
-          </Button>
         </div>
 
         {/* Projects Grid */}

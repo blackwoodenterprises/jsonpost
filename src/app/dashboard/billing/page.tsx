@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useAuth } from "@/components/auth/auth-provider";
 import {
   getUserUsage,
@@ -120,6 +121,13 @@ export default function BillingPage() {
       <DashboardHeader
         title="Billing & Usage"
         subtitle="Manage your subscription and monitor your usage"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard">
+              Back to Dashboard
+            </Link>
+          </Button>
+        }
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -256,18 +264,22 @@ export default function BillingPage() {
                   </ul>
 
                   {plan.contactUs ? (
-                    <Button className="w-full" variant="outline">
-                      Contact Sales
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button className="w-full" variant="outline" asChild>
+                      <Link href="/help" target="_blank" rel="noopener noreferrer">
+                        Contact Sales
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
                     </Button>
                   ) : profile.plan === plan.id ? (
                     <Button className="w-full" variant="outline" disabled>
                       Current Plan
                     </Button>
                   ) : (
-                    <Button className="w-full">
-                      {profile.plan === "FREE" ? "Upgrade" : "Change Plan"}
-                      <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button className="w-full" asChild>
+                      <Link href="/dashboard">
+                        {profile.plan === "FREE" ? "Upgrade" : "Change Plan"}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Link>
                     </Button>
                   )}
                 </CardContent>

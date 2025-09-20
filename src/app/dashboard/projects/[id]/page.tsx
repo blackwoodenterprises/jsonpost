@@ -332,12 +332,6 @@ export default function ProjectPage() {
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 Endpoints
               </h2>
-              <Button asChild size="sm">
-                <Link href={`/dashboard/projects/${projectId}/endpoints/new`}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Endpoint
-                </Link>
-              </Button>
             </div>
 
             {endpoints.length === 0 ? (

@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Header } from "@/components/ui/header";
+import { Footer } from "@/components/ui/footer";
 import { PLANS } from "@/lib/plans";
 import {
   Code,
@@ -39,25 +41,7 @@ import {
 export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Header */}
-      <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Code className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">JSONPost</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/signup">Get Started</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section */}
       <section className="py-16 px-4">
@@ -88,7 +72,7 @@ export default function Home() {
               </Button>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Free tier • No credit card • 100 submissions/month
+              Free tier • No credit card • 50 submissions/month
             </p>
           </div>
         </div>
@@ -866,7 +850,7 @@ export default function Home() {
                   >
                     {plan.contactUs ? (
                       <Link
-                        href="mailto:support@jsonpost.com"
+                        href="/help"
                         className="inline-flex items-center justify-center"
                       >
                         <Mail className="w-4 h-4 mr-2" />
@@ -901,7 +885,7 @@ export default function Home() {
               All plans include SSL encryption, spam protection, and 24/7
               support.
               <Link
-                href="/dashboard/billing"
+                href="/help"
                 className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
               >
                 Need a custom plan?
@@ -926,95 +910,12 @@ export default function Home() {
             </Link>
           </Button>
           <p className="text-blue-200 text-sm mt-4">
-            No credit card required • 100 submissions free
+            No credit card required • 50 submissions free
           </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Code className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">JSONPost</span>
-              </div>
-              <p className="text-gray-400 text-sm">
-                Headless form backend for developers who want to ship fast.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <Link href="#demo" className="hover:text-white">
-                    Examples
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/docs" className="hover:text-white">
-                    Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/status" className="hover:text-white">
-                    Status
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <Link href="/privacy-policy" className="hover:text-white">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms-of-service" className="hover:text-white">
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/refund-policy" className="hover:text-white">
-                    Refund Policy
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li>
-                  <Link href="/help" className="hover:text-white">
-                    Help Center
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="hover:text-white">
-                    Contact
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="mailto:support@jsonpost.io"
-                    className="hover:text-white"
-                  >
-                    Email Support
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
-            <p>&copy; 2024 JSONPost. Built for developers, by developers.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
