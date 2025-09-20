@@ -21,7 +21,6 @@ import {
   type UserProfile,
 } from "@/lib/billing";
 import {
-  PLANS,
   getPlanById,
   getUsagePercentage,
 } from "@/lib/plans";

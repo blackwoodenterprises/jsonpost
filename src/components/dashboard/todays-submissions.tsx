@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SubmissionCard } from "./submission-card";
@@ -126,7 +126,7 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
     if (userId) {
       fetchTodaysSubmissions();
     }
-  }, [userId, currentPage, pageSize]);
+  }, [userId, currentPage, pageSize, fetchTodaysSubmissions]);
 
   const handlePageSizeChange = (newPageSize: string) => {
     setPageSize(parseInt(newPageSize));
@@ -146,9 +146,9 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-            <Calendar className="h-6 w-6 mr-2" />
-            Today's Submissions
-          </h2>
+          <Calendar className="h-6 w-6 mr-2" />
+          Today&apos;s Submissions
+        </h2>
         </div>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -170,7 +170,7 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
           <Calendar className="h-6 w-6 mr-2" />
-          Today's Submissions
+          Today&apos;s Submissions
         </h2>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
