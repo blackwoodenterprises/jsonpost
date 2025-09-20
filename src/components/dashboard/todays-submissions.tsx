@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,7 +40,7 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  const fetchTodaysSubmissions = async () => {
+  const fetchTodaysSubmissions = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -120,7 +120,7 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, currentPage, pageSize]);
 
   useEffect(() => {
     if (userId) {
