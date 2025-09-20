@@ -85,6 +85,13 @@ export function DashboardHeader({
                     </div>
                     <div className="py-1">
                       <Link
+                        href="/"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <span>Homepage</span>
+                      </Link>
+                      <Link
                         href="/dashboard"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}

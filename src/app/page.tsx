@@ -813,11 +813,6 @@ export default function Home() {
                         >
                           {plan.priceDisplay}
                         </span>
-                        {plan.price > 0 && (
-                          <span className="text-lg font-normal text-gray-500 dark:text-gray-400">
-                            /mo
-                          </span>
-                        )}
                       </>
                     )}
                   </div>
