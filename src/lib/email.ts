@@ -8,6 +8,13 @@ interface EmailData {
   text?: string
 }
 
+interface FileAttachment {
+  filename: string
+  size: number
+  type: string
+  downloadUrl: string
+}
+
 interface SubmissionEmailData {
   endpointName: string
   projectName: string
@@ -15,6 +22,7 @@ interface SubmissionEmailData {
   submissionId: string
   submittedAt: string
   ipAddress: string
+  fileAttachments?: FileAttachment[]
 }
 
 export class EmailService {
@@ -134,6 +142,48 @@ export class EmailService {
                 </div>
               </div>
 
+              ${data.fileAttachments && data.fileAttachments.length > 0 ? `
+              <!-- File Attachments -->
+              <div style="margin-bottom: 32px;">
+                <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                    <path d="M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59722 21.9983 8.005 21.9983C6.41278 21.9983 4.88583 21.3658 3.76 20.24C2.63417 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63417 12.8758 3.76 11.75L12.95 2.56C13.7006 1.80944 14.7186 1.38755 15.78 1.38755C16.8414 1.38755 17.8594 1.80944 18.61 2.56C19.3606 3.31056 19.7825 4.32856 19.7825 5.39C19.7825 6.45144 19.3606 7.46944 18.61 8.22L9.41 17.41C9.03494 17.7851 8.52556 17.9961 7.995 17.9961C7.46444 17.9961 6.95506 17.7851 6.58 17.41C6.20494 17.0349 5.99389 16.5256 5.99389 15.995C5.99389 15.4644 6.20494 14.9551 6.58 14.58L15.07 6.1" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  File Attachments (${data.fileAttachments.length})
+                </h2>
+                
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px; padding: 20px; border-left: 4px solid #10b981;">
+                  ${data.fileAttachments.map((file, index) => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 0; ${index < data.fileAttachments!.length - 1 ? 'border-bottom: 1px solid #cbd5e1;' : ''}">
+                      <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; opacity: 0.7;">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="14,2 14,8 20,8" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span style="font-weight: 600; color: #1e293b; font-size: 14px;">${file.filename}</span>
+                        </div>
+                        <div style="display: flex; gap: 16px; font-size: 12px; color: #64748b;">
+                          <span>Size: ${(file.size / 1024).toFixed(1)} KB</span>
+                          <span>Type: ${file.type || 'Unknown'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <a href="${file.downloadUrl}" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-weight: 500; font-size: 12px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 4px;">
+                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              ` : ''}
+
               <!-- Submission Data -->
               <div style="margin-bottom: 32px;">
                 <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 18px; font-weight: 600; display: flex; align-items: center;">
@@ -180,6 +230,20 @@ export class EmailService {
 
   private generateSubmissionEmailText(data: SubmissionEmailData): string {
     const prettyJsonData = JSON.stringify(data.submissionData, null, 2)
+    
+    let fileAttachmentsText = ''
+    if (data.fileAttachments && data.fileAttachments.length > 0) {
+      fileAttachmentsText = `
+
+File Attachments (${data.fileAttachments.length}):
+${data.fileAttachments.map((file, index) => 
+  `${index + 1}. ${file.filename}
+   - Size: ${(file.size / 1024).toFixed(1)} KB
+   - Type: ${file.type || 'Unknown'}
+   - Download: ${file.downloadUrl}`
+).join('\n\n')}
+`
+    }
 
     return `
 New Form Submission
@@ -188,7 +252,7 @@ Endpoint: ${data.endpointName}
 Project: ${data.projectName}
 Submitted: ${data.submittedAt}
 IP Address: ${data.ipAddress}
-Submission ID: ${data.submissionId}
+Submission ID: ${data.submissionId}${fileAttachmentsText}
 
 Submission Data:
 ${prettyJsonData}

@@ -81,16 +81,17 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to download file' }, { status: 500 })
     }
 
-    // Convert blob to array buffer
-    const arrayBuffer = await fileData.arrayBuffer()
+    // Create a stream from the blob for better binary handling
+    const stream = fileData.stream()
 
-    // Return the file with appropriate headers
-    return new NextResponse(arrayBuffer, {
+    // Return a streaming response to avoid binary conversion issues
+    return new Response(stream, {
       status: 200,
       headers: {
         'Content-Type': fileRecord.mime_type,
         'Content-Disposition': `attachment; filename="${fileRecord.original_filename}"`,
         'Content-Length': fileRecord.file_size_bytes.toString(),
+        'Cache-Control': 'private, no-cache',
       },
     })
 

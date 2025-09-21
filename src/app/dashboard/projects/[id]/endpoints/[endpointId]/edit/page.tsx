@@ -477,22 +477,41 @@ export default function EditEndpointPage() {
                 />
               </div>
 
-              <div>
-                <MultiInput
-                  label="Allowed Domains (CORS)"
-                  type="text"
-                  values={formData.allowed_domains}
-                  onChange={(domains) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      allowed_domains: domains,
-                    }))
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="cors_enabled">Enable CORS</Label>
+                  <p className="text-sm text-gray-500">
+                    Enable Cross-Origin Resource Sharing for this endpoint
+                  </p>
+                </div>
+                <Switch
+                  id="cors_enabled"
+                  checked={formData.cors_enabled}
+                  onCheckedChange={(checked: boolean) =>
+                    handleInputChange("cors_enabled", checked)
                   }
-                  placeholder="https://example.com"
-                  description="Specify allowed origins for CORS. Leave empty to allow all origins. Supports wildcards (e.g., *.example.com)."
-                  maxItems={20}
                 />
               </div>
+
+              {/* Only show allowed domains input when CORS is enabled */}
+              {formData.cors_enabled && (
+                <div>
+                  <MultiInput
+                    label="Allowed Domains (CORS)"
+                    type="text"
+                    values={formData.allowed_domains}
+                    onChange={(domains) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        allowed_domains: domains,
+                      }))
+                    }
+                    placeholder="https://example.com"
+                    description="Specify allowed origins for CORS. Leave empty to allow all origins. Supports wildcards (e.g., *.example.com)."
+                    maxItems={20}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 

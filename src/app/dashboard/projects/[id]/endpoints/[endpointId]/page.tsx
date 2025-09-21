@@ -65,7 +65,7 @@ interface Endpoint {
   created_at: string;
   email_addresses?: string[];
   webhook_urls?: string[];
-  allowed_domains: string | null;
+  allowed_domains: string[] | null;
   cors_enabled: boolean;
   require_api_key: boolean;
   file_uploads_enabled: boolean;
@@ -573,8 +573,8 @@ export default function EndpointDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Allowed Domains */}
-                  {endpoint.allowed_domains && (
+                  {/* Allowed Domains - Only show when CORS is enabled */}
+                  {endpoint.cors_enabled && (
                     <div className="mt-3">
                       <div className="flex items-center space-x-2 mb-2">
                         <Globe className="h-4 w-4 text-gray-500 dark:text-gray-400" />
@@ -583,18 +583,22 @@ export default function EndpointDetailsPage() {
                         </label>
                       </div>
                       <div className="space-y-2">
-                        {endpoint.allowed_domains
-                          .split(",")
-                          .map((domain, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
-                            >
-                              <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
-                                {domain.trim()}
-                              </code>
-                            </div>
-                          ))}
+                        {endpoint.allowed_domains && Array.isArray(endpoint.allowed_domains) && endpoint.allowed_domains.length > 0
+                          ? endpoint.allowed_domains.map((domain: string, index: number) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
+                                >
+                                  <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
+                                    {domain.trim()}
+                                  </code>
+                                </div>
+                              ))
+                          : (
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                No domains configured
+                              </div>
+                            )}
                       </div>
                     </div>
                   )}

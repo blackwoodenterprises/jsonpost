@@ -205,37 +205,39 @@ export async function POST(
     let submissionData: Record<string, unknown> = {}
     const uploadedFiles: File[] = []
 
+    console.log('Content-Type header:', contentType)
+    console.log('Request method:', request.method)
+    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
+    
+    // Check if request body is readable
+    console.log('Request body locked:', request.bodyUsed)
+    console.log('Request body readable:', request.body?.locked === false)
+
     // Handle different content types
-    if (contentType.includes('application/json')) {
-      // Handle JSON data
-      submissionData = await request.json()
-    } else if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
-      // Handle form data
-      const formData = await request.formData()
-      for (const [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          // Check if file uploads are enabled for this endpoint
-          if (!endpoint.file_uploads_enabled) {
-            const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
-            return createCorsResponse(
-              { error: 'File uploads are not enabled for this endpoint' },
-              400,
-              corsOrigin
-            )
-          }
-          uploadedFiles.push(value)
-        } else {
-          submissionData[key] = value
-        }
-      }
-    } else {
-      // Try to parse as JSON first, then as form data
-      try {
+    try {
+      if (contentType.includes('application/json')) {
+        console.log('Parsing as JSON')
+        // Handle JSON data
         submissionData = await request.json()
-      } catch {
+      } else {
+        // For all other cases (including multipart/form-data, application/x-www-form-urlencoded, or no content-type)
+        // try to parse as FormData first since file uploads require FormData
+        console.log('Attempting to parse as FormData')
+        console.log('Request body status before FormData parsing:', {
+          bodyUsed: request.bodyUsed,
+          bodyLocked: request.body?.locked
+        })
+        
+        // Clone the request before attempting FormData parsing to preserve the body for fallback
+        const clonedRequest = request.clone()
+        
         try {
           const formData = await request.formData()
+          console.log('FormData parsed successfully, processing entries...')
+          
           for (const [key, value] of formData.entries()) {
+            console.log(`Processing FormData entry: ${key}`, typeof value, value instanceof File ? `File: ${value.name}` : value)
+            
             if (value instanceof File) {
               // Check if file uploads are enabled for this endpoint
               if (!endpoint.file_uploads_enabled) {
@@ -251,14 +253,190 @@ export async function POST(
               submissionData[key] = value
             }
           }
-        } catch {
-          return createCorsResponse(
-            { error: 'Invalid request format. Please send JSON or form data.' },
-            400,
-            requestOrigin || '*'
-          )
+          
+          console.log('FormData processing complete:', { 
+            submissionData, 
+            fileCount: uploadedFiles.length,
+            fileNames: uploadedFiles.map(f => f.name)
+          })
+          
+        } catch (formDataError) {
+          console.error('FormData parsing failed:', formDataError)
+          console.error('FormData error details:', {
+            name: (formDataError as Error).name,
+            message: (formDataError as Error).message,
+            stack: (formDataError as Error).stack
+          })
+          
+          // If it's multipart/form-data, try manual parsing as fallback using the cloned request
+          if (contentType.includes('multipart/form-data')) {
+            console.log('Attempting manual multipart parsing as fallback...')
+            
+            try {
+              const boundary = contentType.split('boundary=')[1]
+              if (!boundary) {
+                throw new Error('No boundary found in Content-Type header')
+              }
+              
+              // Use the cloned request for manual parsing
+              const rawBody = await clonedRequest.arrayBuffer()
+              const bodyBytes = new Uint8Array(rawBody)
+              
+              console.log('Manual parsing - Body length:', bodyBytes.length)
+              console.log('Manual parsing - Boundary:', boundary)
+              
+              // Add size limits to prevent memory issues
+              const MAX_BODY_SIZE = 50 * 1024 * 1024 // 50MB
+              const MAX_FILES = 10
+              
+              if (bodyBytes.length > MAX_BODY_SIZE) {
+                return createCorsResponse(
+                  { error: `Request body too large. Maximum size is ${MAX_BODY_SIZE / (1024 * 1024)}MB` },
+                  413,
+                  requestOrigin || '*'
+                )
+              }
+              
+              // Convert to text for boundary splitting (but preserve binary data)
+              const bodyText = new TextDecoder('utf-8', { fatal: false }).decode(bodyBytes)
+              const boundaryBytes = new TextEncoder().encode(`--${boundary}`)
+              
+              // Parse multipart manually using binary approach
+              const parts: Uint8Array[] = []
+              let currentStart = 0
+              
+              // Find boundary positions in the binary data
+              for (let i = 0; i <= bodyBytes.length - boundaryBytes.length; i++) {
+                let match = true
+                for (let j = 0; j < boundaryBytes.length; j++) {
+                  if (bodyBytes[i + j] !== boundaryBytes[j]) {
+                    match = false
+                    break
+                  }
+                }
+                if (match) {
+                  if (currentStart > 0) {
+                    parts.push(bodyBytes.slice(currentStart, i))
+                  }
+                  currentStart = i + boundaryBytes.length
+                  i += boundaryBytes.length - 1 // Skip ahead
+                }
+              }
+              
+              console.log('Manual parsing - Found parts:', parts.length)
+              
+              let fileCount = 0
+              
+              for (const partBytes of parts) {
+                if (partBytes.length === 0) continue
+                
+                // Convert part to text to parse headers
+                const partText = new TextDecoder('utf-8', { fatal: false }).decode(partBytes)
+                const headerEndIndex = partText.indexOf('\r\n\r\n')
+                if (headerEndIndex === -1) continue
+                
+                const headers = partText.substring(0, headerEndIndex)
+                
+                // Parse headers
+                const headerLines = headers.split('\r\n')
+                let name = ''
+                let filename = ''
+                let contentType = ''
+                
+                for (const headerLine of headerLines) {
+                  if (headerLine.includes('Content-Disposition')) {
+                    const nameMatch = headerLine.match(/name="([^"]*)"/)
+                    const filenameMatch = headerLine.match(/filename="([^"]*)"/)
+                    if (nameMatch) name = nameMatch[1]
+                    if (filenameMatch) filename = filenameMatch[1]
+                  } else if (headerLine.includes('Content-Type')) {
+                    contentType = headerLine.split(':')[1].trim()
+                  }
+                }
+                
+                console.log(`Manual parsing - Processing field: ${name}`, { filename, contentType })
+                
+                if (filename) {
+                  // It's a file - extract binary data
+                  fileCount++
+                  
+                  if (fileCount > MAX_FILES) {
+                    return createCorsResponse(
+                      { error: `Too many files. Maximum allowed is ${MAX_FILES} files` },
+                      413,
+                      requestOrigin || '*'
+                    )
+                  }
+                  
+                  if (!endpoint.file_uploads_enabled) {
+                    const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+                    return createCorsResponse(
+                      { error: 'File uploads are not enabled for this endpoint' },
+                      400,
+                      corsOrigin
+                    )
+                  }
+                  
+                  // Extract binary file data (skip headers + \r\n\r\n)
+                  const headerBytesLength = new TextEncoder().encode(headers + '\r\n\r\n').length
+                  const fileData = partBytes.slice(headerBytesLength)
+                  
+                  // Remove trailing \r\n if present
+                  let endIndex = fileData.length
+                  if (endIndex >= 2 && fileData[endIndex - 2] === 13 && fileData[endIndex - 1] === 10) {
+                    endIndex -= 2
+                  }
+                  
+                  const cleanFileData = fileData.slice(0, endIndex)
+                  const file = new File([cleanFileData], filename, { type: contentType })
+                  uploadedFiles.push(file)
+                } else {
+                  // It's a regular field - extract as text
+                  const headerBytesLength = new TextEncoder().encode(headers + '\r\n\r\n').length
+                  const fieldData = partBytes.slice(headerBytesLength)
+                  const fieldValue = new TextDecoder('utf-8').decode(fieldData).replace(/\r\n$/, '')
+                  submissionData[name] = fieldValue
+                }
+              }
+              
+              console.log('Manual parsing successful:', { 
+                submissionData, 
+                fileCount: uploadedFiles.length,
+                fileNames: uploadedFiles.map(f => f.name)
+              })
+              
+            } catch (manualParseError) {
+              console.error('Manual multipart parsing also failed:', manualParseError)
+              return createCorsResponse(
+                { error: 'Failed to parse form data. Please check your request format and ensure files are properly attached.' },
+                400,
+                requestOrigin || '*'
+              )
+            }
+          } else {
+            // For other content types, try JSON as fallback only if the request body hasn't been consumed
+            try {
+              console.log('Attempting JSON fallback after FormData failure')
+              submissionData = await request.json()
+            } catch (jsonError) {
+              console.error('JSON parsing also failed:', jsonError)
+              return createCorsResponse(
+                { error: 'Invalid request format. Please send JSON or properly formatted form data.' },
+                400,
+                requestOrigin || '*'
+              )
+            }
+          }
         }
       }
+    } catch (error) {
+      console.error('Outer parsing error:', error)
+      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      return createCorsResponse(
+        { error: 'Failed to parse request body. Please check your request format.' },
+        400,
+        corsOrigin
+      )
     }
 
     // Validate file uploads if any
@@ -288,7 +466,8 @@ export async function POST(
       const allowedFileTypes = endpoint.allowed_file_types || [
         'image/jpeg', 'image/png', 'image/gif', 'image/webp', 
         'application/pdf', 'text/plain', 'text/csv',
-        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       ]
 
       for (const file of uploadedFiles) {
@@ -506,6 +685,19 @@ export async function POST(
 
     // Send email notifications if enabled
     if (endpoint.email_notifications && emailAddresses && emailAddresses.length > 0) {
+      // Prepare file attachments data for email
+      const fileAttachments = fileUploadRecords.map(fileRecord => {
+        // Generate internal download URL instead of direct Supabase URL
+        const downloadUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/files/${fileRecord.id}/download`
+        
+        return {
+          filename: fileRecord.original_filename,
+          size: fileRecord.file_size_bytes,
+          type: fileRecord.mime_type,
+          downloadUrl: downloadUrl
+        }
+      })
+
       const emailPromises = emailAddresses.map(async (emailConfig) => {
         try {
           await emailService.sendSubmissionNotification(
@@ -516,7 +708,8 @@ export async function POST(
               submissionData,
               submissionId: submission.id,
               submittedAt: new Date(submission.created_at).toLocaleString(),
-              ipAddress: clientIP
+              ipAddress: clientIP,
+              fileAttachments: fileAttachments.length > 0 ? fileAttachments : undefined
             }
           )
 
