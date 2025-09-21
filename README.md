@@ -6,6 +6,7 @@ JSONPost is a headless form backend service that allows developers to create for
 
 - **Instant Form Endpoints**: Create form endpoints in seconds
 - **Multiple Content Types**: Support for JSON, form-data, and URL-encoded submissions
+- **File Upload Support**: Accept and manage file uploads with automatic storage
 - **Email Notifications**: Get notified when forms are submitted
 - **Webhook Integration**: Forward submissions to your own endpoints
 - **Spam Protection**: Built-in spam filtering capabilities
@@ -114,6 +115,7 @@ jsonpost/
 
 ### Features of Form Submission API:
 - **Multiple Content Types**: Supports `application/json`, `multipart/form-data`, and `application/x-www-form-urlencoded`
+- **File Upload Support**: Accept file uploads with configurable size limits and type restrictions
 - **Webhook Integration**: Forwards submissions to configured webhook URLs
 - **Email Notifications**: Sends email notifications when enabled
 - **Spam Protection**: Built-in spam filtering (when enabled)
@@ -156,6 +158,7 @@ The application uses PostgreSQL with the following main tables:
 - **projects** - User projects/workspaces
 - **endpoints** - Form endpoints within projects
 - **submissions** - Form submission data
+- **file_uploads** - File upload metadata and storage information
 
 ### Key Features
 - **Row Level Security (RLS)** - Ensures data isolation between users
@@ -251,6 +254,14 @@ The application is a standard Next.js app and can be deployed to:
 - Any Node.js hosting provider
 
 ## 📊 Key Features Explained
+
+### File Upload System
+- **Automatic Storage**: Files are automatically stored in Supabase Storage
+- **Metadata Tracking**: File information (name, size, type, upload time) is stored in the database
+- **Download Links**: Secure download URLs are generated for accessing uploaded files
+- **Size Limits**: Configurable file size limits per endpoint (10MB free, 50MB pro, 100MB enterprise)
+- **Type Restrictions**: Support for images, documents, archives, and more with configurable restrictions
+- **Security**: Files are scanned and validated before storage
 
 ### Form Submission Flow
 1. User creates a project and endpoint

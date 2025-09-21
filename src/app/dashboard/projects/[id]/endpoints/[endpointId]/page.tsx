@@ -15,6 +15,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -33,11 +40,16 @@ import {
   Edit,
   Mail,
   Webhook,
+  ChevronLeft,
+  ChevronRight,
+  BookOpen,
+  Shield,
+  Globe,
+  FileUp,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
-import { IntegrationExamples } from "@/components/dashboard/integration-examples";
 
 interface Endpoint {
   id: string;
@@ -53,6 +65,13 @@ interface Endpoint {
   created_at: string;
   email_addresses?: string[];
   webhook_urls?: string[];
+  allowed_domains: string | null;
+  cors_enabled: boolean;
+  require_api_key: boolean;
+  file_uploads_enabled: boolean;
+  allowed_file_types: string[] | null;
+  max_file_size_mb: number;
+  max_files_per_submission: number;
 }
 
 interface Project {
@@ -66,6 +85,23 @@ interface Submission {
   ip_address: string;
   user_agent: string;
   created_at: string;
+  endpoints: {
+    id: string;
+    name: string;
+    path: string;
+    project_id: string;
+    projects: {
+      id: string;
+      name: string;
+    };
+  };
+  file_uploads?: Array<{
+    id: string;
+    original_filename: string;
+    file_size_bytes: number;
+    mime_type: string;
+    created_at: string;
+  }>;
 }
 
 export default function EndpointDetailsPage() {
@@ -82,6 +118,13 @@ export default function EndpointDetailsPage() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Pagination state for submissions
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalSubmissions, setTotalSubmissions] = useState(0);
+
+  const totalPages = Math.ceil(totalSubmissions / pageSize);
+
   useEffect(() => {
     if (!loading && !user) {
       router.push(
@@ -93,7 +136,20 @@ export default function EndpointDetailsPage() {
     if (user && projectId && endpointId) {
       fetchData();
     }
-  }, [user, loading, router, projectId, endpointId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, loading, router, projectId, endpointId, currentPage, pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
 
   const fetchData = async () => {
     try {
@@ -122,37 +178,89 @@ export default function EndpointDetailsPage() {
 
       // Fetch email addresses for this endpoint
       const { data: emailAddresses } = await supabase
-        .from('endpoint_emails')
-        .select('email_address')
-        .eq('endpoint_id', endpointId)
-        .eq('is_active', true);
+        .from("endpoint_emails")
+        .select("email_address")
+        .eq("endpoint_id", endpointId)
+        .eq("is_active", true);
 
       // Fetch webhook URLs for this endpoint
       const { data: webhookUrls } = await supabase
-        .from('endpoint_webhooks')
-        .select('webhook_url')
-        .eq('endpoint_id', endpointId)
-        .eq('is_active', true);
+        .from("endpoint_webhooks")
+        .select("webhook_url")
+        .eq("endpoint_id", endpointId)
+        .eq("is_active", true);
 
       // Combine endpoint data with email addresses and webhook URLs
       const endpointWithExtras = {
         ...endpointData,
-        email_addresses: emailAddresses?.map(e => e.email_address) || [],
-        webhook_urls: webhookUrls?.map(w => w.webhook_url) || []
+        email_addresses: emailAddresses?.map((e) => e.email_address) || [],
+        webhook_urls: webhookUrls?.map((w) => w.webhook_url) || [],
       };
 
       setEndpoint(endpointWithExtras);
 
-      // Fetch recent submissions
+      // Fetch recent submissions for this endpoint
+      const { count } = await supabase
+        .from("submissions")
+        .select("*", { count: "exact", head: true })
+        .eq("endpoint_id", endpointId);
+
+      setTotalSubmissions(count || 0);
+
       const { data: submissionsData, error: submissionsError } = await supabase
         .from("submissions")
-        .select("*")
+        .select(
+          `
+          id,
+          data,
+          created_at,
+          ip_address,
+          user_agent,
+          file_uploads(*),
+          endpoints!inner(
+            id,
+            name,
+            path,
+            project_id,
+            projects!inner(
+              id,
+              name
+            )
+          )
+        `
+        )
         .eq("endpoint_id", endpointId)
         .order("created_at", { ascending: false })
-        .limit(10);
+        .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
       if (submissionsError) throw submissionsError;
-      setSubmissions(submissionsData || []);
+
+      // Transform the data to match the expected interface
+      const transformedSubmissions = (submissionsData || []).map(
+        (submission) => ({
+          ...submission,
+          endpoints:
+            Array.isArray(submission.endpoints) &&
+            submission.endpoints.length > 0
+              ? {
+                  ...submission.endpoints[0],
+                  projects:
+                    Array.isArray(submission.endpoints[0].projects) &&
+                    submission.endpoints[0].projects.length > 0
+                      ? submission.endpoints[0].projects[0]
+                      : { id: "", name: "" },
+                }
+              : {
+                  id: "",
+                  name: "",
+                  path: "",
+                  project_id: "",
+                  projects: { id: "", name: "" },
+                },
+        })
+      ) as Submission[];
+
+      setSubmissions(transformedSubmissions);
     } catch (error) {
       console.error("Error fetching data:", error);
       router.push("/dashboard");
@@ -261,9 +369,9 @@ export default function EndpointDetailsPage() {
         }
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="space-y-6">
           {/* Endpoint Configuration */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Endpoint Configuration</CardTitle>
@@ -335,12 +443,10 @@ export default function EndpointDetailsPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-end">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      asChild
-                    >
-                      <Link href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
+                      >
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Configuration
                       </Link>
@@ -349,28 +455,29 @@ export default function EndpointDetailsPage() {
                 </div>
 
                 {/* Email Addresses Section */}
-                {endpoint.email_addresses && endpoint.email_addresses.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Email Addresses ({endpoint.email_addresses.length})
-                      </label>
+                {endpoint.email_addresses &&
+                  endpoint.email_addresses.length > 0 && (
+                    <div>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          Email Addresses ({endpoint.email_addresses.length})
+                        </label>
+                      </div>
+                      <div className="space-y-2">
+                        {endpoint.email_addresses.map((email, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
+                          >
+                            <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
+                              {email}
+                            </code>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      {endpoint.email_addresses.map((email, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
-                        >
-                          <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
-                            {email}
-                          </code>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Webhook URLs Section */}
                 {endpoint.webhook_urls && endpoint.webhook_urls.length > 0 && (
@@ -395,7 +502,7 @@ export default function EndpointDetailsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(url, '_blank')}
+                            onClick={() => window.open(url, "_blank")}
                             className="shrink-0"
                           >
                             <ExternalLink className="h-4 w-4" />
@@ -424,14 +531,167 @@ export default function EndpointDetailsPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Security Settings Section */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Shield className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Security Settings
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        API Key Required
+                      </label>
+                      <div className="mt-1">
+                        <Badge
+                          variant={
+                            endpoint.require_api_key ? "default" : "secondary"
+                          }
+                        >
+                          {endpoint.require_api_key
+                            ? "Required"
+                            : "Not Required"}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        CORS Enabled
+                      </label>
+                      <div className="mt-1">
+                        <Badge
+                          variant={
+                            endpoint.cors_enabled ? "default" : "secondary"
+                          }
+                        >
+                          {endpoint.cors_enabled ? "Enabled" : "Disabled"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Allowed Domains */}
+                  {endpoint.allowed_domains && (
+                    <div className="mt-3">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Globe className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          Allowed Domains
+                        </label>
+                      </div>
+                      <div className="space-y-2">
+                        {endpoint.allowed_domains
+                          .split(",")
+                          .map((domain, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
+                            >
+                              <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
+                                {domain.trim()}
+                              </code>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* File Upload Settings Section */}
+                {endpoint.file_uploads_enabled && (
+                  <div>
+                    <div className="flex items-center space-x-2 mb-3">
+                      <FileUp className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        File Upload Settings
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          Max File Size
+                        </label>
+                        <div className="mt-1">
+                          <Badge variant="secondary">
+                            {endpoint.max_file_size_mb} MB
+                          </Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          Max Files per Submission
+                        </label>
+                        <div className="mt-1">
+                          <Badge variant="secondary">
+                            {endpoint.max_files_per_submission} files
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Allowed File Types */}
+                    {endpoint.allowed_file_types &&
+                      endpoint.allowed_file_types.length > 0 && (
+                        <div className="mt-3">
+                          <label className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 block">
+                            Allowed File Types
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {endpoint.allowed_file_types.map((type, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="text-xs"
+                              >
+                                {type}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Integration Examples */}
-            <IntegrationExamples 
-              endpointUrl={endpointUrl}
-              method={endpoint.method}
-            />
+            {/* Getting Started */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2" />
+                  Getting Started
+                </CardTitle>
+                <CardDescription>
+                  Learn how to integrate this endpoint into your application
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Ready to start collecting form submissions? Check out our
+                    comprehensive documentation to learn how to integrate this
+                    endpoint with your forms.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button asChild className="flex-1">
+                      <Link href="/docs">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        View Documentation
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild className="flex-1">
+                      <Link href="/docs#quick-start">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Quick Start Guide
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Recent Submissions */}
             <Card>
@@ -462,79 +722,82 @@ export default function EndpointDetailsPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {submissions.map((submission) => (
-                      <SubmissionCard
-                        key={submission.id}
-                        submission={submission}
-                        projectId={projectId}
-                        showEndpointInfo={false}
-                        showActions={false}
-                        variant="compact"
-                      />
-                    ))}
-                  </div>
+                  <>
+                    <div className="space-y-4">
+                      {submissions.map((submission) => (
+                        <SubmissionCard
+                          key={submission.id}
+                          submission={submission}
+                          projectId={projectId}
+                          showEndpointInfo={false}
+                          showProjectLink={true}
+                          showActions={true}
+                          variant="default"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalSubmissions > 0 && (
+                      <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-700">Show</span>
+                          <Select
+                            value={pageSize.toString()}
+                            onValueChange={(value) =>
+                              handlePageSizeChange(Number(value))
+                            }
+                          >
+                            <SelectTrigger className="w-20">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="5">5</SelectItem>
+                              <SelectItem value="10">10</SelectItem>
+                              <SelectItem value="25">25</SelectItem>
+                              <SelectItem value="50">50</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <span className="text-sm text-gray-700">
+                            per page
+                          </span>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-700">
+                            Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                            {Math.min(currentPage * pageSize, totalSubmissions)}{" "}
+                            of {totalSubmissions} submissions
+                          </span>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handlePreviousPage}
+                            disabled={currentPage === 1}
+                          >
+                            <ChevronLeft className="h-4 w-4 mr-1" />
+                            Previous
+                          </Button>
+                          <span className="text-sm text-gray-700">
+                            Page {currentPage} of {totalPages}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleNextPage}
+                            disabled={currentPage === totalPages}
+                          >
+                            Next
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Stats</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-2xl font-bold">
-                      {submissions.length}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Total Submissions
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold">
-                      {
-                        submissions.filter((s) => {
-                          const today = new Date();
-                          const submissionDate = new Date(s.created_at);
-                          return (
-                            submissionDate.toDateString() ===
-                            today.toDateString()
-                          );
-                        }).length
-                      }
-                    </div>
-                    <div className="text-sm text-gray-500">Today</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Response Messages</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Success Message
-                  </label>
-                  <div className="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-green-50 dark:bg-green-900/20 p-2 rounded">
-                    {endpoint.success_message}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Error Message
-                  </label>
-                  <div className="mt-1 text-sm text-gray-900 dark:text-gray-100 bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                    {endpoint.error_message}
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>

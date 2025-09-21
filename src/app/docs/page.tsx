@@ -29,6 +29,7 @@ import {
   Server,
   Key,
   Lock,
+  Upload,
 } from "lucide-react";
 
 export default function DocsPage() {
@@ -112,6 +113,13 @@ export default function DocsPage() {
             >
               <Server className="w-5 h-5 mr-3 text-indigo-600" />
               <span>Framework Examples</span>
+            </Link>
+            <Link
+              href="#file-uploads"
+              className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <Upload className="w-5 h-5 mr-3 text-cyan-600" />
+              <span>File Uploads</span>
             </Link>
             <Link
               href="#webhooks"
@@ -1238,6 +1246,514 @@ export default function DocsPage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* File Uploads Section */}
+      <section id="file-uploads" className="py-16 px-4 bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900/20 dark:to-blue-900/20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-4 flex items-center">
+              <Upload className="w-8 h-8 mr-3 text-cyan-600" />
+              File Uploads
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Accept file uploads alongside your form data with automatic storage and management.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Enable File Uploads</CardTitle>
+                <CardDescription>
+                  Configure your endpoints to accept file uploads in your JSONPost dashboard
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-cyan-100 dark:bg-cyan-900 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <span className="text-xs font-bold text-cyan-600">1</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Navigate to endpoint settings</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Go to your project dashboard and select the endpoint you want to configure.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-cyan-100 dark:bg-cyan-900 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <span className="text-xs font-bold text-cyan-600">2</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Enable file uploads</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Toggle the "File Uploads" option to allow file attachments.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="w-6 h-6 bg-cyan-100 dark:bg-cyan-900 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                      <span className="text-xs font-bold text-cyan-600">3</span>
+                    </div>
+                    <div>
+                      <p className="font-medium">Configure limits</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Set maximum file size and allowed file types for security.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>File Upload Limits</CardTitle>
+                <CardDescription>
+                  Understanding file size and type restrictions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <Upload className="w-4 h-4 text-blue-600 mr-2" />
+                      <span className="font-medium text-blue-800 dark:text-blue-200">Maximum File Size</span>
+                    </div>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      Up to 10MB per file (Free tier)<br />
+                      Up to 50MB per file (Pro tier)<br />
+                      Up to 100MB per file (Enterprise tier)
+                    </p>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                    <div className="flex items-center mb-2">
+                      <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                      <span className="font-medium text-green-800 dark:text-green-200">Supported File Types</span>
+                    </div>
+                    <p className="text-sm text-green-700 dark:text-green-300">
+                      Images: JPG, PNG, GIF, WebP<br />
+                      Documents: PDF, DOC, DOCX, TXT<br />
+                      Archives: ZIP, RAR<br />
+                      And many more...
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Code className="w-5 h-5 mr-2" />
+                HTML Form with File Upload
+              </CardTitle>
+              <CardDescription>
+                Create a form that accepts both data and file uploads
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                <div className="text-green-400 mb-2">
+                  &lt;!-- HTML form with file upload --&gt;
+                </div>
+                <div className="text-white">
+                  &lt;form action="https://jsonpost.com/api/submit/your-project-id/contact"
+                </div>
+                <div className="text-white ml-6">
+                  method="POST" enctype="multipart/form-data"&gt;
+                </div>
+                
+                <div className="text-white ml-2 mt-2">
+                  &lt;div&gt;
+                </div>
+                <div className="text-white ml-4">
+                  &lt;label for="name"&gt;Name:&lt;/label&gt;
+                </div>
+                <div className="text-white ml-4">
+                  &lt;input type="text" id="name" name="name" required&gt;
+                </div>
+                <div className="text-white ml-2">
+                  &lt;/div&gt;
+                </div>
+
+                <div className="text-white ml-2 mt-2">
+                  &lt;div&gt;
+                </div>
+                <div className="text-white ml-4">
+                  &lt;label for="email"&gt;Email:&lt;/label&gt;
+                </div>
+                <div className="text-white ml-4">
+                  &lt;input type="email" id="email" name="email" required&gt;
+                </div>
+                <div className="text-white ml-2">
+                  &lt;/div&gt;
+                </div>
+
+                <div className="text-yellow-400 ml-2 mt-2">
+                  &lt;!-- File upload field --&gt;
+                </div>
+                <div className="text-white ml-2">
+                  &lt;div&gt;
+                </div>
+                <div className="text-white ml-4">
+                  &lt;label for="attachment"&gt;Attachment:&lt;/label&gt;
+                </div>
+                <div className="text-yellow-400 ml-4">
+                  &lt;input type="file" id="attachment" name="attachment" 
+                </div>
+                <div className="text-yellow-400 ml-10">
+                  accept=".pdf,.doc,.docx,.jpg,.png" multiple&gt;
+                </div>
+                <div className="text-white ml-2">
+                  &lt;/div&gt;
+                </div>
+
+                <div className="text-white ml-2 mt-2">
+                  &lt;button type="submit"&gt;Submit with Files&lt;/button&gt;
+                </div>
+                <div className="text-white">
+                  &lt;/form&gt;
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Code className="w-5 h-5 mr-2" />
+                JavaScript File Upload
+              </CardTitle>
+              <CardDescription>
+                Upload files programmatically using JavaScript and FormData
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                <div className="text-green-400 mb-2">
+                  // JavaScript file upload with FormData
+                </div>
+                <div className="text-blue-400">const</div> <div className="text-white inline"> uploadForm = </div><div className="text-blue-400 inline">async</div> <div className="text-white inline"> (formElement) =&gt; {`{`}</div>
+                <div className="text-white ml-2">
+                  <div className="text-blue-400 inline">const</div> formData = <div className="text-blue-400 inline">new</div> FormData(formElement);
+                </div>
+                
+                <div className="text-green-400 ml-2 mt-2">
+                  // Add additional data if needed
+                </div>
+                <div className="text-white ml-2">
+                  formData.append(<div className="text-green-300 inline">'timestamp'</div>, <div className="text-blue-400 inline">new</div> Date().toISOString());
+                </div>
+
+                <div className="text-white ml-2 mt-2">
+                  <div className="text-blue-400 inline">try</div> {`{`}
+                </div>
+                <div className="text-white ml-4">
+                  <div className="text-blue-400 inline">const</div> response = <div className="text-blue-400 inline">await</div> fetch(
+                </div>
+                <div className="text-green-300 ml-6">
+                  'https://jsonpost.com/api/submit/your-project-id/contact',
+                </div>
+                <div className="text-white ml-6">
+                  {`{`}
+                </div>
+                <div className="text-white ml-8">
+                  method: <div className="text-green-300 inline">'POST'</div>,
+                </div>
+                <div className="text-yellow-400 ml-8">
+                  // Don't set Content-Type header - let browser set it
+                </div>
+                <div className="text-white ml-8">
+                  body: formData
+                </div>
+                <div className="text-white ml-6">
+                  {`}`}
+                </div>
+                <div className="text-white ml-4">
+                  );
+                </div>
+
+                <div className="text-white ml-4 mt-2">
+                  <div className="text-blue-400 inline">if</div> (response.ok) {`{`}
+                </div>
+                <div className="text-white ml-6">
+                  <div className="text-blue-400 inline">const</div> result = <div className="text-blue-400 inline">await</div> response.json();
+                </div>
+                <div className="text-white ml-6">
+                  console.log(<div className="text-green-300 inline">'Upload successful:'</div>, result);
+                </div>
+                <div className="text-white ml-4">
+                  {`}`} <div className="text-blue-400 inline">else</div> {`{`}
+                </div>
+                <div className="text-red-400 ml-6">
+                  console.error(<div className="text-green-300 inline">'Upload failed'</div>);
+                </div>
+                <div className="text-white ml-4">
+                  {`}`}
+                </div>
+                <div className="text-white ml-2">
+                  {`}`} <div className="text-blue-400 inline">catch</div> (error) {`{`}
+                </div>
+                <div className="text-red-400 ml-4">
+                  console.error(<div className="text-green-300 inline">'Error:'</div>, error);
+                </div>
+                <div className="text-white ml-2">
+                  {`}`}
+                </div>
+                <div className="text-white">
+                  {`}`};
+                </div>
+
+                <div className="text-green-400 mt-4">
+                  // Usage example
+                </div>
+                <div className="text-blue-400">const</div> <div className="text-white inline"> form = document.getElementById(</div><div className="text-green-300 inline">'upload-form'</div><div className="text-white inline">);</div>
+                <div className="text-white">
+                  form.addEventListener(<div className="text-green-300 inline">'submit'</div>, (e) =&gt; {`{`}
+                </div>
+                <div className="text-white ml-2">
+                  e.preventDefault();
+                </div>
+                <div className="text-white ml-2">
+                  uploadForm(form);
+                </div>
+                <div className="text-white">
+                  {`}`});
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Code className="w-5 h-5 mr-2" />
+                React File Upload Component
+              </CardTitle>
+              <CardDescription>
+                A complete React component for handling file uploads
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                <div className="text-blue-400">import</div> <div className="text-white inline"> React, {`{ useState }`} </div><div className="text-blue-400 inline">from</div> <div className="text-green-300 inline">'react'</div><div className="text-white inline">;</div>
+
+                <div className="text-blue-400 mt-4">const</div> <div className="text-white inline"> FileUploadForm = () =&gt; {`{`}</div>
+                <div className="text-white ml-2">
+                  <div className="text-blue-400 inline">const</div> [files, setFiles] = useState(<div className="text-blue-400 inline">null</div>);
+                </div>
+                <div className="text-white ml-2">
+                  <div className="text-blue-400 inline">const</div> [uploading, setUploading] = useState(<div className="text-blue-400 inline">false</div>);
+                </div>
+                <div className="text-white ml-2">
+                  <div className="text-blue-400 inline">const</div> [message, setMessage] = useState(<div className="text-green-300 inline">''</div>);
+                </div>
+
+                <div className="text-white ml-2 mt-4">
+                  <div className="text-blue-400 inline">const</div> handleSubmit = <div className="text-blue-400 inline">async</div> (e) =&gt; {`{`}
+                </div>
+                <div className="text-white ml-4">
+                  e.preventDefault();
+                </div>
+                <div className="text-white ml-4">
+                  setUploading(<div className="text-blue-400 inline">true</div>);
+                </div>
+                <div className="text-white ml-4">
+                  setMessage(<div className="text-green-300 inline">''</div>);
+                </div>
+
+                <div className="text-white ml-4 mt-2">
+                  <div className="text-blue-400 inline">const</div> formData = <div className="text-blue-400 inline">new</div> FormData(e.target);
+                </div>
+
+                <div className="text-white ml-4 mt-2">
+                  <div className="text-blue-400 inline">try</div> {`{`}
+                </div>
+                <div className="text-white ml-6">
+                  <div className="text-blue-400 inline">const</div> response = <div className="text-blue-400 inline">await</div> fetch(
+                </div>
+                <div className="text-green-300 ml-8">
+                  'https://jsonpost.com/api/submit/your-project-id/contact',
+                </div>
+                <div className="text-white ml-8">
+                  {`{ method: 'POST', body: formData }`}
+                </div>
+                <div className="text-white ml-6">
+                  );
+                </div>
+
+                <div className="text-white ml-6 mt-2">
+                  <div className="text-blue-400 inline">if</div> (response.ok) {`{`}
+                </div>
+                <div className="text-white ml-8">
+                  setMessage(<div className="text-green-300 inline">'Files uploaded successfully!'</div>);
+                </div>
+                <div className="text-white ml-8">
+                  e.target.reset();
+                </div>
+                <div className="text-white ml-8">
+                  setFiles(<div className="text-blue-400 inline">null</div>);
+                </div>
+                <div className="text-white ml-6">
+                  {`}`} <div className="text-blue-400 inline">else</div> {`{`}
+                </div>
+                <div className="text-white ml-8">
+                  setMessage(<div className="text-red-400 inline">'Upload failed. Please try again.'</div>);
+                </div>
+                <div className="text-white ml-6">
+                  {`}`}
+                </div>
+                <div className="text-white ml-4">
+                  {`}`} <div className="text-blue-400 inline">catch</div> (error) {`{`}
+                </div>
+                <div className="text-white ml-6">
+                  setMessage(<div className="text-red-400 inline">'Error uploading files.'</div>);
+                </div>
+                <div className="text-white ml-4">
+                  {`}`} <div className="text-blue-400 inline">finally</div> {`{`}
+                </div>
+                <div className="text-white ml-6">
+                  setUploading(<div className="text-blue-400 inline">false</div>);
+                </div>
+                <div className="text-white ml-4">
+                  {`}`}
+                </div>
+                <div className="text-white ml-2">
+                  {`}`};
+                </div>
+
+                <div className="text-white ml-2 mt-4">
+                  <div className="text-blue-400 inline">return</div> (
+                </div>
+                <div className="text-white ml-4">
+                  &lt;form onSubmit={`{handleSubmit}`}&gt;
+                </div>
+                <div className="text-white ml-6">
+                  &lt;input type="text" name="name" placeholder="Your name" required /&gt;
+                </div>
+                <div className="text-white ml-6">
+                  &lt;input type="email" name="email" placeholder="Your email" required /&gt;
+                </div>
+                <div className="text-white ml-6">
+                  &lt;input 
+                </div>
+                <div className="text-white ml-8">
+                  type="file" 
+                </div>
+                <div className="text-white ml-8">
+                  name="files" 
+                </div>
+                <div className="text-white ml-8">
+                  multiple 
+                </div>
+                <div className="text-white ml-8">
+                  onChange={`{(e) => setFiles(e.target.files)}`}
+                </div>
+                <div className="text-white ml-6">
+                  /&gt;
+                </div>
+                <div className="text-white ml-6">
+                  &lt;button type="submit" disabled={`{uploading}`}&gt;
+                </div>
+                <div className="text-white ml-8">
+                  {`{uploading ? 'Uploading...' : 'Submit'}`}
+                </div>
+                <div className="text-white ml-6">
+                  &lt;/button&gt;
+                </div>
+                <div className="text-white ml-6">
+                  {`{message && <p>{message}</p>}`}
+                </div>
+                <div className="text-white ml-4">
+                  &lt;/form&gt;
+                </div>
+                <div className="text-white ml-2">
+                  );
+                </div>
+                <div className="text-white">
+                  {`}`};
+                </div>
+
+                <div className="text-blue-400 mt-4">export default</div> <div className="text-white inline"> FileUploadForm;</div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Info className="w-5 h-5 mr-2" />
+                File Upload Best Practices
+              </CardTitle>
+              <CardDescription>
+                Tips for secure and efficient file uploads
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-blue-800 dark:text-blue-200 mb-1">
+                        Validate File Types
+                      </p>
+                      <p className="text-sm text-blue-700 dark:text-blue-300">
+                        Always specify accepted file types using the `accept` attribute to prevent unwanted uploads.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-green-800 dark:text-green-200 mb-1">
+                        Show Upload Progress
+                      </p>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        Provide visual feedback during uploads, especially for large files.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-yellow-800 dark:text-yellow-200 mb-1">
+                        Handle Errors Gracefully
+                      </p>
+                      <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                        Implement proper error handling for file size limits, network issues, and unsupported formats.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <Lock className="w-5 h-5 text-purple-600 mr-2 mt-0.5" />
+                    <div>
+                      <p className="font-medium text-purple-800 dark:text-purple-200 mb-1">
+                        Security Considerations
+                      </p>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">
+                        JSONPost automatically scans uploaded files for malware and enforces file type restrictions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

@@ -43,6 +43,13 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
+  file_uploads?: Array<{
+    id: string;
+    original_filename: string;
+    file_size_bytes: number;
+    mime_type: string;
+    created_at: string;
+  }>;
 }
 
 interface Endpoint {
@@ -420,6 +427,7 @@ export default function EndpointSubmissionsPage() {
                 submission={submission}
                 projectId={projectId}
                 showEndpointInfo={false}
+                showProjectLink={true}
                 showActions={true}
                 variant="default"
               />

@@ -21,12 +21,25 @@ import {
   Copy,
   CheckCircle,
   XCircle,
+  FileText,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 
 interface SubmissionData {
   [key: string]: unknown;
+}
+
+interface FileUpload {
+  id: string;
+  original_filename: string;
+  stored_filename: string;
+  file_path: string;
+  file_size_bytes: number;
+  mime_type: string;
+  storage_bucket: string;
+  created_at: string;
 }
 
 interface Submission {
@@ -36,6 +49,7 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
+  file_uploads?: FileUpload[];
   endpoints: {
     id: string;
     name: string;
@@ -89,6 +103,7 @@ export default function SubmissionDetailPage() {
         .select(
           `
           *,
+          file_uploads(*),
           endpoints!submissions_endpoint_id_fkey(
             id,
             name,
@@ -166,6 +181,14 @@ export default function SubmissionDetailPage() {
 
   const formatJsonData = (data: unknown) => {
     return JSON.stringify(data, null, 2);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   if (loading || isLoading) {
@@ -252,6 +275,56 @@ export default function SubmissionDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* File Uploads */}
+            {submission.file_uploads && submission.file_uploads.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Uploaded Files ({submission.file_uploads.length})
+                  </CardTitle>
+                  <CardDescription>
+                    Files uploaded with this form submission
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {submission.file_uploads.map((file) => (
+                      <div key={file.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center min-w-0">
+                            <FileText className="h-8 w-8 mr-3 text-gray-500" />
+                            <div className="min-w-0">
+                              <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {file.original_filename}
+                              </h4>
+                              <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                                <span>{formatFileSize(file.file_size_bytes)}</span>
+                                <span>{file.mime_type}</span>
+                                <span>
+                                  Uploaded {new Date(file.created_at).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                          >
+                            <Link href={`/api/files/${file.id}/download`} target="_blank">
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Webhook Logs */}
             <Card>
@@ -425,6 +498,45 @@ export default function SubmissionDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* File Attachments */}
+            {submission.file_uploads && submission.file_uploads.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    File Attachments ({submission.file_uploads.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {submission.file_uploads.map((file) => (
+                    <div key={file.id} className="flex items-center justify-between p-2 border rounded-lg">
+                      <div className="flex items-center min-w-0 flex-1">
+                        <FileText className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {file.original_filename}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {formatFileSize(file.file_size_bytes)}
+                          </div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        asChild
+                        className="ml-2 flex-shrink-0"
+                      >
+                        <Link href={`/api/files/${file.id}/download`} target="_blank">
+                          <Download className="h-3 w-3" />
+                        </Link>
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Quick Actions */}
             <Card>

@@ -162,7 +162,7 @@ export default function ProjectSettingsPage() {
     setIsRegeneratingKey(true);
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .rpc('regenerate_project_api_key', { project_id: projectId });
 
       if (error) throw error;

@@ -15,6 +15,13 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
+  file_uploads?: Array<{
+    id: string;
+    original_filename: string;
+    file_size_bytes: number;
+    mime_type: string;
+    created_at: string;
+  }>;
   endpoints: {
     id: string;
     name: string;
@@ -232,6 +239,7 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
               submission={submission}
               projectId={submission.endpoints.project_id}
               showEndpointInfo={true}
+              showProjectLink={true}
               showActions={true}
               variant="default"
               className="relative"

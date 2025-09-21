@@ -36,6 +36,14 @@ interface SubmissionData {
   [key: string]: unknown;
 }
 
+interface FileUpload {
+  id: string;
+  original_filename: string;
+  file_size_bytes: number;
+  mime_type: string;
+  created_at: string;
+}
+
 interface Submission {
   id: string;
   data: SubmissionData;
@@ -43,6 +51,7 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
+  file_uploads?: FileUpload[];
   endpoints: {
     id: string;
     name: string;
@@ -123,6 +132,7 @@ export default function AllSubmissionsPage() {
         .select(
           `
           *,
+          file_uploads(*),
           endpoints!submissions_endpoint_id_fkey(
             id,
             name,

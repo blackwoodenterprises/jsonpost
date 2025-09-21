@@ -43,6 +43,10 @@ interface Endpoint {
   allowed_domains: string | null;
   cors_enabled: boolean;
   require_api_key: boolean;
+  file_uploads_enabled: boolean;
+  allowed_file_types: string[] | null;
+  max_file_size_mb: number;
+  max_files_per_submission: number;
 }
 
 export default function EditEndpointPage() {
@@ -71,6 +75,10 @@ export default function EditEndpointPage() {
     allowed_domains: [] as string[],
     cors_enabled: false,
     require_api_key: false,
+    file_uploads_enabled: false,
+    allowed_file_types: [] as string[],
+    max_file_size_mb: 10,
+    max_files_per_submission: 5,
   });
 
   useEffect(() => {
@@ -139,6 +147,10 @@ export default function EditEndpointPage() {
         allowed_domains: Array.isArray(endpointData.allowed_domains) ? endpointData.allowed_domains : (endpointData.allowed_domains ? [endpointData.allowed_domains] : []),
         cors_enabled: endpointData.cors_enabled || false,
         require_api_key: endpointData.require_api_key || false,
+        file_uploads_enabled: endpointData.file_uploads_enabled ?? false,
+        allowed_file_types: Array.isArray(endpointData.allowed_file_types) ? endpointData.allowed_file_types : (endpointData.allowed_file_types ? [endpointData.allowed_file_types] : ['image/jpeg', 'image/png', 'application/pdf']),
+        max_file_size_mb: endpointData.max_file_size_mb || 10,
+        max_files_per_submission: endpointData.max_files_per_submission || 5,
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -171,6 +183,10 @@ export default function EditEndpointPage() {
           allowed_domains: formData.allowed_domains.length > 0 ? formData.allowed_domains : null,
           cors_enabled: formData.cors_enabled,
           require_api_key: formData.require_api_key,
+          file_uploads_enabled: formData.file_uploads_enabled,
+          allowed_file_types: formData.allowed_file_types.length > 0 ? formData.allowed_file_types : null,
+          max_file_size_mb: formData.max_file_size_mb,
+          max_files_per_submission: formData.max_files_per_submission,
           updated_at: new Date().toISOString(),
         })
         .eq("id", endpointId);
@@ -230,7 +246,7 @@ export default function EditEndpointPage() {
     }
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | number) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -477,6 +493,143 @@ export default function EditEndpointPage() {
                   maxItems={20}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>File Upload Settings</CardTitle>
+              <CardDescription>
+                Configure file upload options for your endpoint
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="file_uploads_enabled">
+                    Enable File Uploads
+                  </Label>
+                  <p className="text-sm text-gray-500">
+                    Allow users to upload files with their form submissions
+                  </p>
+                </div>
+                <Switch
+                  id="file_uploads_enabled"
+                  checked={formData.file_uploads_enabled}
+                  onCheckedChange={(checked: boolean) =>
+                    handleInputChange("file_uploads_enabled", checked)
+                  }
+                />
+              </div>
+
+              {formData.file_uploads_enabled && (
+                <>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Allowed File Types</Label>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const imageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                            setFormData((prev) => ({
+                              ...prev,
+                              allowed_file_types: [...new Set([...prev.allowed_file_types, ...imageTypes])],
+                            }));
+                          }}
+                        >
+                          + Images
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const docTypes = ['application/pdf', 'text/plain', 'text/csv'];
+                            setFormData((prev) => ({
+                              ...prev,
+                              allowed_file_types: [...new Set([...prev.allowed_file_types, ...docTypes])],
+                            }));
+                          }}
+                        >
+                          + Documents
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const officeTypes = [
+                              'application/msword',
+                              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                              'application/vnd.ms-excel',
+                              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            ];
+                            setFormData((prev) => ({
+                              ...prev,
+                              allowed_file_types: [...new Set([...prev.allowed_file_types, ...officeTypes])],
+                            }));
+                          }}
+                        >
+                          + Office
+                        </Button>
+                      </div>
+                    </div>
+                    <MultiInput
+                      label=""
+                      type="text"
+                      values={formData.allowed_file_types}
+                      onChange={(types) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          allowed_file_types: types,
+                        }))
+                      }
+                      placeholder="image/jpeg"
+                      description="Specify allowed MIME types (e.g., image/jpeg, application/pdf). Leave empty to allow all file types. Use the preset buttons above for common file types."
+                      maxItems={20}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="max_file_size_mb">Max File Size (MB)</Label>
+                      <Input
+                        id="max_file_size_mb"
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={formData.max_file_size_mb}
+                        onChange={(e) =>
+                          handleInputChange("max_file_size_mb", parseInt(e.target.value) || 10)
+                        }
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Maximum size per file (1-100 MB)
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="max_files_per_submission">Max Files per Submission</Label>
+                      <Input
+                        id="max_files_per_submission"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={formData.max_files_per_submission}
+                        onChange={(e) =>
+                          handleInputChange("max_files_per_submission", parseInt(e.target.value) || 5)
+                        }
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Maximum number of files per submission (1-20)
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 

@@ -11,9 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { DashboardHeader } from "@/components/dashboard/header";
+import { SubmissionCard } from "@/components/dashboard/submission-card";
 import {
   ArrowLeft,
   Plus,
@@ -21,6 +29,8 @@ import {
   Mail,
   Settings,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface Project {
@@ -41,47 +51,30 @@ interface Endpoint {
   submission_count: number;
 }
 
-interface SubmissionData {
-  [key: string]: unknown;
-}
-
 interface Submission {
   id: string;
-  endpoint_id?: string;
-  data: SubmissionData;
+  data: Record<string, unknown>;
+  ip_address: string;
+  user_agent: string;
   created_at: string;
+  endpoint_id: string;
+  file_uploads?: Array<{
+    id: string;
+    original_filename: string;
+    file_size_bytes: number;
+    mime_type: string;
+    created_at: string;
+  }>;
   endpoints: {
+    id: string;
     name: string;
     path: string;
+    project_id: string;
+    projects: {
+      id: string;
+      name: string;
+    };
   };
-}
-
-// Helper function to create submission excerpt
-function createSubmissionExcerpt(data: Record<string, unknown>) {
-  const entries = Object.entries(data);
-  const maxEntries = 3;
-  const maxValueLength = 50;
-
-  if (entries.length === 0) {
-    return "No data";
-  }
-
-  const excerpt = entries
-    .slice(0, maxEntries)
-    .map(([key, value]) => {
-      const stringValue =
-        typeof value === "string" ? value : JSON.stringify(value);
-      const truncatedValue =
-        stringValue.length > maxValueLength
-          ? stringValue.substring(0, maxValueLength) + "..."
-          : stringValue;
-
-      return `${key}: ${truncatedValue}`;
-    })
-    .join(", ");
-
-  const remainingCount = entries.length - maxEntries;
-  return remainingCount > 0 ? `${excerpt} (+${remainingCount} more)` : excerpt;
 }
 
 export default function ProjectPage() {
@@ -93,7 +86,14 @@ export default function ProjectPage() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
   const [recentSubmissions, setRecentSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  // Pagination state for submissions
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalSubmissions, setTotalSubmissions] = useState(0);
+
+  const totalPages = Math.ceil(totalSubmissions / pageSize);
 
   const fetchProjectData = useCallback(async () => {
     try {
@@ -153,27 +153,41 @@ export default function ProjectPage() {
         .eq("project_id", projectId);
 
       if (projectEndpoints && projectEndpoints.length > 0) {
-        const endpointIds = projectEndpoints.map(ep => ep.id);
-        
-        const { data: submissionsData, error: submissionsError } = await supabase
+        const endpointIds = projectEndpoints.map((ep) => ep.id);
+
+        // Get total count for pagination
+        const { count } = await supabase
           .from("submissions")
-          .select(
-            `
-            id,
-            data,
-            created_at,
-            endpoints!submissions_endpoint_id_fkey(
+          .select("*", { count: "exact", head: true })
+          .in("endpoint_id", endpointIds);
+
+        setTotalSubmissions(count || 0);
+
+        // Get paginated submissions
+        const { data: submissionsData, error: submissionsError } =
+          await supabase
+            .from("submissions")
+            .select(
+              `
+            *,
+            file_uploads(*),
+            endpoints (
+              id,
               name,
               path,
-              project_id
+              project_id,
+              projects (
+                id,
+                name
+              )
             )
           `
-          )
-          .in("endpoint_id", endpointIds)
-          .order("created_at", { ascending: false })
-          .limit(5);
+            )
+            .in("endpoint_id", endpointIds)
+            .order("created_at", { ascending: false })
+            .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
-      console.log("Submissions query result:", {
+        console.log("Submissions query result:", {
           submissionsData,
           submissionsError,
         });
@@ -213,7 +227,20 @@ export default function ProjectPage() {
     } finally {
       setLoading(false);
     }
-  }, [projectId, user?.id]);
+  }, [projectId, user?.id, currentPage, pageSize]);
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
 
   useEffect(() => {
     if (user && projectId) {
@@ -325,168 +352,216 @@ export default function ProjectPage() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-8">
           {/* Endpoints Section */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Endpoints
-              </h2>
-            </div>
-
-            {endpoints.length === 0 ? (
-              <Card className="text-center py-8">
-                <CardContent>
-                  <Globe className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                    No endpoints yet
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                    Create your first endpoint to start receiving form
-                    submissions
-                  </p>
-                  <Button asChild size="sm">
-                    <Link
-                      href={`/dashboard/projects/${projectId}/endpoints/new`}
+          <Card>
+            <CardHeader>
+              <CardTitle>Endpoints</CardTitle>
+              <CardDescription>Manage your project endpoints</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {endpoints.length === 0 ? (
+                <Card className="text-center py-8">
+                  <CardContent>
+                    <Globe className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                      No endpoints yet
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                      Create your first endpoint to start receiving form
+                      submissions
+                    </p>
+                    <Button asChild size="sm">
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/new`}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Endpoint
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {endpoints.map((endpoint) => (
+                    <Card
+                      key={endpoint.id}
+                      className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500 hover:border-l-blue-600"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Endpoint
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {endpoints.map((endpoint) => (
-                  <Card
-                    key={endpoint.id}
-                    className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-blue-500 hover:border-l-blue-600"
-                  >
-                    <Link
-                      href={`/dashboard/projects/${projectId}/endpoints/${endpoint.id}`}
-                      className="block"
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpoint.id}`}
+                        className="block"
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="flex items-center space-x-2">
+                                <Globe className="h-5 w-5 text-blue-600" />
+                                <CardTitle className="text-lg">
+                                  {endpoint.name}
+                                </CardTitle>
+                              </div>
+                            </div>
                             <div className="flex items-center space-x-2">
-                              <Globe className="h-5 w-5 text-blue-600" />
-                              <CardTitle className="text-lg">
-                                {endpoint.name}
-                              </CardTitle>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                {endpoint.method || "POST"}
+                              </span>
+                              <ExternalLink className="h-4 w-4 text-gray-400" />
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                              {endpoint.method || "POST"}
-                            </span>
-                            <ExternalLink className="h-4 w-4 text-gray-400" />
-                          </div>
-                        </div>
-                        {endpoint.description && (
-                          <CardDescription className="mt-2">
-                            {endpoint.description}
-                          </CardDescription>
-                        )}
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                            <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs font-mono">
-                              {endpoint.path}
-                            </code>
-                          </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex items-center space-x-1">
-                                <Mail className="h-3 w-3 text-gray-500" />
-                                <span className="text-gray-600 dark:text-gray-300">
-                                  {endpoint.submission_count} submissions
-                                </span>
+                          {endpoint.description && (
+                            <CardDescription className="mt-2">
+                              {endpoint.description}
+                            </CardDescription>
+                          )}
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                              <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs font-mono">
+                                {endpoint.path}
+                              </code>
+                            </div>
+                            <div className="flex items-center justify-between text-sm">
+                              <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-1">
+                                  <Mail className="h-3 w-3 text-gray-500" />
+                                  <span className="text-gray-600 dark:text-gray-300">
+                                    {endpoint.submission_count} submissions
+                                  </span>
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Created{" "}
+                                  {new Date(
+                                    endpoint.created_at
+                                  ).toLocaleDateString()}
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-500">
-                                Created{" "}
-                                {new Date(
-                                  endpoint.created_at
-                                ).toLocaleDateString()}
+                              <div className="text-xs text-blue-600 font-medium">
+                                View Details →
                               </div>
                             </div>
-                            <div className="text-xs text-blue-600 font-medium">
-                              View Details →
-                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
+                        </CardContent>
+                      </Link>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Recent Submissions Section */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-              Recent Submissions
-            </h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Submissions</CardTitle>
+              <CardDescription>
+                Latest form submissions across all endpoints
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {recentSubmissions.length === 0 ? (
+                <Card className="text-center py-8">
+                  <CardContent>
+                    <Mail className="h-8 w-8 text-gray-400 mx-auto mb-3" />
+                    <h3 className="font-medium text-gray-900 dark:text-white mb-2">
+                      No submissions yet
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Submissions will appear here once your forms start
+                      receiving data
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    {recentSubmissions.map((submission) => (
+                      <SubmissionCard
+                        key={submission.id}
+                        submission={submission}
+                        projectId={projectId}
+                        showEndpointInfo={true}
+                        showProjectLink={false}
+                        showActions={true}
+                        variant="default"
+                        className="relative"
+                      />
+                    ))}
+                  </div>
 
-            {recentSubmissions.length === 0 ? (
-              <Card className="text-center py-8">
-                <CardContent>
-                  <Mail className="h-8 w-8 text-gray-400 mx-auto mb-3" />
-                  <h3 className="font-medium text-gray-900 dark:text-white mb-2">
-                    No submissions yet
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Submissions will appear here once your forms start receiving
-                    data
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {recentSubmissions.map((submission) => (
-                  <Card
-                    key={submission.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                  >
-                    <Link
-                      href={`/dashboard/projects/${projectId}/submissions/${submission.id}`}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-sm font-medium">
-                            {submission.endpoints?.name || "Unknown Endpoint"}
-                          </CardTitle>
-                          <span className="text-xs text-gray-500">
-                            {new Date(submission.created_at).toLocaleString()}
+                  {/* Pagination Controls */}
+                  {totalSubmissions > 0 && (
+                    <div className="flex items-center justify-between pt-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            Show:
                           </span>
+                          <Select
+                            value={pageSize.toString()}
+                            onValueChange={(value) =>
+                              handlePageSizeChange(Number(value))
+                            }
+                          >
+                            <SelectTrigger className="w-20">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="10">10</SelectItem>
+                              <SelectItem value="25">25</SelectItem>
+                              <SelectItem value="100">100</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded p-3">
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
-                            {createSubmissionExcerpt(submission.data)}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-2">
-                            Click to view full details
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))}
+                        {totalPages > 1 && (
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handlePreviousPage}
+                              disabled={currentPage === 1}
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                              Page {currentPage} of {totalPages}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleNextPage}
+                              disabled={currentPage === totalPages}
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
 
-                <div className="text-center">
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/dashboard/projects/${projectId}/submissions`}>
-                      View All Submissions
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+                      {totalPages > 1 && (
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          Showing {(currentPage - 1) * pageSize + 1} to{" "}
+                          {Math.min(currentPage * pageSize, totalSubmissions)}{" "}
+                          of {totalSubmissions} submissions
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="text-center mt-4">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/submissions`}
+                      >
+                        View All Submissions
+                      </Link>
+                    </Button>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

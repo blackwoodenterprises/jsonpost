@@ -203,6 +203,7 @@ export async function POST(
 
     const contentType = request.headers.get('content-type') || ''
     let submissionData: Record<string, unknown> = {}
+    const uploadedFiles: File[] = []
 
     // Handle different content types
     if (contentType.includes('application/json')) {
@@ -212,7 +213,20 @@ export async function POST(
       // Handle form data
       const formData = await request.formData()
       for (const [key, value] of formData.entries()) {
-        submissionData[key] = value
+        if (value instanceof File) {
+          // Check if file uploads are enabled for this endpoint
+          if (!endpoint.file_uploads_enabled) {
+            const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+            return createCorsResponse(
+              { error: 'File uploads are not enabled for this endpoint' },
+              400,
+              corsOrigin
+            )
+          }
+          uploadedFiles.push(value)
+        } else {
+          submissionData[key] = value
+        }
       }
     } else {
       // Try to parse as JSON first, then as form data
@@ -222,13 +236,77 @@ export async function POST(
         try {
           const formData = await request.formData()
           for (const [key, value] of formData.entries()) {
-            submissionData[key] = value
+            if (value instanceof File) {
+              // Check if file uploads are enabled for this endpoint
+              if (!endpoint.file_uploads_enabled) {
+                const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+                return createCorsResponse(
+                  { error: 'File uploads are not enabled for this endpoint' },
+                  400,
+                  corsOrigin
+                )
+              }
+              uploadedFiles.push(value)
+            } else {
+              submissionData[key] = value
+            }
           }
         } catch {
           return createCorsResponse(
             { error: 'Invalid request format. Please send JSON or form data.' },
             400,
             requestOrigin || '*'
+          )
+        }
+      }
+    }
+
+    // Validate file uploads if any
+    if (uploadedFiles.length > 0) {
+      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      
+      // Check if file uploads are enabled
+      if (!endpoint.file_uploads_enabled) {
+        return createCorsResponse(
+          { error: 'File uploads are not enabled for this endpoint' },
+          400,
+          corsOrigin
+        )
+      }
+
+      // Check file count limit
+      if (uploadedFiles.length > (endpoint.max_files_per_submission || 5)) {
+        return createCorsResponse(
+          { error: `Too many files. Maximum ${endpoint.max_files_per_submission || 5} files allowed per submission.` },
+          400,
+          corsOrigin
+        )
+      }
+
+      // Validate each file
+      const maxFileSizeBytes = (endpoint.max_file_size_mb || 10) * 1024 * 1024
+      const allowedFileTypes = endpoint.allowed_file_types || [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 
+        'application/pdf', 'text/plain', 'text/csv',
+        'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ]
+
+      for (const file of uploadedFiles) {
+        // Check file size
+        if (file.size > maxFileSizeBytes) {
+          return createCorsResponse(
+            { error: `File "${file.name}" is too large. Maximum size is ${endpoint.max_file_size_mb || 10}MB.` },
+            400,
+            corsOrigin
+          )
+        }
+
+        // Check file type
+        if (!allowedFileTypes.includes(file.type)) {
+          return createCorsResponse(
+            { error: `File type "${file.type}" is not allowed for file "${file.name}".` },
+            400,
+            corsOrigin
           )
         }
       }
@@ -254,6 +332,78 @@ export async function POST(
         500,
         requestOrigin || '*'
       )
+    }
+
+    // Handle file uploads if any
+    const fileUploadRecords = []
+    if (uploadedFiles.length > 0) {
+      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      
+      try {
+        for (const file of uploadedFiles) {
+          // Generate unique filename
+          const timestamp = Date.now()
+          const randomString = Math.random().toString(36).substring(2, 15)
+          const fileExtension = file.name.split('.').pop() || ''
+          const storedFilename = `${timestamp}_${randomString}.${fileExtension}`
+          const filePath = `${endpoint.project.id}/${endpoint.id}/${storedFilename}`
+
+          // Convert File to ArrayBuffer for upload
+          const fileBuffer = await file.arrayBuffer()
+          
+          // Upload to Supabase Storage
+          const { error: uploadError } = await supabase.storage
+            .from('form-uploads')
+            .upload(filePath, fileBuffer, {
+              contentType: file.type,
+              duplex: 'half'
+            })
+
+          if (uploadError) {
+            console.error('Error uploading file:', uploadError)
+            return createCorsResponse(
+              { error: `Failed to upload file "${file.name}": ${uploadError.message}` },
+              500,
+              corsOrigin
+            )
+          }
+
+          // Store file record in database
+          const { data: fileRecord, error: fileRecordError } = await supabase
+            .from('file_uploads')
+            .insert({
+              submission_id: submission.id,
+              original_filename: file.name,
+              stored_filename: storedFilename,
+              file_path: filePath,
+              file_size_bytes: file.size,
+              mime_type: file.type,
+              storage_bucket: 'form-uploads'
+            })
+            .select()
+            .single()
+
+          if (fileRecordError) {
+            console.error('Error storing file record:', fileRecordError)
+            // Try to clean up the uploaded file
+            await supabase.storage.from('form-uploads').remove([filePath])
+            return createCorsResponse(
+              { error: `Failed to record file "${file.name}": ${fileRecordError.message}` },
+              500,
+              corsOrigin
+            )
+          }
+
+          fileUploadRecords.push(fileRecord)
+        }
+      } catch (error) {
+        console.error('Error processing file uploads:', error)
+        return createCorsResponse(
+          { error: 'Failed to process file uploads' },
+          500,
+          requestOrigin || '*'
+        )
+      }
     }
 
     // Update monthly submission count for the user
@@ -287,6 +437,18 @@ export async function POST(
 
     // Send webhooks if configured
     if (webhookUrls && webhookUrls.length > 0) {
+      // Prepare webhook payload with file information
+      const webhookPayload = {
+        ...submissionData,
+        _files: fileUploadRecords.map(file => ({
+          id: file.id,
+          original_filename: file.original_filename,
+          file_size_bytes: file.file_size_bytes,
+          mime_type: file.mime_type,
+          download_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/form-uploads/${file.file_path}`
+        }))
+      }
+
       const webhookPromises = webhookUrls.map(async (webhookConfig) => {
         try {
           const webhookResponse = await fetch(webhookConfig.webhook_url, {
@@ -295,7 +457,7 @@ export async function POST(
               'Content-Type': 'application/json',
               'User-Agent': 'JSONPost-Webhook/1.0'
             },
-            body: JSON.stringify(submissionData)
+            body: JSON.stringify(webhookPayload)
           })
 
           // Log webhook delivery
@@ -396,7 +558,14 @@ export async function POST(
     const response = {
       success: true,
       message: endpoint.success_message || 'Submission received successfully',
-      submission_id: submission.id
+      submission_id: submission.id,
+      files_uploaded: fileUploadRecords.length,
+      files: fileUploadRecords.map(file => ({
+        id: file.id,
+        original_filename: file.original_filename,
+        file_size_bytes: file.file_size_bytes,
+        mime_type: file.mime_type
+      }))
     }
 
     // Handle redirect if configured
