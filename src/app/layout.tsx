@@ -4,6 +4,11 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
+import dynamic from 'next/dynamic';
+
+const CrispWithNoSSR = dynamic(
+  () => import('../components/crisp')
+);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,6 +73,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <CrispWithNoSSR />
             {children}
             <Analytics />
           </AuthProvider>

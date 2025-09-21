@@ -72,7 +72,8 @@ export default function Home() {
               </Button>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Free tier • No credit card • {PLANS.FREE.limits.submissions} submissions/month
+              Free tier • No credit card • {PLANS.FREE.limits.submissions}{" "}
+              submissions/month
             </p>
           </div>
         </div>
@@ -776,103 +777,105 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
-            {Object.values(PLANS).filter(plan => plan.id !== 'ENTERPRISE').map((plan) => (
-              <Card
-                key={plan.id}
-                className={`relative overflow-visible transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
-                  plan.popular
-                    ? "border-2 border-blue-500 shadow-xl bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-800 dark:via-blue-900/20 dark:to-indigo-900/20"
-                    : "border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600"
-                }`}
-              >
-                {plan.popular && (
-                  <>
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                      <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 shadow-lg whitespace-nowrap">
-                        ⭐ Most Popular
-                      </Badge>
+            {Object.values(PLANS)
+              .filter((plan) => plan.id !== "ENTERPRISE")
+              .map((plan) => (
+                <Card
+                  key={plan.id}
+                  className={`relative overflow-visible transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+                    plan.popular
+                      ? "border-2 border-blue-500 shadow-xl bg-gradient-to-br from-white via-blue-50 to-indigo-50 dark:from-slate-800 dark:via-blue-900/20 dark:to-indigo-900/20"
+                      : "border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:border-blue-300 dark:hover:border-blue-600"
+                  }`}
+                >
+                  {plan.popular && (
+                    <>
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+                        <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 shadow-lg whitespace-nowrap">
+                          ⭐ Most Popular
+                        </Badge>
+                      </div>
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    </>
+                  )}
+                  <CardHeader className="pb-4 pt-6">
+                    <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                      {plan.name}
+                    </CardTitle>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                      {plan.contactUs ? (
+                        <span className="text-2xl">Contact Us</span>
+                      ) : (
+                        <>
+                          <span
+                            className={
+                              plan.popular
+                                ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                                : ""
+                            }
+                          >
+                            {plan.priceDisplay}
+                          </span>
+                        </>
+                      )}
                     </div>
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
-                  </>
-                )}
-                <CardHeader className="pb-4 pt-6">
-                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
-                    {plan.name}
-                  </CardTitle>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                    {plan.contactUs ? (
-                      <span className="text-2xl">Contact Us</span>
-                    ) : (
-                      <>
-                        <span
-                          className={
-                            plan.popular
-                              ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-                              : ""
-                          }
+                    <CardDescription className="text-gray-600 dark:text-gray-300 font-medium">
+                      {plan.id === "FREE" && "🚀 Perfect for side projects"}
+                      {plan.id === "PRO" && "📈 For growing projects"}
+                      {plan.id === "GROWTH" && "🏢 For scaling businesses"}
+                      {plan.id === "ENTERPRISE" && "🏛️ For large organizations"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <ul className="space-y-3 text-sm mb-8">
+                      {plan.features.map((feature, index) => (
+                        <li key={index} className="flex items-start">
+                          <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
+                          <span className="text-gray-700 dark:text-gray-300">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      className={`w-full py-3 font-semibold transition-all duration-200 ${
+                        plan.popular
+                          ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl"
+                          : "border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      }`}
+                      variant={plan.popular ? "default" : "outline"}
+                      asChild
+                    >
+                      {plan.contactUs ? (
+                        <Link
+                          href="/help"
+                          className="inline-flex items-center justify-center"
                         >
-                          {plan.priceDisplay}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <CardDescription className="text-gray-600 dark:text-gray-300 font-medium">
-                    {plan.id === "FREE" && "🚀 Perfect for side projects"}
-                    {plan.id === "PRO" && "📈 For growing projects"}
-                    {plan.id === "GROWTH" && "🏢 For scaling businesses"}
-                    {plan.id === "ENTERPRISE" && "🏛️ For large organizations"}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <ul className="space-y-3 text-sm mb-8">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700 dark:text-gray-300">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    className={`w-full py-3 font-semibold transition-all duration-200 ${
-                      plan.popular
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl"
-                        : "border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    }`}
-                    variant={plan.popular ? "default" : "outline"}
-                    asChild
-                  >
-                    {plan.contactUs ? (
-                      <Link
-                        href="/help"
-                        className="inline-flex items-center justify-center"
-                      >
-                        <Mail className="w-4 h-4 mr-2" />
-                        Contact Sales
-                      </Link>
-                    ) : (
-                      <Link
-                        href="/auth/signup"
-                        className="inline-flex items-center justify-center"
-                      >
-                        {plan.id === "FREE" ? (
-                          <>
-                            <Zap className="w-4 h-4 mr-2" />
-                            Start Free
-                          </>
-                        ) : (
-                          <>
-                            <ArrowRight className="w-4 h-4 mr-2" />
-                            Get {plan.name}
-                          </>
-                        )}
-                      </Link>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                          <Mail className="w-4 h-4 mr-2" />
+                          Contact Sales
+                        </Link>
+                      ) : (
+                        <Link
+                          href="/auth/signup"
+                          className="inline-flex items-center justify-center"
+                        >
+                          {plan.id === "FREE" ? (
+                            <>
+                              <Zap className="w-4 h-4 mr-2" />
+                              Start Free
+                            </>
+                          ) : (
+                            <>
+                              <ArrowRight className="w-4 h-4 mr-2" />
+                              Get {plan.name}
+                            </>
+                          )}
+                        </Link>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
           </div>
 
           <div className="text-center mt-12">
@@ -905,7 +908,8 @@ export default function Home() {
             </Link>
           </Button>
           <p className="text-blue-200 text-sm mt-4">
-            No credit card required • {PLANS.FREE.limits.submissions} submissions free
+            No credit card required • {PLANS.FREE.limits.submissions}{" "}
+            submissions free
           </p>
         </div>
       </section>
