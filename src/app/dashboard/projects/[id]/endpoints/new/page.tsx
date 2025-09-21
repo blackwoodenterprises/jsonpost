@@ -101,6 +101,8 @@ export default function NewEndpointPage() {
     allowed_file_types: ['image/jpeg', 'image/png', 'application/pdf'] as string[],
     max_file_size_mb: 10,
     max_files_per_submission: 5,
+    json_validation_enabled: false,
+    json_schema: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -194,6 +196,8 @@ export default function NewEndpointPage() {
           allowed_file_types: formData.allowed_file_types.length > 0 ? formData.allowed_file_types : null,
           max_file_size_mb: formData.max_file_size_mb,
           max_files_per_submission: formData.max_files_per_submission,
+          json_validation_enabled: formData.json_validation_enabled,
+          json_schema: formData.json_validation_enabled && formData.json_schema ? JSON.parse(formData.json_schema) : null,
         })
         .select()
         .single();
@@ -651,6 +655,66 @@ export default function NewEndpointPage() {
                     </div>
                   </div>
                 </>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>JSON Validation</CardTitle>
+              <CardDescription>
+                Configure JSON schema validation for form submissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="json_validation_enabled">
+                    Enable JSON Validation
+                  </Label>
+                  <p className="text-sm text-gray-500">
+                    Validate form submissions against a JSON schema
+                  </p>
+                </div>
+                <Switch
+                  id="json_validation_enabled"
+                  checked={formData.json_validation_enabled}
+                  onCheckedChange={(checked: boolean) =>
+                    handleInputChange("json_validation_enabled", checked)
+                  }
+                />
+              </div>
+
+              {formData.json_validation_enabled && (
+                <div>
+                  <Label htmlFor="json_schema">JSON Schema</Label>
+                  <Textarea
+                    id="json_schema"
+                    value={formData.json_schema}
+                    onChange={(e) =>
+                      handleInputChange("json_schema", e.target.value)
+                    }
+                    placeholder={`{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    }
+  },
+  "required": ["name", "email"]
+}`}
+                    rows={12}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Define a JSON schema using AJV format to validate form submissions. Invalid submissions will be rejected with an error message.
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>

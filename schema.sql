@@ -57,12 +57,25 @@ CREATE TABLE public.endpoints (
   cors_enabled boolean DEFAULT false,
   require_api_key boolean DEFAULT false,
   endpoint_key_deprecated boolean DEFAULT true,
-  file_uploads_enabled boolean DEFAULT true,
-  allowed_file_types text[] DEFAULT ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'text/plain', 'text/csv', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  file_uploads_enabled boolean DEFAULT false,
+  allowed_file_types ARRAY DEFAULT ARRAY['image/jpeg'::text, 'image/png'::text, 'image/gif'::text, 'image/webp'::text, 'application/pdf'::text, 'text/plain'::text, 'text/csv'::text, 'application/msword'::text, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'::text],
   max_file_size_mb integer DEFAULT 10,
   max_files_per_submission integer DEFAULT 5,
   CONSTRAINT endpoints_pkey PRIMARY KEY (id),
   CONSTRAINT endpoints_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
+);
+CREATE TABLE public.file_uploads (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  submission_id uuid NOT NULL,
+  original_filename text NOT NULL,
+  stored_filename text NOT NULL,
+  file_path text NOT NULL,
+  file_size_bytes bigint NOT NULL,
+  mime_type text NOT NULL,
+  storage_bucket text NOT NULL DEFAULT 'form-uploads'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT file_uploads_pkey PRIMARY KEY (id),
+  CONSTRAINT file_uploads_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
 );
 CREATE TABLE public.monthly_submission_counts (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -121,17 +134,4 @@ CREATE TABLE public.webhook_logs (
   CONSTRAINT webhook_logs_pkey PRIMARY KEY (id),
   CONSTRAINT webhook_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id),
   CONSTRAINT webhook_logs_endpoint_webhook_id_fkey FOREIGN KEY (endpoint_webhook_id) REFERENCES public.endpoint_webhooks(id)
-);
-CREATE TABLE public.file_uploads (
-  id uuid NOT NULL DEFAULT uuid_generate_v4(),
-  submission_id uuid NOT NULL,
-  original_filename text NOT NULL,
-  stored_filename text NOT NULL,
-  file_path text NOT NULL,
-  file_size_bytes bigint NOT NULL,
-  mime_type text NOT NULL,
-  storage_bucket text NOT NULL DEFAULT 'form-uploads',
-  created_at timestamp with time zone DEFAULT now(),
-  CONSTRAINT file_uploads_pkey PRIMARY KEY (id),
-  CONSTRAINT file_uploads_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
 );

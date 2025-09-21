@@ -7,6 +7,7 @@ JSONPost is a headless form backend service that allows developers to create for
 - **Instant Form Endpoints**: Create form endpoints in seconds
 - **Multiple Content Types**: Support for JSON, form-data, and URL-encoded submissions
 - **File Upload Support**: Accept and manage file uploads with automatic storage
+- **JSON Schema Validation**: Validate form submissions against custom JSON schemas using AJV
 - **Email Notifications**: Get notified when forms are submitted
 - **Webhook Integration**: Forward submissions to your own endpoints
 - **Spam Protection**: Built-in spam filtering capabilities

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { emailService } from '@/lib/email'
+import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 
 // Create a service role client for server-side operations
 const supabase = createClient(
@@ -298,7 +300,7 @@ export async function POST(
               }
               
               // Convert to text for boundary splitting (but preserve binary data)
-              const bodyText = new TextDecoder('utf-8', { fatal: false }).decode(bodyBytes)
+              const _bodyText = new TextDecoder('utf-8', { fatal: false }).decode(bodyBytes)
               const boundaryBytes = new TextEncoder().encode(`--${boundary}`)
               
               // Parse multipart manually using binary approach
@@ -488,6 +490,56 @@ export async function POST(
             corsOrigin
           )
         }
+      }
+    }
+
+    // JSON Schema Validation (if enabled)
+    if (endpoint.json_validation_enabled && endpoint.json_schema) {
+      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      
+      try {
+        // Initialize AJV with formats support
+        const ajv = new Ajv({ allErrors: true })
+        addFormats(ajv)
+        
+        // Parse and clean the schema (remove $schema property if present)
+        let schema = endpoint.json_schema
+        if (typeof schema === 'string') {
+          schema = JSON.parse(schema)
+        }
+        
+        // Remove $schema property to avoid meta-schema validation issues
+        if (schema && typeof schema === 'object' && '$schema' in schema) {
+          const { $schema: _$schema, ...cleanSchema } = schema
+          schema = cleanSchema
+        }
+        
+        // Compile the schema
+        const validate = ajv.compile(schema)
+        
+        // Validate the submission data
+        const valid = validate(submissionData)
+        
+        if (!valid) {
+          // Format validation errors
+          const errors = validate.errors?.map(error => {
+            const field = error.instancePath ? error.instancePath.replace('/', '') : error.schemaPath
+            return `${field}: ${error.message}`
+          }).join(', ') || 'Invalid data format'
+          
+          return createCorsResponse(
+            { error: `Validation failed: ${errors}` },
+            400,
+            corsOrigin
+          )
+        }
+      } catch (schemaError) {
+        console.error('JSON schema validation error:', schemaError)
+        return createCorsResponse(
+          { error: 'Invalid JSON schema configuration' },
+          500,
+          corsOrigin
+        )
       }
     }
 

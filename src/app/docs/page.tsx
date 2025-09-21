@@ -137,6 +137,13 @@ export default function DocsPage() {
               <span>Email Notifications</span>
             </Link>
             <Link
+              href="#json-validation"
+              className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            >
+              <CheckCircle className="w-5 h-5 mr-3 text-emerald-600" />
+              <span>JSON Validation</span>
+            </Link>
+            <Link
               href="#security"
               className="flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
@@ -2093,6 +2100,196 @@ export default function DocsPage() {
                   </div>
                   <div className="text-white">
                     Submitted at: {"{"} timestamp {"}"}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* JSON Validation Section */}
+      <section id="json-validation" className="py-16 px-4 bg-gray-50 dark:bg-gray-800">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-4 flex items-center">
+              <CheckCircle className="w-8 h-8 mr-3 text-emerald-600" />
+              JSON Schema Validation
+            </h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Validate form submissions against custom JSON schemas to ensure data integrity and consistency.
+            </p>
+          </div>
+
+          <div className="grid gap-8">
+            {/* Overview Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Info className="w-5 h-5 mr-2" />
+                  How JSON Validation Works
+                </CardTitle>
+                <CardDescription>
+                  JSONPost uses AJV (Another JSON Schema Validator) to validate incoming form submissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    When JSON validation is enabled for an endpoint, all incoming submissions are validated against your custom JSON schema before being stored. Invalid submissions are rejected with detailed error messages.
+                  </p>
+                  
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2 text-blue-800 dark:text-blue-200">Validation Workflow:</h4>
+                    <ol className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                      <li>1. Form submission received</li>
+                      <li>2. JSON schema validation (if enabled)</li>
+                      <li>3. Data stored in database (if valid)</li>
+                      <li>4. Email notifications sent (if configured)</li>
+                      <li>5. Webhooks triggered (if configured)</li>
+                    </ol>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Schema Example Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Code className="w-5 h-5 mr-2" />
+                  JSON Schema Example
+                </CardTitle>
+                <CardDescription>
+                  Example schema for a contact form with validation rules
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                  <div className="text-green-400 mb-2">// Contact form JSON schema</div>
+                  <div className="text-white">{`{`}</div>
+                  <div className="text-white ml-2">&quot;type&quot;: &quot;object&quot;,</div>
+                  <div className="text-white ml-2">&quot;properties&quot;: {`{`}</div>
+                  <div className="text-white ml-4">&quot;name&quot;: {`{`}</div>
+                  <div className="text-white ml-6">&quot;type&quot;: &quot;string&quot;,</div>
+                  <div className="text-white ml-6">&quot;minLength&quot;: 2,</div>
+                  <div className="text-white ml-6">&quot;maxLength&quot;: 100</div>
+                  <div className="text-white ml-4">{`}`},</div>
+                  <div className="text-white ml-4">&quot;email&quot;: {`{`}</div>
+                  <div className="text-white ml-6">&quot;type&quot;: &quot;string&quot;,</div>
+                  <div className="text-white ml-6">&quot;format&quot;: &quot;email&quot;</div>
+                  <div className="text-white ml-4">{`}`},</div>
+                  <div className="text-white ml-4">&quot;message&quot;: {`{`}</div>
+                  <div className="text-white ml-6">&quot;type&quot;: &quot;string&quot;,</div>
+                  <div className="text-white ml-6">&quot;minLength&quot;: 10,</div>
+                  <div className="text-white ml-6">&quot;maxLength&quot;: 1000</div>
+                  <div className="text-white ml-4">{`}`},</div>
+                  <div className="text-white ml-4">&quot;age&quot;: {`{`}</div>
+                  <div className="text-white ml-6">&quot;type&quot;: &quot;integer&quot;,</div>
+                  <div className="text-white ml-6">&quot;minimum&quot;: 13,</div>
+                  <div className="text-white ml-6">&quot;maximum&quot;: 120</div>
+                  <div className="text-white ml-4">{`}`}</div>
+                  <div className="text-white ml-2">{`}`},</div>
+                  <div className="text-white ml-2">&quot;required&quot;: [&quot;name&quot;, &quot;email&quot;, &quot;message&quot;],</div>
+                  <div className="text-white ml-2">&quot;additionalProperties&quot;: false</div>
+                  <div className="text-white">{`}`}</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Error Handling Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                  Validation Error Handling
+                </CardTitle>
+                <CardDescription>
+                  Understanding validation error responses and how to handle them
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    When validation fails, JSONPost returns a 400 Bad Request response with detailed error information:
+                  </p>
+                  
+                  <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                    <div className="text-green-400 mb-2">// Example validation error response</div>
+                    <div className="text-white">{`{`}</div>
+                    <div className="text-white ml-2">&quot;error&quot;: &quot;Validation failed&quot;,</div>
+                    <div className="text-white ml-2">&quot;details&quot;: [</div>
+                    <div className="text-white ml-4">{`{`}</div>
+                    <div className="text-white ml-6">&quot;instancePath&quot;: &quot;/email&quot;,</div>
+                    <div className="text-white ml-6">&quot;schemaPath&quot;: &quot;#/properties/email/format&quot;,</div>
+                    <div className="text-white ml-6">&quot;keyword&quot;: &quot;format&quot;,</div>
+                    <div className="text-white ml-6">&quot;params&quot;: {`{`} &quot;format&quot;: &quot;email&quot; {`}`},</div>
+                    <div className="text-white ml-6">&quot;message&quot;: &quot;must match format \&quot;email\&quot;&quot;</div>
+                    <div className="text-white ml-4">{`}`}</div>
+                    <div className="text-white ml-2">]</div>
+                    <div className="text-white">{`}`}</div>
+                  </div>
+
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                    <div className="flex items-start">
+                      <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                          <strong>Frontend Handling:</strong> Parse the error details to show user-friendly validation messages in your form UI.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Best Practices Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Best Practices
+                </CardTitle>
+                <CardDescription>
+                  Tips for effective JSON schema validation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                      <h4 className="font-semibold mb-2 text-green-800 dark:text-green-200">✅ Do</h4>
+                      <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                        <li>• Use descriptive property names</li>
+                        <li>• Set appropriate min/max lengths</li>
+                        <li>• Validate email formats</li>
+                        <li>• Use required fields sparingly</li>
+                        <li>• Test schemas thoroughly</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                      <h4 className="font-semibold mb-2 text-red-800 dark:text-red-200">❌ Don't</h4>
+                      <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
+                        <li>• Make schemas overly complex</li>
+                        <li>• Use strict additionalProperties: false without consideration</li>
+                        <li>• Forget to handle validation errors</li>
+                        <li>• Skip schema testing</li>
+                        <li>• Use unclear error messages</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <div className="flex items-start">
+                      <Info className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                          <strong>Schema Testing:</strong> Use online JSON schema validators to test your schemas before deploying them to production endpoints.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>

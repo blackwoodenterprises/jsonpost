@@ -72,6 +72,8 @@ interface Endpoint {
   allowed_file_types: string[] | null;
   max_file_size_mb: number;
   max_files_per_submission: number;
+  json_validation_enabled: boolean;
+  json_schema: Record<string, unknown> | null;
 }
 
 interface Project {
@@ -373,11 +375,21 @@ export default function EndpointDetailsPage() {
           {/* Endpoint Configuration */}
           <div className="space-y-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Endpoint Configuration</CardTitle>
-                <CardDescription>
-                  Configuration details for this endpoint
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div>
+                  <CardTitle>Endpoint Configuration</CardTitle>
+                  <CardDescription>
+                    Configuration details for this endpoint
+                  </CardDescription>
+                </div>
+                <Button size="sm" variant="outline" asChild>
+                  <Link
+                    href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Configuration
+                  </Link>
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -442,15 +454,19 @@ export default function EndpointDetailsPage() {
                       </Badge>
                     </div>
                   </div>
-                  <div className="flex items-center justify-end">
-                    <Button size="sm" variant="outline" asChild>
-                      <Link
-                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
+                  <div>
+                    <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      JSON Validation
+                    </label>
+                    <div className="mt-1">
+                      <Badge
+                        variant={
+                          endpoint.json_validation_enabled ? "default" : "secondary"
+                        }
                       >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Configuration
-                      </Link>
-                    </Button>
+                        {endpoint.json_validation_enabled ? "Enabled" : "Disabled"}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
 
