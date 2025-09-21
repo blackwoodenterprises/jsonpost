@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "@/components/ui/toaster";
 import dynamic from 'next/dynamic';
 
 const CrispWithNoSSR = dynamic(
@@ -76,6 +77,7 @@ export default function RootLayout({
             <CrispWithNoSSR />
             {children}
             <Analytics />
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>

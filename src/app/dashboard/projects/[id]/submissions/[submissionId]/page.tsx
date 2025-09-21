@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   ArrowLeft,
   Calendar,
@@ -23,6 +32,7 @@ import {
   XCircle,
   FileText,
   Download,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -86,6 +96,7 @@ export default function SubmissionDetailPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const { toast } = useToast();
   const projectId = params.id as string;
   const submissionId = params.submissionId as string;
 
@@ -94,6 +105,8 @@ export default function SubmissionDetailPage() {
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchSubmissionData = useCallback(async () => {
     try {
@@ -175,8 +188,70 @@ export default function SubmissionDetailPage() {
     }
   }, [user, loading, projectId, submissionId, router, fetchSubmissionData]);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Copied to clipboard",
+        description: "JSON data has been copied to your clipboard.",
+      });
+    } catch (error) {
+      console.error("Failed to copy to clipboard:", error);
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy JSON data to clipboard. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteSubmission = async () => {
+    if (!submission) return;
+    
+    setIsDeleting(true);
+    try {
+      console.log("Attempting to delete submission with ID:", submissionId);
+      
+      // Delete the submission from the database
+      // CASCADE constraints will automatically delete related records
+      const { data, error: deleteError } = await supabase
+        .from("submissions")
+        .delete()
+        .eq("id", submissionId)
+        .select();
+
+      console.log("Delete result:", { data, deleteError });
+
+      if (deleteError) {
+        console.error("Delete error details:", deleteError);
+        throw deleteError;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn("No rows were deleted. Submission may not exist or user may not have permission.");
+        throw new Error("No submission was deleted. It may have already been removed or you may not have permission.");
+      }
+
+      console.log("Successfully deleted submission:", data);
+
+      toast({
+        title: "Submission deleted",
+        description: "The submission and all associated data have been permanently deleted.",
+      });
+
+      // Navigate back to the endpoint detail page
+      router.push(`/dashboard/projects/${projectId}/endpoints/${submission.endpoint_id}`);
+    } catch (error) {
+      console.error("Failed to delete submission:", error);
+      toast({
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Failed to delete the submission. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   const formatJsonData = (data: unknown) => {
@@ -234,12 +309,22 @@ export default function SubmissionDetailPage() {
         title={`Submission ${submission.id.slice(0, 8)}`}
         subtitle={submission.endpoints?.projects?.name}
         actions={
-          <Button variant="outline" asChild>
-            <Link href={`/dashboard/projects/${projectId}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Project
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/dashboard/projects/${projectId}/endpoints/${submission.endpoint_id}`}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Endpoint
+              </Link>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </div>
         }
       />
 
@@ -572,6 +657,36 @@ export default function SubmissionDetailPage() {
           </div>
         </div>
       </main>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Submission</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this submission? This action will
+              permanently delete the submission and all data associated with it.
+              Usage credits will still be counted. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteSubmission}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Submission"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
