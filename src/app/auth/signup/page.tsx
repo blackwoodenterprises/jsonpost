@@ -62,13 +62,16 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
+        options: {
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=${encodeURIComponent("/dashboard")}`,
+        },
       });
 
       if (error) {
         setError(error.message);
       } else {
         setSuccess(true);
-        // Note: User will need to confirm email before they can sign in
+        // Note: User will be automatically logged in and redirected to dashboard after email verification
       }
     } catch {
       setError("An unexpected error occurred");
@@ -122,13 +125,12 @@ export default function SignupPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-center text-muted-foreground">
-                Click the link in the email to activate your account, then you can
-                sign in.
+                Click the link in the email to activate your account and you'll be automatically logged in and redirected to your dashboard.
               </div>
             </CardContent>
             <CardFooter>
               <Button asChild className="w-full">
-                <Link href="/auth/login">Go to Sign In</Link>
+                <Link href="/auth/login">Return to Sign In</Link>
               </Button>
             </CardFooter>
           </Card>
