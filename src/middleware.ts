@@ -33,6 +33,7 @@ export async function middleware(request: NextRequest) {
   const publicPaths = [
     '/',
     '/docs',
+    '/quick-start',
     '/status',
     '/help',
     '/terms-of-service',

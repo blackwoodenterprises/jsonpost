@@ -30,6 +30,11 @@ export function Footer() {
                   Status
                 </Link>
               </li>
+              <li>
+                <Link href="/quick-start" className="hover:text-white">
+                  Quick Start
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
