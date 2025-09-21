@@ -39,7 +39,8 @@ export const PLANS: Record<PlanType, Plan> = {
       'Secure Endpoints',
       'Zapier Integration',
       'Data Export',
-      'Priority Support'
+      'Priority Support',
+      'Advanced JSON Validation'
     ],
   },
   PRO: {
@@ -63,7 +64,8 @@ export const PLANS: Record<PlanType, Plan> = {
       'Secure Endpoints',
       'Zapier Integration',
       'Data Export',
-      'Priority Support'
+      'Priority Support',
+      'Advanced JSON Validation'
     ],
     popular: true,
   },
@@ -88,7 +90,8 @@ export const PLANS: Record<PlanType, Plan> = {
       'Secure Endpoints',
       'Zapier Integration',
       'Data Export',
-      'Priority Support'
+      'Priority Support',
+      'Advanced JSON Validation'
     ],
   },
   ENTERPRISE: {
