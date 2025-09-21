@@ -775,8 +775,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
-            {Object.values(PLANS).map((plan) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+            {Object.values(PLANS).filter(plan => plan.id !== 'ENTERPRISE').map((plan) => (
               <Card
                 key={plan.id}
                 className={`relative overflow-visible transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
