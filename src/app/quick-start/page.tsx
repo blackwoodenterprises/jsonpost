@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities, react/jsx-no-comment-textnodes */
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +22,6 @@ import {
   CheckCircle,
   Globe,
   Database,
-  FileText,
-  AlertCircle,
-  Info,
-  Terminal,
-  Server,
-  Key,
   Lock,
   Upload,
   Copy,
@@ -798,7 +793,7 @@ export default function QuickStartPage() {
   );
 }
 
-function Label({ children, className, ...props }: { children: React.ReactNode; className?: string; [key: string]: any }) {
+function Label({ children, className, ...props }: { children: React.ReactNode; className?: string; } & React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label className={`text-sm font-medium ${className || ''}`} {...props}>
       {children}
