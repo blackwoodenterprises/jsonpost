@@ -125,7 +125,7 @@ export default function SignupPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-center text-muted-foreground">
-                Click the link in the email to activate your account and you'll be automatically logged in and redirected to your dashboard.
+                Click the link in the email to activate your account and you&apos;ll be automatically logged in and redirected to your dashboard.
               </div>
             </CardContent>
             <CardFooter>
