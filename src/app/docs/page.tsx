@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
+import { PLANS } from "@/lib/plans";
 import {
   Code,
   Zap,
@@ -2360,7 +2361,7 @@ export default function DocsPage() {
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600 mb-2">
-                    50
+                    {PLANS.FREE.limits.submissions}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
                     Submissions per month (Free)
@@ -2419,7 +2420,7 @@ export default function DocsPage() {
           </div>
 
           <div className="mt-8 text-sm text-gray-500 dark:text-gray-400">
-            No credit card required • Free tier includes 50 submissions/month
+            No credit card required • Free tier includes {PLANS.FREE.limits.submissions} submissions/month
           </div>
         </div>
       </section>

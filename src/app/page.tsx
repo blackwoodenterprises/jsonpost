@@ -72,7 +72,7 @@ export default function Home() {
               </Button>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Free tier • No credit card • 50 submissions/month
+              Free tier • No credit card • {PLANS.FREE.limits.submissions} submissions/month
             </p>
           </div>
         </div>
@@ -825,7 +825,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="pt-0">
                   <ul className="space-y-3 text-sm mb-8">
-                    {plan.features.slice(0, 4).map((feature, index) => (
+                    {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
                         <CheckCircle className="w-5 h-5 text-green-500 mr-3 flex-shrink-0 mt-0.5" />
                         <span className="text-gray-700 dark:text-gray-300">
@@ -905,7 +905,7 @@ export default function Home() {
             </Link>
           </Button>
           <p className="text-blue-200 text-sm mt-4">
-            No credit card required • 50 submissions free
+            No credit card required • {PLANS.FREE.limits.submissions} submissions free
           </p>
         </div>
       </section>
