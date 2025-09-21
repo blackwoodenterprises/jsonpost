@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Save, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Trash2, AlertTriangle, Key, RefreshCw, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 
@@ -25,6 +25,7 @@ interface Project {
   description: string | null;
   created_at: string;
   user_id: string;
+  api_key?: string;
 }
 
 export default function ProjectSettingsPage() {
@@ -37,6 +38,8 @@ export default function ProjectSettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRegeneratingKey, setIsRegeneratingKey] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -151,6 +154,41 @@ export default function ProjectSettingsPage() {
     }
   };
 
+  const handleRegenerateApiKey = async () => {
+    if (!confirm("Are you sure you want to regenerate the API key? This will invalidate the current key and may break existing integrations.")) {
+      return;
+    }
+
+    setIsRegeneratingKey(true);
+
+    try {
+      const { data, error } = await supabase
+        .rpc('regenerate_project_api_key', { project_id: projectId });
+
+      if (error) throw error;
+
+      // Refresh project data to get the new API key
+      await fetchProject();
+      
+      console.log("API key regenerated successfully");
+    } catch (error) {
+      console.error("Error regenerating API key:", error);
+    } finally {
+      setIsRegeneratingKey(false);
+    }
+  };
+
+  const copyApiKey = () => {
+    if (project?.api_key) {
+      navigator.clipboard.writeText(project.api_key);
+    }
+  };
+
+  const maskApiKey = (key: string) => {
+    if (!key) return "";
+    return key.substring(0, 8) + "..." + key.substring(key.length - 4);
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -229,6 +267,74 @@ export default function ProjectSettingsPage() {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* API Key Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Key className="h-5 w-5 mr-2" />
+                API Key Management
+              </CardTitle>
+              <CardDescription>
+                Manage your project&apos;s API key for server-to-server integrations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>API Key</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    value={showApiKey ? (project.api_key || "") : maskApiKey(project.api_key || "")}
+                    readOnly
+                    className="bg-gray-50 dark:bg-gray-800 font-mono"
+                    type={showApiKey ? "text" : "password"}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={copyApiKey}
+                    disabled={!project.api_key}
+                  >
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Include this key in the X-API-Key header when API key verification is enabled on endpoints
+                </p>
+              </div>
+              
+              <div className="pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                      Regenerate API Key
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Generate a new API key. This will invalidate the current key.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleRegenerateApiKey}
+                    disabled={isRegeneratingKey}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${isRegeneratingKey ? 'animate-spin' : ''}`} />
+                    {isRegeneratingKey ? "Regenerating..." : "Regenerate"}
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 

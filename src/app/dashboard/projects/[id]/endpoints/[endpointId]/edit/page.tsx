@@ -40,6 +40,9 @@ interface Endpoint {
   success_message: string;
   error_message: string;
   created_at: string;
+  allowed_domains: string | null;
+  cors_enabled: boolean;
+  require_api_key: boolean;
 }
 
 export default function EditEndpointPage() {
@@ -65,6 +68,9 @@ export default function EditEndpointPage() {
     redirect_url: "",
     success_message: "Thank you for your submission!",
     error_message: "There was an error processing your submission.",
+    allowed_domains: [] as string[],
+    cors_enabled: false,
+    require_api_key: false,
   });
 
   useEffect(() => {
@@ -130,6 +136,9 @@ export default function EditEndpointPage() {
         error_message:
           endpointData.error_message ||
           "There was an error processing your submission.",
+        allowed_domains: Array.isArray(endpointData.allowed_domains) ? endpointData.allowed_domains : (endpointData.allowed_domains ? [endpointData.allowed_domains] : []),
+        cors_enabled: endpointData.cors_enabled || false,
+        require_api_key: endpointData.require_api_key || false,
       });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -159,6 +168,9 @@ export default function EditEndpointPage() {
           error_message: formData.error_message,
           uses_multiple_emails: formData.email_addresses.length > 0,
           uses_multiple_webhooks: formData.webhook_urls.length > 0,
+          allowed_domains: formData.allowed_domains.length > 0 ? formData.allowed_domains : null,
+          cors_enabled: formData.cors_enabled,
+          require_api_key: formData.require_api_key,
           updated_at: new Date().toISOString(),
         })
         .eq("id", endpointId);
@@ -209,6 +221,10 @@ export default function EditEndpointPage() {
       router.push(`/dashboard/projects/${projectId}/endpoints/${endpointId}`);
     } catch (error) {
       console.error("Error updating endpoint:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
+      if (error && typeof error === 'object' && 'message' in error) {
+        console.error("Error message:", error.message);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -414,6 +430,51 @@ export default function EditEndpointPage() {
                   placeholder="Enter webhook URL"
                   description="Add webhook URLs to receive HTTP POST requests with form data."
                   maxItems={10}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Settings</CardTitle>
+              <CardDescription>
+                Configure security options for your endpoint
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="require_api_key">
+                    Require API Key
+                  </Label>
+                  <p className="text-sm text-gray-500">
+                    Require X-API-Key header for server-to-server integrations
+                  </p>
+                </div>
+                <Switch
+                  id="require_api_key"
+                  checked={formData.require_api_key}
+                  onCheckedChange={(checked: boolean) =>
+                    handleInputChange("require_api_key", checked)
+                  }
+                />
+              </div>
+
+              <div>
+                <MultiInput
+                  label="Allowed Domains (CORS)"
+                  type="text"
+                  values={formData.allowed_domains}
+                  onChange={(domains) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      allowed_domains: domains,
+                    }))
+                  }
+                  placeholder="https://example.com"
+                  description="Specify allowed origins for CORS. Leave empty to allow all origins. Supports wildcards (e.g., *.example.com)."
+                  maxItems={20}
                 />
               </div>
             </CardContent>

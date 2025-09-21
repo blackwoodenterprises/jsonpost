@@ -83,23 +83,21 @@ export default function NewProjectPage() {
         return;
       }
 
-      // Create the project (user profile is automatically created by database trigger)
+      // Create the project with API key generation (user profile is automatically created by database trigger)
       const { data, error } = await supabase
-        .from("projects")
-        .insert([
-          {
-            name: formData.name,
-            description: formData.description || null,
-            user_id: user.id,
-          },
-        ])
-        .select()
-        .single();
+        .rpc('create_project_with_api_key', {
+          p_name: formData.name,
+          p_description: formData.description || null,
+          p_user_id: user.id,
+        });
 
       if (error) {
         setError(error.message);
+      } else if (data && data.length > 0) {
+        // The function returns an array, so we need to access the first element
+        router.push(`/dashboard/projects/${data[0].id}`);
       } else {
-        router.push(`/dashboard/projects/${data.id}`);
+        setError("Failed to create project");
       }
     } catch {
       setError("An unexpected error occurred");

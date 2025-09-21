@@ -246,30 +246,44 @@ export default function DocsPage() {
               Authentication
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
-              JSONPost uses project-based authentication with unique endpoint
-              URLs.
+              JSONPost provides flexible authentication options to match your security needs. 
+              Choose between public endpoints for simple forms or API key authentication for secure applications.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
             <Card>
               <CardHeader>
-                <CardTitle>No API Keys Required</CardTitle>
+                <CardTitle>Flexible Authentication</CardTitle>
                 <CardDescription>
-                  Unlike traditional APIs, JSONPost doesn't require API keys for
-                  form submissions. Your project ID and endpoint path serve as
-                  your authentication.
+                  JSONPost supports both public endpoints and secure API key authentication 
+                  depending on your security requirements.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Public Endpoints</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      For simple contact forms and public submissions, no API key is required. 
+                      Your project ID and endpoint path provide basic access control.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Secure Endpoints</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                      Enable API key authentication for sensitive forms or when you need 
+                      to restrict access to authorized applications only.
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mt-4">
                   <div className="flex items-start">
                     <Info className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
                     <div>
                       <p className="text-sm text-blue-800 dark:text-blue-200">
-                        <strong>Security Note:</strong> Your project ID acts as
-                        a public identifier, while your endpoint paths can be
-                        kept private for additional security.
+                        <strong>Security Note:</strong> You can configure each endpoint 
+                        individually to require API key authentication through your dashboard.
                       </p>
                     </div>
                   </div>
@@ -930,7 +944,7 @@ export default function DocsPage() {
                   <div className="text-white ml-6">{"{"}</div>
                   <div className="text-white ml-8">method: 'POST',</div>
                   <div className="text-white ml-8">
-                    headers: {'{ "Content-Type": "application/json" }'},
+                    headers: {`{ "Content-Type": "application/json" }`},
                   </div>
                   <div className="text-white ml-8">
                     body: JSON.stringify(data)
@@ -1052,7 +1066,7 @@ export default function DocsPage() {
                       </div>
                       <div className="text-white ml-8">method: 'POST',</div>
                       <div className="text-white ml-8">
-                        headers: {'{ "Content-Type": "application/json" }'},
+                        headers: {`{ "Content-Type": "application/json" }`},
                       </div>
                       <div className="text-white ml-8">
                         body: JSON.stringify(data)
@@ -1108,7 +1122,7 @@ export default function DocsPage() {
                       <div className="text-white ml-6">{"{"}</div>
                       <div className="text-white ml-8">method: 'POST',</div>
                       <div className="text-white ml-8">
-                        headers: {'{ "Content-Type": "application/json" }'},
+                        headers: {`{ "Content-Type": "application/json" }`},
                       </div>
                       <div className="text-white ml-8">
                         body: JSON.stringify(data)
@@ -1125,8 +1139,8 @@ export default function DocsPage() {
                       </div>
                       <div className="text-white ml-8">status: 200,</div>
                       <div className="text-white ml-8">
-                        headers: {'{ "Content-Type": "application/json" }'}
-                      </div>
+                         headers: {`{ "Content-Type": "application/json" }`}
+                        </div>
                       <div className="text-white ml-6">{"}"}</div>
                       <div className="text-white ml-4">{"}"}</div>
 
@@ -1142,8 +1156,8 @@ export default function DocsPage() {
                       </div>
                       <div className="text-red-400 ml-6">status: 500,</div>
                       <div className="text-red-400 ml-6">
-                        headers: {'{ "Content-Type": "application/json" }'}
-                      </div>
+                         headers: {`{ "Content-Type": "application/json" }`}
+                        </div>
                       <div className="text-red-400 ml-4">{"}"}</div>
                       <div className="text-white ml-2">{"}"}</div>
                       <div className="text-blue-400">{"}"}</div>
@@ -1616,7 +1630,11 @@ export default function DocsPage() {
                   </div>
                   <div className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-sm">CORS protection</span>
+                    <span className="text-sm">CORS origins control</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
+                    <span className="text-sm">API key authentication</span>
                   </div>
                   <div className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-600 mr-2" />
@@ -1668,25 +1686,168 @@ export default function DocsPage() {
             </Card>
           </div>
 
+          {/* CORS Configuration */}
+          <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Globe className="w-5 h-5 mr-2" />
+                  CORS Origins Control
+                </CardTitle>
+                <CardDescription>
+                  Restrict form submissions to specific domains for enhanced security
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Configure allowed domains to prevent unauthorized cross-origin requests to your endpoints.
+                  </p>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                    <h4 className="font-semibold mb-2">Configuration Options:</h4>
+                    <ul className="space-y-2 text-sm">
+                      <li>• <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">https://example.com</code> - Specific domain</li>
+                      <li>• <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">*.example.com</code> - All subdomains</li>
+                      <li>• <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">*</code> - All domains (not recommended)</li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                    <div className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-green-800 dark:text-green-200">
+                          <strong>Smart CORS Handling:</strong> Browser requests return the actual origin, while requests without an Origin header (like Postman or server-to-server calls) receive the first configured domain for security.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                    <div className="flex items-start">
+                      <Info className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-blue-800 dark:text-blue-200">
+                          <strong>Best Practice:</strong> Always specify exact domains or use subdomain wildcards instead of allowing all origins.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Key className="w-5 h-5 mr-2" />
+                  API Key Authentication
+                </CardTitle>
+                <CardDescription>
+                  Add an extra layer of security with API key verification
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Enable API key authentication to ensure only authorized applications can submit to your endpoints.
+                  </p>
+                  
+                  <div className="bg-black rounded-lg p-4 text-sm font-mono">
+                    <div className="text-green-400 mb-2"># Include API key in headers</div>
+                    <div className="text-white">curl -X POST \</div>
+                    <div className="text-white ml-2">https://jsonpost.com/api/submit/your-project-id/contact \</div>
+                    <div className="text-white ml-2">-H "Content-Type: application/json" \</div>
+                    <div className="text-yellow-400 ml-2">-H "X-API-Key: your-api-key" \</div>
+                    <div className="text-white ml-2">-d {`'{"name": "John", "email": "john@example.com"}'`}</div>
+                  </div>
+
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                    <div className="flex items-start">
+                      <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                      <div>
+                        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                          <strong>Security Note:</strong> Keep your API keys secure and regenerate them regularly. Never expose them in client-side code.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* JavaScript Integration with Security */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Code className="w-5 h-5 mr-2" />
+                Secure JavaScript Integration
+              </CardTitle>
+              <CardDescription>
+                Examples of implementing security features in your frontend code
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <h4 className="font-semibold mb-3">With API Key Authentication</h4>
+                  <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                    <div className="text-green-400 mb-2">// Secure form submission with API key</div>
+                    <div className="text-blue-400">const</div> <div className="text-white inline"> submitForm = </div><div className="text-blue-400 inline">async</div> <div className="text-white inline"> (formData) =&gt; {`{`}</div>
+                    <div className="text-white ml-2">  <div className="text-blue-400 inline">const</div> response = <div className="text-blue-400 inline">await</div> fetch(</div>
+                    <div className="text-green-300 ml-4">    'https://jsonpost.com/api/submit/your-project-id/contact',</div>
+                    <div className="text-white ml-4">    {`{`}</div>
+                    <div className="text-white ml-6">      method: <div className="text-green-300 inline">'POST'</div>,</div>
+                    <div className="text-white ml-6">      headers: {`{`}</div>
+                    <div className="text-green-300 ml-8">        'Content-Type': 'application/json',</div>
+                    <div className="text-yellow-400 ml-8">        'X-API-Key': process.env.NEXT_PUBLIC_JSONPOST_API_KEY</div>
+                    <div className="text-white ml-6">      {`}`},</div>
+                    <div className="text-white ml-6">      body: JSON.stringify(formData)</div>
+                    <div className="text-white ml-4">    {`}`}</div>
+                    <div className="text-white ml-2">  );</div>
+                    <div className="text-white">{`}`};</div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-3">CORS-Compliant Requests</h4>
+                  <div className="bg-black rounded-lg p-4 text-sm font-mono overflow-x-auto">
+                    <div className="text-green-400 mb-2">// Ensure your domain is in the allowed origins list</div>
+                    <div className="text-blue-400">const</div> <div className="text-white inline"> submitFromBrowser = </div><div className="text-blue-400 inline">async</div> <div className="text-white inline"> (data) =&gt; {`{`}</div>
+                    <div className="text-white ml-2">  <div className="text-green-400 inline">// This will work if your domain is allowed</div></div>
+                    <div className="text-white ml-2">  <div className="text-blue-400 inline">const</div> response = <div className="text-blue-400 inline">await</div> fetch(endpoint, {`{`}</div>
+                    <div className="text-white ml-4">    method: <div className="text-green-300 inline">'POST'</div>,</div>
+                    <div className="text-white ml-4">    headers: {`{`} <div className="text-green-300 inline">'Content-Type': 'application/json'</div> {`}`},</div>
+                    <div className="text-white ml-4">    body: JSON.stringify(data)</div>
+                    <div className="text-white ml-2">  {`}`});</div>
+                    <div className="text-white">{`}`};</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Rate Limiting Info */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <BarChart3 className="w-5 h-5 mr-2" />
-                Rate Limits & Usage
+                Usage Limits & Billing
               </CardTitle>
               <CardDescription>
-                Understanding JSONPost's rate limiting and usage policies
+                Understanding JSONPost's usage limits and billing tiers
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600 mb-2">
-                    100
+                    50
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Submissions per hour (Free)
+                    Submissions per month (Free)
                   </div>
                 </div>
                 <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -1694,29 +1855,25 @@ export default function DocsPage() {
                     1,000
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Submissions per hour (Pro)
+                    Submissions per month (Pro)
                   </div>
                 </div>
                 <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <div className="text-2xl font-bold text-purple-600 mb-2">
-                    10,000
+                    Unlimited
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Submissions per hour (Enterprise)
+                    Submissions per month (Enterprise)
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+              <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                 <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 mr-2 mt-0.5" />
+                  <Info className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
                   <div>
-                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                      <strong>Rate Limit Headers:</strong> All responses include
-                      rate limit headers (X-RateLimit-Limit,
-                      X-RateLimit-Remaining, X-RateLimit-Reset) to help you
-                      monitor your usage and implement appropriate client-side
-                      handling.
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>Usage Tracking:</strong> Your submission count is tracked monthly and resets at the beginning of each billing cycle. Upgrade your plan to increase your limits.
                     </p>
                   </div>
                 </div>

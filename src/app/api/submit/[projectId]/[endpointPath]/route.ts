@@ -8,14 +8,48 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Helper function to create responses with CORS headers
-function createCorsResponse(data: Record<string, unknown> | { error: string } | { success: boolean; message: string; submission_id: string }, status: number = 200) {
+// Helper function to validate CORS origins
+function validateCorsOrigin(requestOrigin: string | null, allowedDomains: string[] | null): boolean {
+  // If no allowed domains are set, allow all origins
+  if (!allowedDomains || allowedDomains.length === 0) {
+    return true;
+  }
+
+  // If no origin header (e.g., server-to-server requests), allow
+  if (!requestOrigin) {
+    return true;
+  }
+
+  // Check if origin matches any allowed domain
+  return allowedDomains.some(domain => {
+    // Handle wildcard domains
+    if (domain === '*') {
+      return true;
+    }
+    
+    // Handle subdomain wildcards (e.g., *.example.com)
+    if (domain.startsWith('*.')) {
+      const baseDomain = domain.substring(2);
+      return requestOrigin.endsWith(baseDomain);
+    }
+    
+    // Exact match
+    return requestOrigin === domain || requestOrigin === `https://${domain}` || requestOrigin === `http://${domain}`;
+  });
+}
+
+// Helper function to create responses with dynamic CORS headers
+function createCorsResponse(
+  data: Record<string, unknown> | { error: string } | { success: boolean; message: string; submission_id: string }, 
+  status: number = 200,
+  allowedOrigin: string = '*'
+) {
   return NextResponse.json(data, {
     status,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
     },
   })
 }
@@ -64,38 +98,6 @@ export async function POST(
   const { projectId, endpointPath } = await params;
   
   try {
-    const contentType = request.headers.get('content-type') || ''
-    let submissionData: Record<string, unknown> = {}
-
-    // Handle different content types
-    if (contentType.includes('application/json')) {
-      // Handle JSON data
-      submissionData = await request.json()
-    } else if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
-      // Handle form data
-      const formData = await request.formData()
-      for (const [key, value] of formData.entries()) {
-        submissionData[key] = value
-      }
-    } else {
-      // Try to parse as JSON first, then as form data
-      try {
-        submissionData = await request.json()
-      } catch {
-        try {
-          const formData = await request.formData()
-          for (const [key, value] of formData.entries()) {
-            submissionData[key] = value
-          }
-        } catch {
-          return createCorsResponse(
-            { error: 'Invalid request format. Please send JSON or form data.' },
-            400
-          )
-        }
-      }
-    }
-
     // Get the endpoint configuration with project and user info
     console.log('Looking for endpoint with:', { projectId, endpointPath })
     
@@ -121,6 +123,7 @@ export async function POST(
         project:projects(
           id,
           name,
+          api_key,
           user:profiles(
             id,
             email
@@ -150,12 +153,85 @@ export async function POST(
       )
     }
 
+    // Validate CORS origins
+    const requestOrigin = request.headers.get('origin');
+    const allowedDomains = Array.isArray(endpoint.allowed_domains) 
+      ? endpoint.allowed_domains 
+      : (endpoint.allowed_domains ? endpoint.allowed_domains.split(',').map((d: string) => d.trim()) : null);
+    
+    if (!validateCorsOrigin(requestOrigin, allowedDomains)) {
+      return createCorsResponse(
+        { error: 'CORS policy violation: Origin not allowed' },
+        403,
+        'null' // Don't allow the origin in the response
+      );
+    }
+
+    // Validate API key if required
+    if (endpoint.require_api_key) {
+      const providedApiKey = request.headers.get('x-api-key');
+      const projectApiKey = endpoint.project.api_key;
+      
+      if (!providedApiKey) {
+        const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+        return createCorsResponse(
+          { error: 'API key required. Include X-API-Key header.' },
+          401,
+          corsOrigin
+        );
+      }
+      
+      if (providedApiKey !== projectApiKey) {
+        const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+        return createCorsResponse(
+          { error: 'Invalid API key' },
+          401,
+          corsOrigin
+        );
+      }
+    }
+
     // Check if method matches
     if (endpoint.method !== request.method) {
+      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
       return createCorsResponse(
         { error: `Method ${request.method} not allowed. Expected ${endpoint.method}` },
-        405
+        405,
+        corsOrigin
       )
+    }
+
+    const contentType = request.headers.get('content-type') || ''
+    let submissionData: Record<string, unknown> = {}
+
+    // Handle different content types
+    if (contentType.includes('application/json')) {
+      // Handle JSON data
+      submissionData = await request.json()
+    } else if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+      // Handle form data
+      const formData = await request.formData()
+      for (const [key, value] of formData.entries()) {
+        submissionData[key] = value
+      }
+    } else {
+      // Try to parse as JSON first, then as form data
+      try {
+        submissionData = await request.json()
+      } catch {
+        try {
+          const formData = await request.formData()
+          for (const [key, value] of formData.entries()) {
+            submissionData[key] = value
+          }
+        } catch {
+          return createCorsResponse(
+            { error: 'Invalid request format. Please send JSON or form data.' },
+            400,
+            requestOrigin || '*'
+          )
+        }
+      }
     }
 
     // Store the submission
@@ -175,7 +251,8 @@ export async function POST(
       console.error('Error storing submission:', submissionError)
       return createCorsResponse(
         { error: endpoint.error_message || 'Failed to process submission' },
-        500
+        500,
+        requestOrigin || '*'
       )
     }
 
@@ -327,7 +404,9 @@ export async function POST(
       return NextResponse.redirect(endpoint.redirect_url, 302)
     }
 
-    return createCorsResponse(response, 200)
+    // Determine the correct CORS origin to return
+    const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+    return createCorsResponse(response, 200, corsOrigin)
 
   } catch (error) {
     console.error('API Error:', error)
@@ -347,14 +426,57 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   return POST(request, { params })
 }
 
-// Handle OPTIONS for CORS
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  })
+// Handle OPTIONS for CORS with dynamic origin support
+export async function OPTIONS(
+  request: NextRequest,
+  { params }: { params: Promise<{ projectId: string; endpointPath: string }> }
+) {
+  const { projectId, endpointPath } = await params;
+  
+  try {
+    // Get the endpoint configuration to check CORS settings
+    const { data: endpoint } = await supabase
+      .from('endpoints')
+      .select('allowed_domains')
+      .eq('project_id', projectId)
+      .eq('path', endpointPath)
+      .single()
+
+    const requestOrigin = request.headers.get('origin');
+    const allowedDomains = Array.isArray(endpoint?.allowed_domains) 
+      ? endpoint.allowed_domains 
+      : (endpoint?.allowed_domains ? endpoint.allowed_domains.split(',').map((d: string) => d.trim()) : null);
+    
+    // Validate CORS origins for preflight
+    if (!validateCorsOrigin(requestOrigin, allowedDomains)) {
+      return new NextResponse(null, {
+        status: 403,
+        headers: {
+          'Access-Control-Allow-Origin': 'null',
+        },
+      });
+    }
+
+    // Determine the correct CORS origin to return
+    const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+    
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': corsOrigin,
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+      },
+    })
+  } catch (error) {
+    console.error('OPTIONS Error:', error)
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+      },
+    })
+  }
 }
