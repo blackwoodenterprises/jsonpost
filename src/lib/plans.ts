@@ -24,14 +24,14 @@ export const PLANS: Record<PlanType, Plan> = {
     price: 0,
     priceDisplay: 'Free',
     limits: {
-      projects: 1,
+      projects: 2,
       endpoints: 10,
-      submissions: 300,
+      submissions: 500,
     },
     features: [
-      '1 Project',
+      '2 Projects',
       '10 Endpoints',
-      '300 Submissions per month',
+      '500 Submissions per month',
       'Email Notifications',
       'Webhooks',
       'Multi File Upload',
@@ -46,8 +46,8 @@ export const PLANS: Record<PlanType, Plan> = {
   PRO: {
     id: 'PRO',
     name: 'Pro',
-    price: 20,
-    priceDisplay: '$20/month',
+    price: 10,
+    priceDisplay: '$10/month',
     limits: {
       projects: 5,
       endpoints: 50,
@@ -72,8 +72,8 @@ export const PLANS: Record<PlanType, Plan> = {
   GROWTH: {
     id: 'GROWTH',
     name: 'Growth',
-    price: 40,
-    priceDisplay: '$40/month',
+    price: 20,
+    priceDisplay: '$20/month',
     limits: {
       projects: 20,
       endpoints: 200,

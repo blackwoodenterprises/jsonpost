@@ -44,7 +44,7 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-        <section className="relative py-12 lg:py-16">
+      <section className="relative py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6">
@@ -52,18 +52,22 @@ export default function Home() {
               No backend coding required
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              Turn Any Form Into a
+              The Missing Backend for
               <span className="block text-blue-600 dark:text-blue-400">
-                Powerful Data Engine
+                Your Forms
               </span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-              Create secure form endpoints in seconds. Collect submissions, trigger notifications, 
-              upload files, and integrate with any tool—all without touching server code.
+              Create secure form endpoints in seconds. Collect submissions,
+              trigger notifications, upload files, and integrate with any
+              tool—all without touching server code.
             </p>
             <div className="flex flex-col items-center gap-6">
               <Link href="/auth/signup">
-                <Button size="lg" className="text-lg px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                <Button
+                  size="lg"
+                  className="text-lg px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                >
                   Start Building for Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -164,7 +168,8 @@ export default function Home() {
                 <FileText className="w-8 h-8 text-pink-600 mb-2" />
                 <CardTitle>File Uploads</CardTitle>
                 <CardDescription>
-                  Accept images, PDFs, and documents with configurable size limits.
+                  Accept images, PDFs, and documents with configurable size
+                  limits.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -174,7 +179,8 @@ export default function Home() {
                 <Globe className="w-8 h-8 text-cyan-600 mb-2" />
                 <CardTitle>CORS & Security</CardTitle>
                 <CardDescription>
-                  Domain restrictions, API keys, and CORS configuration built-in.
+                  Domain restrictions, API keys, and CORS configuration
+                  built-in.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -204,7 +210,8 @@ export default function Home() {
                 <Clock className="w-8 h-8 text-emerald-600 mb-2" />
                 <CardTitle>Real-time Notifications</CardTitle>
                 <CardDescription>
-                  Multiple email addresses and webhook URLs for team collaboration.
+                  Multiple email addresses and webhook URLs for team
+                  collaboration.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -214,7 +221,8 @@ export default function Home() {
                 <Star className="w-8 h-8 text-violet-600 mb-2" />
                 <CardTitle>No Vendor Lock-in</CardTitle>
                 <CardDescription>
-                  Export your data anytime. Own your submissions and integrations.
+                  Export your data anytime. Own your submissions and
+                  integrations.
                 </CardDescription>
               </CardHeader>
             </Card>
