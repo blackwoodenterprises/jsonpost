@@ -297,12 +297,22 @@ export default function ProfilePage() {
               <CardTitle className="flex items-center">
                 <Zap className="h-5 w-5 mr-2 text-orange-500" />
                 Zapier Integration
+                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  Beta
+                </span>
               </CardTitle>
               <CardDescription>
                 Connect your JSONPost account with Zapier to automate workflows
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  <strong>Beta Feature:</strong> Our Zapier integration is currently in beta. 
+                  Please <a href="mailto:support@jsonpost.com" className="underline hover:no-underline">contact support</a> to request access.
+                </p>
+              </div>
+              
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div>
