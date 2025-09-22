@@ -98,6 +98,35 @@ function getClientIP(request: NextRequest): string {
   return 'unknown'
 }
 
+// Helper function to flatten form data for Zapier field mapping
+function flattenFormDataForZapier(data: Record<string, unknown>, prefix = ''): Record<string, unknown> {
+  const flattened: Record<string, unknown> = {}
+  
+  for (const [key, value] of Object.entries(data)) {
+    const newKey = prefix ? `${prefix}_${key}` : key
+    
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      // Recursively flatten nested objects
+      Object.assign(flattened, flattenFormDataForZapier(value as Record<string, unknown>, newKey))
+    } else if (Array.isArray(value)) {
+      // Handle arrays by creating indexed keys
+      value.forEach((item, index) => {
+        if (item && typeof item === 'object') {
+          Object.assign(flattened, flattenFormDataForZapier(item as Record<string, unknown>, `${newKey}_${index}`))
+        } else {
+          flattened[`${newKey}_${index}`] = item
+        }
+      })
+      // Also include the array length
+      flattened[`${newKey}_count`] = value.length
+    } else {
+      flattened[newKey] = value
+    }
+  }
+  
+  return flattened
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; endpointPath: string }> }
@@ -305,7 +334,6 @@ export async function POST(
               }
               
               // Convert to text for boundary splitting (but preserve binary data)
-              const _bodyText = new TextDecoder('utf-8', { fatal: false }).decode(bodyBytes)
               const boundaryBytes = new TextEncoder().encode(`--${boundary}`)
               
               // Parse multipart manually using binary approach
@@ -515,6 +543,7 @@ export async function POST(
         
         // Remove $schema property to avoid meta-schema validation issues
         if (schema && typeof schema === 'object' && '$schema' in schema) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { $schema: _$schema, ...cleanSchema } = schema
           schema = cleanSchema
         }
@@ -802,6 +831,131 @@ export async function POST(
       })
 
       await Promise.allSettled(emailPromises)
+    }
+
+    // Send Zapier webhook notifications
+    console.log('🔍 [ZAPIER DEBUG] Checking for Zapier subscriptions for endpoint:', endpoint.id)
+    
+    const { data: zapierSubscriptions } = await supabase
+      .from('zapier_subscriptions')
+      .select('id, target_url, event_type')
+      .eq('endpoint_id', endpoint.id)
+      .eq('event_type', 'new_submission')
+      .eq('is_active', true)
+
+    console.log('🔍 [ZAPIER DEBUG] Found subscriptions:', zapierSubscriptions?.length || 0)
+    if (zapierSubscriptions && zapierSubscriptions.length > 0) {
+      console.log('🔍 [ZAPIER DEBUG] Subscription details:', zapierSubscriptions.map(sub => ({
+        id: sub.id,
+        target_url: sub.target_url,
+        event_type: sub.event_type
+      })))
+    }
+
+    if (zapierSubscriptions && zapierSubscriptions.length > 0) {
+      // Prepare Zapier webhook payload
+      const zapierPayload = {
+        id: submission.id,
+        endpoint_id: endpoint.id,
+        endpoint_name: endpoint.name,
+        endpoint_path: endpoint.path,
+        project_name: endpoint.project.name,
+        form_data: submissionData,
+        ip_address: clientIP,
+        user_agent: request.headers.get('user-agent') || 'unknown',
+        submitted_at: submission.created_at,
+        files: fileUploadRecords.map(file => ({
+          id: file.id,
+          filename: file.original_filename,
+          size: file.file_size_bytes,
+          type: file.mime_type,
+          download_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/files/${file.id}/download`
+        })),
+        // Flatten form data for easier Zapier field mapping
+        ...flattenFormDataForZapier(submissionData)
+      }
+
+      console.log('🔍 [ZAPIER DEBUG] Prepared webhook payload:', {
+        submission_id: zapierPayload.id,
+        endpoint_id: zapierPayload.endpoint_id,
+        endpoint_name: zapierPayload.endpoint_name,
+        project_name: zapierPayload.project_name,
+        form_data_keys: Object.keys(zapierPayload.form_data || {}),
+        files_count: zapierPayload.files.length,
+        flattened_fields: Object.keys(zapierPayload).filter(key => 
+          !['id', 'endpoint_id', 'endpoint_name', 'endpoint_path', 'project_name', 'form_data', 'ip_address', 'user_agent', 'submitted_at', 'files'].includes(key)
+        )
+      })
+
+      const zapierPromises = zapierSubscriptions.map(async (subscription) => {
+        console.log(`🔍 [ZAPIER DEBUG] Sending webhook to: ${subscription.target_url}`)
+        console.log(`🔍 [ZAPIER DEBUG] Payload size: ${JSON.stringify(zapierPayload).length} characters`)
+        
+        try {
+          const startTime = Date.now()
+          const zapierResponse = await fetch(subscription.target_url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'JSONPost-Zapier-Webhook/1.0'
+            },
+            body: JSON.stringify(zapierPayload)
+          })
+          const endTime = Date.now()
+
+          console.log(`✅ [ZAPIER DEBUG] Webhook delivered successfully:`, {
+            url: subscription.target_url,
+            status: zapierResponse.status,
+            response_time_ms: endTime - startTime,
+            subscription_id: subscription.id
+          })
+
+          // Log response body if it's not successful
+          if (!zapierResponse.ok) {
+            const responseText = await zapierResponse.text()
+            console.log(`⚠️ [ZAPIER DEBUG] Non-200 response body:`, responseText)
+          }
+
+          return { success: true, url: subscription.target_url, status: zapierResponse.status }
+        } catch (zapierError) {
+          console.error('❌ [ZAPIER DEBUG] Webhook delivery failed:', {
+            url: subscription.target_url,
+            subscription_id: subscription.id,
+            error: zapierError instanceof Error ? zapierError.message : 'Unknown error',
+            error_stack: zapierError instanceof Error ? zapierError.stack : undefined
+          })
+          return { success: false, url: subscription.target_url, error: zapierError }
+        }
+      })
+
+      const zapierResults = await Promise.allSettled(zapierPromises)
+      console.log('🔍 [ZAPIER DEBUG] All webhook deliveries completed:', {
+        total_webhooks: zapierResults.length,
+        successful: zapierResults.filter(result => result.status === 'fulfilled').length,
+        failed: zapierResults.filter(result => result.status === 'rejected').length
+      })
+
+      // Determine overall Zapier status and update submission
+      let zapierStatus: 'success' | 'failure' | null = null
+      if (zapierResults.length > 0) {
+        const successfulResults = zapierResults.filter(result => 
+          result.status === 'fulfilled' && 
+          (result.value as { success?: boolean })?.success === true
+        )
+        zapierStatus = successfulResults.length === zapierResults.length ? 'success' : 'failure'
+      }
+
+      // Update submission with Zapier status
+      if (zapierStatus) {
+        await supabase
+          .from('submissions')
+          .update({ zapier_status: zapierStatus })
+          .eq('id', submission.id)
+        
+        console.log('🔍 [ZAPIER DEBUG] Updated submission zapier_status:', zapierStatus)
+      }
+    } else {
+      console.log('🔍 [ZAPIER DEBUG] No active Zapier subscriptions found for this endpoint')
     }
 
     // Return success response

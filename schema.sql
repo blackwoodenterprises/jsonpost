@@ -116,6 +116,7 @@ CREATE TABLE public.submissions (
   data jsonb NOT NULL,
   ip_address inet,
   user_agent text,
+  zapier_status text CHECK (zapier_status = ANY (ARRAY['success'::text, 'failure'::text])),
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT submissions_pkey PRIMARY KEY (id),
   CONSTRAINT submissions_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id)
@@ -135,3 +136,24 @@ CREATE TABLE public.webhook_logs (
   CONSTRAINT webhook_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id),
   CONSTRAINT webhook_logs_endpoint_webhook_id_fkey FOREIGN KEY (endpoint_webhook_id) REFERENCES public.endpoint_webhooks(id)
 );
+
+-- Zapier subscriptions table for REST Hooks integration
+CREATE TABLE public.zapier_subscriptions (
+  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  user_id uuid NOT NULL,
+  endpoint_id uuid NOT NULL,
+  target_url text NOT NULL,
+  event_type text NOT NULL DEFAULT 'new_submission',
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT zapier_subscriptions_pkey PRIMARY KEY (id),
+  CONSTRAINT zapier_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE,
+  CONSTRAINT zapier_subscriptions_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id) ON DELETE CASCADE,
+  CONSTRAINT zapier_subscriptions_event_type_check CHECK (event_type = ANY (ARRAY['new_submission'::text]))
+);
+
+-- Index for efficient lookups
+CREATE INDEX idx_zapier_subscriptions_endpoint_id ON public.zapier_subscriptions(endpoint_id);
+CREATE INDEX idx_zapier_subscriptions_user_id ON public.zapier_subscriptions(user_id);
+CREATE INDEX idx_zapier_subscriptions_active ON public.zapier_subscriptions(is_active) WHERE is_active = true;

@@ -33,6 +33,7 @@ import {
   FileText,
   Download,
   Trash2,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -59,6 +60,7 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
+  zapier_status?: 'success' | 'failure' | null;
   file_uploads?: FileUpload[];
   endpoints: {
     id: string;
@@ -581,6 +583,33 @@ export default function SubmissionDetailPage() {
                     {submission.user_agent}
                   </div>
                 </div>
+                {submission.zapier_status && (
+                  <div>
+                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Zapier Status
+                    </div>
+                    <div className="text-sm flex items-center">
+                      <Zap className="h-4 w-4 mr-1" />
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        submission.zapier_status === 'success' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      }`}>
+                        {submission.zapier_status === 'success' ? (
+                          <>
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Success
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Failed
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
