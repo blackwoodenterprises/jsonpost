@@ -44,37 +44,45 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
-              <Sparkles className="w-4 h-4 mr-1" />
-              Headless Form Backend
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Headless Form Backend
-              <br />
-              in 30 seconds
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-              Skip the backend setup. Create form endpoints instantly and start
-              collecting submissions. Perfect for developers, founders, and
-              freelancers who need forms fast.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button size="lg" asChild>
-                <Link href="/auth/signup">
-                  Start Building <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="#features">Learn More</Link>
-              </Button>
+        <section className="relative py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6">
+              <Zap className="h-4 w-4 mr-2" />
+              No backend coding required
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Free tier • No credit card • {PLANS.FREE.limits.submissions}{" "}
-              submissions/month
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+              Turn Any Form Into a
+              <span className="block text-blue-600 dark:text-blue-400">
+                Powerful Data Engine
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+              Create secure form endpoints in seconds. Collect submissions, trigger notifications, 
+              upload files, and integrate with any tool—all without touching server code.
             </p>
+            <div className="flex flex-col items-center gap-6">
+              <Link href="/auth/signup">
+                <Button size="lg" className="text-lg px-12 py-4 bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                  Start Building for Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  Setup in 5 minutes
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  No credit card required
+                </div>
+                <div className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                  Works with any framework
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -147,6 +155,66 @@ export default function Home() {
                 <CardTitle>Developer Friendly</CardTitle>
                 <CardDescription>
                   RESTful API, JSON/form-data support, comprehensive docs.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-2 border-transparent hover:border-pink-200 transition-colors">
+              <CardHeader>
+                <FileText className="w-8 h-8 text-pink-600 mb-2" />
+                <CardTitle>File Uploads</CardTitle>
+                <CardDescription>
+                  Accept images, PDFs, and documents with configurable size limits.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-2 border-transparent hover:border-cyan-200 transition-colors">
+              <CardHeader>
+                <Globe className="w-8 h-8 text-cyan-600 mb-2" />
+                <CardTitle>CORS & Security</CardTitle>
+                <CardDescription>
+                  Domain restrictions, API keys, and CORS configuration built-in.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-2 border-transparent hover:border-yellow-200 transition-colors">
+              <CardHeader>
+                <Database className="w-8 h-8 text-yellow-600 mb-2" />
+                <CardTitle>JSON Validation</CardTitle>
+                <CardDescription>
+                  Validate incoming data with custom JSON schemas automatically.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-2 border-transparent hover:border-teal-200 transition-colors">
+              <CardHeader>
+                <MessageSquare className="w-8 h-8 text-teal-600 mb-2" />
+                <CardTitle>Custom Responses</CardTitle>
+                <CardDescription>
+                  Personalized success messages and redirect URLs for better UX.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-2 border-transparent hover:border-emerald-200 transition-colors">
+              <CardHeader>
+                <Clock className="w-8 h-8 text-emerald-600 mb-2" />
+                <CardTitle>Real-time Notifications</CardTitle>
+                <CardDescription>
+                  Multiple email addresses and webhook URLs for team collaboration.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card className="border-2 border-transparent hover:border-violet-200 transition-colors">
+              <CardHeader>
+                <Star className="w-8 h-8 text-violet-600 mb-2" />
+                <CardTitle>No Vendor Lock-in</CardTitle>
+                <CardDescription>
+                  Export your data anytime. Own your submissions and integrations.
                 </CardDescription>
               </CardHeader>
             </Card>
