@@ -461,10 +461,14 @@ export default function EndpointDetailsPage() {
                     <div className="mt-1">
                       <Badge
                         variant={
-                          endpoint.json_validation_enabled ? "default" : "secondary"
+                          endpoint.json_validation_enabled
+                            ? "default"
+                            : "secondary"
                         }
                       >
-                        {endpoint.json_validation_enabled ? "Enabled" : "Disabled"}
+                        {endpoint.json_validation_enabled
+                          ? "Enabled"
+                          : "Disabled"}
                       </Badge>
                     </div>
                   </div>
@@ -599,22 +603,26 @@ export default function EndpointDetailsPage() {
                         </label>
                       </div>
                       <div className="space-y-2">
-                        {endpoint.allowed_domains && Array.isArray(endpoint.allowed_domains) && endpoint.allowed_domains.length > 0
-                          ? endpoint.allowed_domains.map((domain: string, index: number) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
-                                >
-                                  <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
-                                    {domain.trim()}
-                                  </code>
-                                </div>
-                              ))
-                          : (
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
-                                No domains configured
+                        {endpoint.allowed_domains &&
+                        Array.isArray(endpoint.allowed_domains) &&
+                        endpoint.allowed_domains.length > 0 ? (
+                          endpoint.allowed_domains.map(
+                            (domain: string, index: number) => (
+                              <div
+                                key={index}
+                                className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
+                              >
+                                <code className="flex-1 text-sm font-mono text-gray-700 dark:text-gray-300">
+                                  {domain.trim()}
+                                </code>
                               </div>
-                            )}
+                            )
+                          )
+                        ) : (
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            No domains configured
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -697,15 +705,33 @@ export default function EndpointDetailsPage() {
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Button asChild className="flex-1">
-                      <Link href="/docs">
+                      <Link
+                        href="/docs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <BookOpen className="h-4 w-4 mr-2" />
                         View Documentation
                       </Link>
                     </Button>
                     <Button variant="outline" asChild className="flex-1">
-                      <Link href="/docs#quick-start">
+                      <Link
+                        href="/quick-start"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Quick Start Guide
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild className="flex-1">
+                      <Link
+                        href="/form-generator"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <FileUp className="h-4 w-4 mr-2" />
+                        Free HTML Form Generator
                       </Link>
                     </Button>
                   </div>
