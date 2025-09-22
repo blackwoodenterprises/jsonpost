@@ -35,6 +35,11 @@ export function Footer() {
                   Quick Start
                 </Link>
               </li>
+              <li>
+                <Link href="/form-generator" className="hover:text-white">
+                  Free HTML Form Generator
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

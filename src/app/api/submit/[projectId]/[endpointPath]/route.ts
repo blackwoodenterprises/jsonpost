@@ -22,6 +22,11 @@ function validateCorsOrigin(requestOrigin: string | null, allowedDomains: string
     return true;
   }
 
+  // If origin is "null" (local files), allow when no specific domains are configured
+  if (requestOrigin === 'null') {
+    return true;
+  }
+
   // Check if origin matches any allowed domain
   return allowedDomains.some(domain => {
     // Handle wildcard domains
@@ -175,7 +180,7 @@ export async function POST(
       const projectApiKey = endpoint.project.api_key;
       
       if (!providedApiKey) {
-        const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+        const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
         return createCorsResponse(
           { error: 'API key required. Include X-API-Key header.' },
           401,
@@ -184,7 +189,7 @@ export async function POST(
       }
       
       if (providedApiKey !== projectApiKey) {
-        const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+        const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
         return createCorsResponse(
           { error: 'Invalid API key' },
           401,
@@ -195,7 +200,7 @@ export async function POST(
 
     // Check if method matches
     if (endpoint.method !== request.method) {
-      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       return createCorsResponse(
         { error: `Method ${request.method} not allowed. Expected ${endpoint.method}` },
         405,
@@ -243,7 +248,7 @@ export async function POST(
             if (value instanceof File) {
               // Check if file uploads are enabled for this endpoint
               if (!endpoint.file_uploads_enabled) {
-                const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+                const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
                 return createCorsResponse(
                   { error: 'File uploads are not enabled for this endpoint' },
                   400,
@@ -371,7 +376,7 @@ export async function POST(
                   }
                   
                   if (!endpoint.file_uploads_enabled) {
-                    const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+                    const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
                     return createCorsResponse(
                       { error: 'File uploads are not enabled for this endpoint' },
                       400,
@@ -433,7 +438,7 @@ export async function POST(
       }
     } catch (error) {
       console.error('Outer parsing error:', error)
-      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       return createCorsResponse(
         { error: 'Failed to parse request body. Please check your request format.' },
         400,
@@ -443,7 +448,7 @@ export async function POST(
 
     // Validate file uploads if any
     if (uploadedFiles.length > 0) {
-      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       
       // Check if file uploads are enabled
       if (!endpoint.file_uploads_enabled) {
@@ -495,7 +500,7 @@ export async function POST(
 
     // JSON Schema Validation (if enabled)
     if (endpoint.json_validation_enabled && endpoint.json_schema) {
-      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       
       try {
         // Initialize AJV with formats support
@@ -568,7 +573,7 @@ export async function POST(
     // Handle file uploads if any
     const fileUploadRecords = []
     if (uploadedFiles.length > 0) {
-      const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+      const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       
       try {
         for (const file of uploadedFiles) {
@@ -815,18 +820,49 @@ export async function POST(
 
     // Handle redirect if configured
     if (endpoint.redirect_url) {
-      return NextResponse.redirect(endpoint.redirect_url, 302)
+      // Check if this is an AJAX request (has XMLHttpRequest header or Accept: application/json)
+      const isAjaxRequest = request.headers.get('x-requested-with') === 'XMLHttpRequest' ||
+                           request.headers.get('accept')?.includes('application/json')
+      
+      if (isAjaxRequest) {
+        // For AJAX requests, return JSON response instead of redirect to avoid CORS issues
+        const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
+        return createCorsResponse({
+           success: true,
+           message: 'Form submitted successfully',
+           submission_id: submission.id,
+           redirect_url: endpoint.redirect_url
+         }, 200, corsOrigin)
+      } else {
+        // For regular form submissions, use redirect with CORS headers
+        const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
+        return new NextResponse(null, {
+          status: 302,
+          headers: {
+            'Location': endpoint.redirect_url,
+            'Access-Control-Allow-Origin': corsOrigin,
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+          }
+        })
+      }
     }
 
     // Determine the correct CORS origin to return
-    const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+    const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
     return createCorsResponse(response, 200, corsOrigin)
 
   } catch (error) {
     console.error('API Error:', error)
+    
+    // Get request origin for proper CORS handling even in error cases
+    const requestOrigin = request.headers.get('origin');
+    const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || '*')
+    
     return createCorsResponse(
       { error: 'Internal server error' },
-      500
+      500,
+      corsOrigin
     )
   }
 }
@@ -872,7 +908,7 @@ export async function OPTIONS(
     }
 
     // Determine the correct CORS origin to return
-    const corsOrigin = requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*')
+    const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
     
     return new NextResponse(null, {
       status: 200,
