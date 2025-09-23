@@ -12,6 +12,14 @@ export interface UserProfile {
   id: string;
   email: string;
   plan: PlanType;
+  dodo_customer_id?: string;
+  dodo_subscription_id?: string;
+  dodo_subscription_status?: 'active' | 'cancelled' | 'expired' | 'past_due' | 'trialing' | 'incomplete' | 'incomplete_expired' | 'unpaid';
+  dodo_subscription_current_period_start?: string;
+  dodo_subscription_current_period_end?: string;
+  dodo_subscription_cancel_at_period_end?: boolean;
+  dodo_last_payment_date?: string;
+  dodo_next_payment_date?: string;
 }
 
 export interface LimitCheckResult {
@@ -133,7 +141,19 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, plan')
+      .select(`
+        id, 
+        email, 
+        plan,
+        dodo_customer_id,
+        dodo_subscription_id,
+        dodo_subscription_status,
+        dodo_subscription_current_period_start,
+        dodo_subscription_current_period_end,
+        dodo_subscription_cancel_at_period_end,
+        dodo_last_payment_date,
+        dodo_next_payment_date
+      `)
       .eq('id', userId)
       .single();
 

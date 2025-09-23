@@ -37,7 +37,7 @@ interface Project {
   id: string;
   name: string;
   description: string | null;
-  created_at: string;
+  created_at: string | null;
   endpoint_count: number;
   submission_count: number;
 }
@@ -83,6 +83,8 @@ export default function DashboardPage() {
   }, [user, fetchUsageData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProjects = async () => {
+    if (!user?.id) return; // Early return if user or user.id is not available
+    
     try {
       // First get projects with endpoint counts
       const { data: projectsData, error: projectsError } = await supabase
@@ -93,7 +95,7 @@ export default function DashboardPage() {
           endpoints(count)
         `
         )
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
       if (projectsError) {
@@ -343,7 +345,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="mt-2 text-xs text-gray-500">
                       Created{" "}
-                      {new Date(project.created_at).toLocaleDateString()}
+                      {project.created_at ? new Date(project.created_at).toLocaleDateString() : 'Unknown'}
                     </div>
                   </CardContent>
                 </Link>

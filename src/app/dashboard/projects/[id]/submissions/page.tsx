@@ -46,7 +46,7 @@ interface FileUpload {
 
 interface Submission {
   id: string;
-  data: SubmissionData;
+  data: Record<string, unknown>;
   ip_address: string;
   user_agent: string;
   created_at: string;
@@ -94,7 +94,7 @@ export default function AllSubmissionsPage() {
         .from("projects")
         .select("id, name, description")
         .eq("id", projectId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user!.id)
         .single();
 
       if (error || !data) {
@@ -192,7 +192,17 @@ export default function AllSubmissionsPage() {
         return;
       }
 
-      setSubmissions(data || []);
+      setSubmissions((data || []).map(submission => ({
+        ...submission,
+        data: (submission.data as Record<string, unknown>) || {},
+        ip_address: (submission.ip_address as string) || "",
+        user_agent: submission.user_agent || "",
+        created_at: submission.created_at || "",
+        file_uploads: submission.file_uploads?.map(upload => ({
+          ...upload,
+          created_at: upload.created_at || ""
+        })) || []
+      })));
       setTotalCount(count || 0);
     } catch {
       setError("Failed to load submissions");

@@ -39,7 +39,7 @@ export default function NewProjectPage() {
     const checkLimits = async () => {
       if (user) {
         try {
-          const result = await canCreateProject(user.id);
+          const result = await canCreateProject(user!.id);
           setLimitResult(result);
           if (!result.allowed) {
             setShowUpgradeModal(true);
@@ -75,7 +75,7 @@ export default function NewProjectPage() {
 
     try {
       // Double-check limits before creating
-      const limitCheck = await canCreateProject(user.id);
+      const limitCheck = await canCreateProject(user!.id);
       if (!limitCheck.allowed) {
         setLimitResult(limitCheck);
         setShowUpgradeModal(true);
@@ -84,11 +84,10 @@ export default function NewProjectPage() {
       }
 
       // Create the project with API key generation (user profile is automatically created by database trigger)
-      const { data, error } = await supabase
-        .rpc('create_project_with_api_key', {
+      const { data, error } = await supabase.rpc('create_project_with_api_key', {
           p_name: formData.name,
-          p_description: formData.description || null,
-          p_user_id: user.id,
+          p_description: formData.description,
+          p_user_id: user!.id as string,
         });
 
       if (error) {

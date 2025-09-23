@@ -10,11 +10,12 @@ export interface Plan {
   id: PlanType;
   name: string;
   price: number; // in dollars, 0 for free
-  priceDisplay: string;
+  priceDisplay?: string;
   limits: PlanLimits;
   features: string[];
   popular?: boolean;
   contactUs?: boolean;
+  dodoProductId?: string; // Add Dodo product ID for payment integration
 }
 
 export const PLANS: Record<PlanType, Plan> = {
@@ -68,6 +69,7 @@ export const PLANS: Record<PlanType, Plan> = {
       'Advanced JSON Validation'
     ],
     popular: true,
+    dodoProductId: process.env.NEXT_PUBLIC_DODO_PRO_PRODUCT_ID, // Add product ID from environment
   },
   GROWTH: {
     id: 'GROWTH',
@@ -93,6 +95,7 @@ export const PLANS: Record<PlanType, Plan> = {
       'Priority Support',
       'Advanced JSON Validation'
     ],
+    dodoProductId: process.env.NEXT_PUBLIC_DODO_GROWTH_PRODUCT_ID, // Add product ID from environment
   },
   ENTERPRISE: {
     id: 'ENTERPRISE',

@@ -65,12 +65,16 @@ export default function ProjectSettingsPage() {
         .from("projects")
         .select("*")
         .eq("id", projectId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user!.id)
         .single();
 
       if (projectError) throw projectError;
 
-      setProject(projectData);
+      setProject({
+        ...projectData,
+        created_at: projectData.created_at || '',
+        description: projectData.description || null
+      });
       setFormData({
         name: projectData.name || "",
         description: projectData.description || "",

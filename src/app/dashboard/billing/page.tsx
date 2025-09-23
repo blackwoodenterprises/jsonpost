@@ -34,6 +34,7 @@ import {
   Star,
   ArrowRight,
 } from "lucide-react";
+import { UpgradeConfirmationModal } from "@/components/upgrade-confirmation-modal";
 
 export default function BillingPage() {
   const { user } = useAuth();
@@ -41,6 +42,8 @@ export default function BillingPage() {
   const [usage, setUsage] = useState<UserUsage | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [selectedUpgradePlan, setSelectedUpgradePlan] = useState<string | null>(null);
 
   const fetchBillingData = useCallback(async () => {
     if (!user) return;
@@ -63,6 +66,80 @@ export default function BillingPage() {
       setLoading(false);
     }
   }, [user]);
+
+  const handleUpgrade = async (planId: string) => {
+    if (!user || !profile) {
+      console.error('User not authenticated or profile not loaded');
+      return;
+    }
+
+    // Check if user has an existing subscription (not FREE plan)
+    if (profile.plan !== 'FREE' && profile.dodo_subscription_id) {
+      // Show upgrade confirmation modal for existing subscribers
+      setSelectedUpgradePlan(planId);
+      setUpgradeModalOpen(true);
+      return;
+    }
+
+    // For FREE plan users, proceed with regular checkout
+    const plan = PLANS[planId as keyof typeof PLANS];
+    if (!plan.dodoProductId) {
+      console.error('No Dodo product ID found for plan:', planId);
+      return;
+    }
+
+    try {
+      const response = await fetch('/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product_cart: [
+            {
+              product_id: plan.dodoProductId,
+              quantity: 1
+            }
+          ],
+          return_url: `${window.location.origin}/dashboard/billing`,
+          metadata: {
+            userId: user.id
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Checkout error response:', errorText);
+        throw new Error(`Failed to create checkout session: ${response.status}`);
+      }
+
+      const { checkout_url } = await response.json();
+      window.location.href = checkout_url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleUpgradeComplete = () => {
+    setUpgradeModalOpen(false);
+    setSelectedUpgradePlan(null);
+    // Refresh billing data to show updated plan
+    fetchBillingData();
+  };
+
+  const handleCustomerPortal = () => {
+    if (!profile?.dodo_customer_id) {
+      console.error('No Dodo customer ID found for user');
+      // You could show a message to the user that they need to have an active subscription
+      return;
+    }
+
+    // Directly navigate to the billing portal route which will redirect to Dodo's portal
+    const portalUrl = `/dashboard/billing/billing-portal?customer_id=${profile.dodo_customer_id}`;
+    window.open(portalUrl, '_blank');
+  };
 
   useEffect(() => {
     if (user) {
@@ -275,58 +352,56 @@ export default function BillingPage() {
                       Current Plan
                     </Button>
                   ) : (
-                    <Button className="w-full" asChild>
-                      <Link href="/dashboard">
-                        {profile.plan === "FREE" ? "Upgrade" : "Change Plan"}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
+                    <Button 
+                      className="w-full" 
+                      onClick={() => handleUpgrade(plan.id)}
+                      disabled={!plan.dodoProductId}
+                      variant={
+                        // Show downgrade styling for lower-tier plans when user is on a higher tier
+                        profile.plan === "GROWTH" && plan.id === "PRO" ? "outline" :
+                        profile.plan === "PRO" && plan.id === "FREE" ? "outline" :
+                        "default"
+                      }
+                    >
+                      {profile.plan === "FREE" ? "Upgrade" : 
+                       profile.plan === "GROWTH" && plan.id === "PRO" ? "Downgrade" :
+                       profile.plan === "PRO" && plan.id === "FREE" ? "Downgrade" :
+                       "Change Plan"}
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   )}
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
 
-        {/* Billing Information */}
-        <div className="mt-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CreditCard className="w-5 h-5 mr-2" />
-                Billing Information
-              </CardTitle>
-              <CardDescription>
-                Manage your payment methods and billing details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Current Plan</p>
-                    <p className="text-sm text-muted-foreground">
-                      {currentPlan.name} - {currentPlan.priceDisplay}
-                    </p>
-                  </div>
-                  {!currentPlan.contactUs && currentPlan.price > 0 && (
-                    <Badge variant="outline">Active</Badge>
-                  )}
-                </div>
-
-                {currentPlan.price > 0 && (
-                  <div className="pt-4 border-t">
-                    <Button variant="outline" className="mr-4">
-                      Update Payment Method
-                    </Button>
-                    <Button variant="outline">Download Invoices</Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Billing Portal Link */}
+          {profile.plan !== "FREE" && (
+            <div className="mt-6 text-center">
+              <Button 
+                variant="outline" 
+                onClick={handleCustomerPortal}
+                className="inline-flex items-center"
+              >
+                <CreditCard className="w-4 h-4 mr-2" />
+                Billing Portal
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          )}
         </div>
       </main>
+
+      {/* Upgrade Confirmation Modal */}
+      {selectedUpgradePlan && (
+        <UpgradeConfirmationModal
+          isOpen={upgradeModalOpen}
+          onClose={() => setUpgradeModalOpen(false)}
+          currentPlan={profile?.plan || 'FREE'}
+          targetPlan={selectedUpgradePlan}
+          onUpgradeSuccess={handleUpgradeComplete}
+        />
+      )}
     </div>
   );
 }

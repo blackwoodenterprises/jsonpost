@@ -31,6 +31,7 @@ import {
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
+import { Database } from "@/lib/database.types";
 
 interface SubmissionData {
   [key: string]: unknown;
@@ -38,11 +39,12 @@ interface SubmissionData {
 
 interface Submission {
   id: string;
-  data: SubmissionData;
-  ip_address: string;
-  user_agent: string;
-  created_at: string;
+  data: Database["public"]["Tables"]["submissions"]["Row"]["data"];
+  ip_address: Database["public"]["Tables"]["submissions"]["Row"]["ip_address"];
+  user_agent: string | null;
+  created_at: string | null;
   endpoint_id: string;
+  zapier_status: string | null;
   file_uploads?: Array<{
     id: string;
     original_filename: string;
@@ -88,13 +90,15 @@ export default function EndpointSubmissionsPage() {
   const [dateFilter, setDateFilter] = useState<string>("all");
 
   const fetchProjectAndEndpointData = useCallback(async () => {
+    if (!user?.id) return; // Early return if user or user.id is not available
+    
     try {
       // Fetch project data
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .select("id, name, description")
         .eq("id", projectId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .single();
 
       if (projectError || !projectData) {
@@ -424,7 +428,13 @@ export default function EndpointSubmissionsPage() {
             {submissions.map((submission) => (
               <SubmissionCard
                 key={submission.id}
-                submission={submission}
+                submission={{
+                  ...submission,
+                  data: submission.data as SubmissionData,
+                  ip_address: submission.ip_address as string,
+                  user_agent: submission.user_agent as string,
+                  created_at: submission.created_at as string,
+                }}
                 projectId={projectId}
                 showEndpointInfo={false}
                 showProjectLink={true}

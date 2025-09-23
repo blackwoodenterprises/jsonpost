@@ -22,6 +22,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
+import { Database, Json } from "@/lib/database.types";
 import {
   ArrowLeft,
   Plus,
@@ -37,8 +38,10 @@ interface Project {
   id: string;
   name: string;
   description: string | null;
-  created_at: string;
+  created_at: string | null;
   user_id: string;
+  api_key: string;
+  updated_at: string | null;
 }
 
 interface Endpoint {
@@ -47,7 +50,7 @@ interface Endpoint {
   path: string;
   description: string | null;
   method: string;
-  created_at: string;
+  created_at: string | null;
   submission_count: number;
 }
 
@@ -58,6 +61,7 @@ interface Submission {
   user_agent: string;
   created_at: string;
   endpoint_id: string;
+  zapier_status: string | null;
   file_uploads?: Array<{
     id: string;
     original_filename: string;
@@ -102,7 +106,7 @@ export default function ProjectPage() {
         .from("projects")
         .select("*")
         .eq("id", projectId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user!.id)
         .single();
 
       if (projectError) {
@@ -201,21 +205,44 @@ export default function ProjectPage() {
             console.log("Submission endpoints:", submission.endpoints);
 
             return {
-              ...submission,
-              endpoints:
-                submission.endpoints &&
-                typeof submission.endpoints === "object" &&
-                !Array.isArray(submission.endpoints)
-                  ? {
-                      name:
-                        (submission.endpoints as { name?: string }).name ||
-                        "Unknown Endpoint",
-                      path:
-                        (submission.endpoints as { path?: string }).path ||
-                        "unknown",
-                    }
-                  : { name: "Unknown Endpoint", path: "unknown" },
-            };
+                ...submission,
+                data: (submission.data as Record<string, unknown>) || {},
+                ip_address: (submission.ip_address as string) || "",
+                user_agent: submission.user_agent || "",
+                created_at: submission.created_at || "",
+                file_uploads: submission.file_uploads?.map(upload => ({
+                  ...upload,
+                  created_at: upload.created_at || ""
+                })) || [],
+                endpoints:
+                  submission.endpoints &&
+                  typeof submission.endpoints === "object" &&
+                  !Array.isArray(submission.endpoints)
+                    ? {
+                        id: (submission.endpoints as { id?: string }).id || "",
+                        name:
+                          (submission.endpoints as { name?: string }).name ||
+                          "Unknown Endpoint",
+                        path:
+                          (submission.endpoints as { path?: string }).path ||
+                          "unknown",
+                        project_id: (submission.endpoints as { project_id?: string }).project_id || "",
+                        projects: {
+                          id: (submission.endpoints as { projects?: { id?: string } }).projects?.id || "",
+                          name: (submission.endpoints as { projects?: { name?: string } }).projects?.name || "Unknown Project"
+                        }
+                      }
+                    : { 
+                        id: "",
+                        name: "Unknown Endpoint", 
+                        path: "unknown",
+                        project_id: "",
+                        projects: {
+                          id: "",
+                          name: "Unknown Project"
+                        }
+                      },
+              };
           });
 
           console.log("Transformed submissions:", transformedSubmissions);
@@ -277,7 +304,7 @@ export default function ProjectPage() {
         title={project.name}
         subtitle={
           project.description ||
-          `Created ${new Date(project.created_at).toLocaleDateString()}`
+          `Created ${new Date(project.created_at || "").toLocaleDateString()}`
         }
         actions={
           <>
@@ -433,7 +460,7 @@ export default function ProjectPage() {
                                 <div className="text-xs text-gray-500">
                                   Created{" "}
                                   {new Date(
-                                    endpoint.created_at
+                                    endpoint.created_at || ""
                                   ).toLocaleDateString()}
                                 </div>
                               </div>

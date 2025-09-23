@@ -51,29 +51,31 @@ import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
 
+import { Database } from "@/lib/database.types";
+
 interface Endpoint {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
   method: string;
   path: string;
-  email_notifications: boolean;
+  email_notifications: boolean | null;
   webhook_url: string | null;
   redirect_url: string | null;
-  success_message: string;
-  error_message: string;
-  created_at: string;
+  success_message: string | null;
+  error_message: string | null;
+  created_at: string | null;
   email_addresses?: string[];
   webhook_urls?: string[];
   allowed_domains: string[] | null;
-  cors_enabled: boolean;
-  require_api_key: boolean;
-  file_uploads_enabled: boolean;
+  cors_enabled: boolean | null;
+  require_api_key: boolean | null;
+  file_uploads_enabled: boolean | null;
   allowed_file_types: string[] | null;
-  max_file_size_mb: number;
-  max_files_per_submission: number;
-  json_validation_enabled: boolean;
-  json_schema: Record<string, unknown> | null;
+  max_file_size_mb: number | null;
+  max_files_per_submission: number | null;
+  json_validation_enabled: boolean | null;
+  json_schema: Database["public"]["Tables"]["endpoints"]["Row"]["json_schema"];
 }
 
 interface Project {
@@ -154,6 +156,8 @@ export default function EndpointDetailsPage() {
   };
 
   const fetchData = async () => {
+    if (!user?.id) return; // Early return if user or user.id is not available
+    
     try {
       setIsLoading(true);
 
@@ -162,7 +166,7 @@ export default function EndpointDetailsPage() {
         .from("projects")
         .select("id, name")
         .eq("id", projectId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .single();
 
       if (projectError) throw projectError;
@@ -319,7 +323,7 @@ export default function EndpointDetailsPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <DashboardHeader
         title={endpoint.name}
-        subtitle={endpoint.description}
+        subtitle={endpoint.description || undefined}
         actions={
           <div className="flex space-x-3">
             <Link href={`/dashboard/projects/${projectId}`}>

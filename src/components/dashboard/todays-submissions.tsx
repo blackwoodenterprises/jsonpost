@@ -121,7 +121,20 @@ export function TodaysSubmissions({ userId }: TodaysSubmissionsProps) {
         return;
       }
 
-      setSubmissions(submissionsData || []);
+      setSubmissions((submissionsData || []).map(submission => ({
+        ...submission,
+        data: (submission.data as Record<string, unknown>) || {},
+        ip_address: (submission.ip_address as string) || '',
+        user_agent: submission.user_agent || '',
+        created_at: submission.created_at || '',
+        file_uploads: ((submission as Record<string, unknown>).file_uploads as Array<Record<string, unknown>> || []).map((upload: Record<string, unknown>) => ({
+          id: (upload.id as string) || '',
+          original_filename: (upload.original_filename as string) || '',
+          file_size_bytes: (upload.file_size_bytes as number) || 0,
+          mime_type: (upload.mime_type as string) || '',
+          created_at: (upload.created_at as string) || ''
+        }))
+      })));
     } catch (error) {
       console.error("Error fetching today's submissions:", error);
     } finally {

@@ -38,10 +38,6 @@ import {
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 
-interface SubmissionData {
-  [key: string]: unknown;
-}
-
 interface FileUpload {
   id: string;
   original_filename: string;
@@ -55,7 +51,7 @@ interface FileUpload {
 
 interface Submission {
   id: string;
-  data: SubmissionData;
+  data: Record<string, unknown>;
   ip_address: string;
   user_agent: string;
   created_at: string;
@@ -147,7 +143,37 @@ export default function SubmissionDetailPage() {
         return;
       }
 
-      setSubmission(submissionData);
+      setSubmission({
+        ...submissionData,
+        data: (submissionData.data as Record<string, unknown>) || {},
+        ip_address: (submissionData.ip_address as string) || "",
+        user_agent: submissionData.user_agent || "",
+        created_at: submissionData.created_at || "",
+        zapier_status: (submissionData.zapier_status as 'success' | 'failure' | null) || null,
+        file_uploads: submissionData.file_uploads?.map((upload: Record<string, unknown>) => ({
+          id: upload.id as string || "",
+          original_filename: upload.original_filename as string || "",
+          stored_filename: upload.stored_filename as string || "",
+          file_path: upload.file_path as string || "",
+          file_size_bytes: upload.file_size_bytes as number || 0,
+          mime_type: upload.mime_type as string || "",
+          storage_bucket: upload.storage_bucket as string || "",
+          created_at: upload.created_at as string || ""
+        })) || [],
+        endpoints: {
+          ...submissionData.endpoints,
+          id: submissionData.endpoints?.id || "",
+          name: submissionData.endpoints?.name || "",
+          path: submissionData.endpoints?.path || "",
+          webhook_url: submissionData.endpoints?.webhook_url || null,
+          email_notifications: submissionData.endpoints?.email_notifications || false,
+          project_id: submissionData.endpoints?.project_id || "",
+          projects: {
+            id: submissionData.endpoints?.projects?.id || "",
+            name: submissionData.endpoints?.projects?.name || ""
+          }
+        }
+      });
 
       // Always fetch webhook logs (since we now support multiple webhooks)
       const { data: webhookData } = await supabase
@@ -157,7 +183,12 @@ export default function SubmissionDetailPage() {
         .order("created_at", { ascending: false });
 
       if (webhookData) {
-        setWebhookLogs(webhookData);
+        setWebhookLogs(webhookData.map(log => ({
+          ...log,
+          status_code: log.status_code || 0,
+          response_body: log.response_body || "",
+          created_at: log.created_at || ""
+        })));
       }
 
       // Always fetch email logs (since we now support multiple email addresses)
@@ -168,7 +199,11 @@ export default function SubmissionDetailPage() {
         .order("created_at", { ascending: false });
 
       if (emailData) {
-        setEmailLogs(emailData);
+        setEmailLogs(emailData.map(log => ({
+          ...log,
+          status: (log.status as "sent" | "failed") || "failed",
+          created_at: log.created_at || ""
+        })));
       }
     } catch {
       setError("Failed to load submission data");

@@ -34,7 +34,7 @@ import type { LimitCheckResult } from "@/lib/billing";
 interface Project {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
 }
 
 // Helper function to format database errors into user-friendly messages

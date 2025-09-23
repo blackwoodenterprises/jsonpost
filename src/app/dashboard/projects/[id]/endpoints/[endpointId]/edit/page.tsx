@@ -28,27 +28,37 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 
+import { Database } from "@/lib/database.types";
+
 interface Endpoint {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
+  project_id: string;
+  endpoint_key: string;
   method: string;
   path: string;
-  email_notifications: boolean;
+  allowed_domains: string[] | null;
+  email_notifications: boolean | null;
   webhook_url: string | null;
   redirect_url: string | null;
-  success_message: string;
-  error_message: string;
-  created_at: string;
-  allowed_domains: string | null;
-  cors_enabled: boolean;
-  require_api_key: boolean;
-  file_uploads_enabled: boolean;
+  success_message: string | null;
+  error_message: string | null;
+  store_submissions: boolean | null;
+  spam_protection: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
+  uses_multiple_emails: boolean | null;
+  uses_multiple_webhooks: boolean | null;
+  cors_enabled: boolean | null;
+  require_api_key: boolean | null;
+  endpoint_key_deprecated: boolean | null;
+  file_uploads_enabled: boolean | null;
   allowed_file_types: string[] | null;
-  max_file_size_mb: number;
-  max_files_per_submission: number;
-  json_validation_enabled: boolean;
-  json_schema: Record<string, unknown> | null;
+  max_file_size_mb: number | null;
+  max_files_per_submission: number | null;
+  json_validation_enabled: boolean | null;
+  json_schema: Database["public"]["Tables"]["endpoints"]["Row"]["json_schema"];
 }
 
 export default function EditEndpointPage() {
@@ -97,13 +107,15 @@ export default function EditEndpointPage() {
   }, [user, loading, router, projectId, endpointId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async () => {
+    if (!user?.id) return; // Early return if user or user.id is not available
+    
     try {
       // Fetch project (for validation only)
       const { error: projectError } = await supabase
         .from("projects")
         .select("id, name")
         .eq("id", projectId)
-        .eq("user_id", user?.id)
+        .eq("user_id", user.id)
         .single();
 
       if (projectError) throw projectError;

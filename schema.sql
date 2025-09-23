@@ -11,8 +11,8 @@ CREATE TABLE public.email_logs (
   sent_at timestamp with time zone,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT email_logs_pkey PRIMARY KEY (id),
-  CONSTRAINT email_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id),
-  CONSTRAINT email_logs_endpoint_email_id_fkey FOREIGN KEY (endpoint_email_id) REFERENCES public.endpoint_emails(id)
+  CONSTRAINT email_logs_endpoint_email_id_fkey FOREIGN KEY (endpoint_email_id) REFERENCES public.endpoint_emails(id),
+  CONSTRAINT email_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
 );
 CREATE TABLE public.endpoint_emails (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -61,6 +61,8 @@ CREATE TABLE public.endpoints (
   allowed_file_types ARRAY DEFAULT ARRAY['image/jpeg'::text, 'image/png'::text, 'image/gif'::text, 'image/webp'::text, 'application/pdf'::text, 'text/plain'::text, 'text/csv'::text, 'application/msword'::text, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'::text],
   max_file_size_mb integer DEFAULT 10,
   max_files_per_submission integer DEFAULT 5,
+  json_validation_enabled boolean DEFAULT false,
+  json_schema jsonb,
   CONSTRAINT endpoints_pkey PRIMARY KEY (id),
   CONSTRAINT endpoints_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
 );
@@ -96,6 +98,15 @@ CREATE TABLE public.profiles (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   plan USER-DEFINED NOT NULL DEFAULT 'FREE'::plan_type,
+  zapier_api_key text DEFAULT encode(gen_random_bytes(32), 'hex'::text) UNIQUE,
+  dodo_customer_id text,
+  dodo_subscription_id text,
+  dodo_subscription_status text CHECK (dodo_subscription_status = ANY (ARRAY['active'::text, 'cancelled'::text, 'expired'::text, 'past_due'::text, 'trialing'::text, 'incomplete'::text, 'incomplete_expired'::text, 'unpaid'::text])),
+  dodo_subscription_current_period_start timestamp with time zone,
+  dodo_subscription_current_period_end timestamp with time zone,
+  dodo_subscription_cancel_at_period_end boolean DEFAULT false,
+  dodo_last_payment_date timestamp with time zone,
+  dodo_next_payment_date timestamp with time zone,
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );
@@ -116,8 +127,8 @@ CREATE TABLE public.submissions (
   data jsonb NOT NULL,
   ip_address inet,
   user_agent text,
-  zapier_status text CHECK (zapier_status = ANY (ARRAY['success'::text, 'failure'::text])),
   created_at timestamp with time zone DEFAULT now(),
+  zapier_status text CHECK (zapier_status = ANY (ARRAY['success'::text, 'failure'::text])),
   CONSTRAINT submissions_pkey PRIMARY KEY (id),
   CONSTRAINT submissions_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id)
 );
@@ -133,27 +144,19 @@ CREATE TABLE public.webhook_logs (
   sent_at timestamp with time zone,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT webhook_logs_pkey PRIMARY KEY (id),
-  CONSTRAINT webhook_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id),
-  CONSTRAINT webhook_logs_endpoint_webhook_id_fkey FOREIGN KEY (endpoint_webhook_id) REFERENCES public.endpoint_webhooks(id)
+  CONSTRAINT webhook_logs_endpoint_webhook_id_fkey FOREIGN KEY (endpoint_webhook_id) REFERENCES public.endpoint_webhooks(id),
+  CONSTRAINT webhook_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
 );
-
--- Zapier subscriptions table for REST Hooks integration
 CREATE TABLE public.zapier_subscriptions (
-  id uuid DEFAULT gen_random_uuid() NOT NULL,
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   endpoint_id uuid NOT NULL,
   target_url text NOT NULL,
-  event_type text NOT NULL DEFAULT 'new_submission',
+  event_type text NOT NULL DEFAULT 'new_submission'::text CHECK (event_type = ANY (ARRAY['new_submission'::text])),
   is_active boolean DEFAULT true,
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT zapier_subscriptions_pkey PRIMARY KEY (id),
-  CONSTRAINT zapier_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id) ON DELETE CASCADE,
-  CONSTRAINT zapier_subscriptions_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id) ON DELETE CASCADE,
-  CONSTRAINT zapier_subscriptions_event_type_check CHECK (event_type = ANY (ARRAY['new_submission'::text]))
+  CONSTRAINT zapier_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id),
+  CONSTRAINT zapier_subscriptions_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id)
 );
-
--- Index for efficient lookups
-CREATE INDEX idx_zapier_subscriptions_endpoint_id ON public.zapier_subscriptions(endpoint_id);
-CREATE INDEX idx_zapier_subscriptions_user_id ON public.zapier_subscriptions(user_id);
-CREATE INDEX idx_zapier_subscriptions_active ON public.zapier_subscriptions(is_active) WHERE is_active = true;
