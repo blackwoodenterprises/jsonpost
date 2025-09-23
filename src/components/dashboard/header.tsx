@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/components/auth/auth-provider";
+import { getUserProfile, type UserProfile } from "@/lib/billing";
 import { ChevronDown, Menu, Code } from "lucide-react";
 
 interface DashboardHeaderProps {
@@ -21,10 +23,43 @@ export function DashboardHeader({
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const handleSignOut = async () => {
     await signOut();
     router.push("/");
+  };
+
+  // Fetch user profile to get plan information
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const profile = await getUserProfile(user.id);
+          setUserProfile(profile);
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user?.id]);
+
+
+
+  // Get badge color classes based on plan type
+  const getPlanBadgeClasses = (plan: string) => {
+    switch (plan) {
+      case 'FREE':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+      case 'PRO':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'GROWTH':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+    }
   };
 
   return (
@@ -39,6 +74,14 @@ export function DashboardHeader({
               </div>
               <span className="text-xl font-bold">JSONPost</span>
             </Link>
+            {/* Plan Badge */}
+            {userProfile?.plan && (
+              <Badge 
+                className={`ml-3 text-xs font-medium ${getPlanBadgeClasses(userProfile.plan)}`}
+              >
+                {userProfile.plan}
+              </Badge>
+            )}
           </div>
 
           {/* Right side - User Menu */}

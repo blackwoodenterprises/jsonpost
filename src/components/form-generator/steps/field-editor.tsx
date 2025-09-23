@@ -38,7 +38,6 @@ export function FieldEditor({
   onBack
 }: FieldEditorProps) {
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [showEndpointConfig, setShowEndpointConfig] = useState(false);
 
   const fieldTypes = [
     { value: 'text', label: 'Text' },
@@ -249,6 +248,46 @@ export function FieldEditor({
           Edit, reorder, and configure your form fields
         </p>
       </div>
+
+      {/* What are Endpoints? */}
+      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+              <span className="text-white text-sm font-bold">?</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                What are Endpoints?
+              </h3>
+              <p className="text-blue-800 dark:text-blue-200 mb-3">
+                An endpoint is a secure URL where your form submissions are sent and processed. 
+                When someone fills out your form, their data is automatically delivered to your endpoint, 
+                where you can receive notifications, store the data, or trigger automated workflows.
+              </p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-600">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                  <strong>Get a free endpoint on JSONPost:</strong>
+                </p>
+                <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 mb-3">
+                  <li>• Instant email notifications when forms are submitted</li>
+                  <li>• Secure data storage and management dashboard</li>
+                  <li>• Spam protection and file upload support</li>
+                  <li>• No server setup or coding required</li>
+                </ul>
+                <a 
+                  href="/auth/signup" 
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Create your free JSONPost account →
+                </a>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Endpoint Configuration */}
       <Card>

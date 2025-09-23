@@ -730,7 +730,7 @@ export default function EndpointDetailsPage() {
                     </Button>
                     <Button variant="outline" asChild className="flex-1">
                       <Link
-                        href="/form-generator"
+                        href="/free-html-form-generator"
                         target="_blank"
                         rel="noopener noreferrer"
                       >

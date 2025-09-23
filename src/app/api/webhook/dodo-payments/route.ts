@@ -7,23 +7,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Define interfaces for Dodo webhook payloads
-interface DodoWebhookPayload {
-  data: {
-    metadata?: {
-      userId?: string;
-    };
-    product_id?: string;
-    subscription_id?: string;
-    customer?: {
-      customer_id?: string;
-    };
-    status?: string;
-    next_billing_date?: string;
-    previous_billing_date?: string;
-    cancel_at_next_billing_date?: boolean;
-  };
-}
+
 
 export const POST = Webhooks({
   webhookKey: process.env.DODO_WEBHOOK_SECRET!,

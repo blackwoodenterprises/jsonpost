@@ -85,7 +85,7 @@ export default function ProjectSettingsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, user?.id, router]);
+  }, [projectId, router, user]);
 
   useEffect(() => {
     if (!loading && !user) {

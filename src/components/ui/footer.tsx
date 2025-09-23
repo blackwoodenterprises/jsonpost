@@ -36,7 +36,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/form-generator" className="hover:text-white">
+                <Link href="/free-html-form-generator" className="hover:text-white">
                   Free HTML Form Generator
                 </Link>
               </li>

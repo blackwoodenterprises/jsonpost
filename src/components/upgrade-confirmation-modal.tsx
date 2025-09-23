@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { PLANS } from '@/lib/plans';
 import { useToast } from '@/hooks/use-toast';
 
@@ -37,7 +37,6 @@ function UpgradeConfirmationModal({
 
   const priceDifference = target.price - current.price;
   const isDowngrade = priceDifference < 0;
-  const isUpgrade = priceDifference > 0;
 
   const handlePlanChange = async () => {
     setIsUpgrading(true);

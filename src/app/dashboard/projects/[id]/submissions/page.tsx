@@ -32,9 +32,7 @@ import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
 
-interface SubmissionData {
-  [key: string]: unknown;
-}
+
 
 interface FileUpload {
   id: string;
@@ -106,7 +104,7 @@ export default function AllSubmissionsPage() {
     } catch {
       setError("Failed to load project data");
     }
-  }, [projectId, user?.id]);
+  }, [projectId, user]);
 
   const fetchEndpoints = useCallback(async () => {
     try {

@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
     '/',
     '/docs',
     '/quick-start',
-    '/form-generator',
+    '/free-html-form-generator',
     '/status',
     '/help',
     '/terms-of-service',

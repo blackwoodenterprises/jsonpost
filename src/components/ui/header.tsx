@@ -18,7 +18,7 @@ export function Header() {
         <div className="flex items-center space-x-3">
           <Button variant="ghost" asChild className="relative">
             <Link
-              href="/form-generator"
+              href="/free-html-form-generator"
               className="flex items-center space-x-2"
             >
               <Wand2 className="w-4 h-4" />

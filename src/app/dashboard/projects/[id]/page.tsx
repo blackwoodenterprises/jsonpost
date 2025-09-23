@@ -22,7 +22,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
-import { Database, Json } from "@/lib/database.types";
+
 import {
   ArrowLeft,
   Plus,
@@ -254,7 +254,7 @@ export default function ProjectPage() {
     } finally {
       setLoading(false);
     }
-  }, [projectId, user?.id, currentPage, pageSize]);
+  }, [projectId, currentPage, pageSize, user]);
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
