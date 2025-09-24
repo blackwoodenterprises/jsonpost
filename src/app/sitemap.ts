@@ -10,6 +10,7 @@ const staticRoutes = [
   '/docs',
   '/blog',
   '/free-html-form-generator',
+  '/free-json-schema-builder',
   '/help',
   '/quick-start',
   '/privacy-policy',

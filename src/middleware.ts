@@ -35,6 +35,7 @@ export async function middleware(request: NextRequest) {
     '/docs',
     '/quick-start',
     '/free-html-form-generator',
+    '/free-json-schema-builder',
     '/status',
     '/help',
     '/terms-of-service',
@@ -48,7 +49,7 @@ export async function middleware(request: NextRequest) {
     '/api/zapier/unsubscribe',
     '/api/zapier/perform',
     '/api/zapier/endpoints',
-    '/api/webhook/dodo-payments'
+    '/api/webhook/dodo-payments',
   ]
   
   // If user is not signed in and the current path is not /auth/ or a public path, redirect the user to /auth/login

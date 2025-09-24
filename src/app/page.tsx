@@ -771,6 +771,78 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Free Tools Section */}
+      <section className="py-16 px-4 bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-green-900/10 dark:via-blue-900/10 dark:to-purple-900/10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <Badge
+              variant="secondary"
+              className="mb-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+            >
+              <Sparkles className="w-4 h-4 mr-1" />
+              Free Tools
+            </Badge>
+            <h2 className="text-3xl font-bold mb-4">Developer Tools</h2>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Free utilities to help you build better forms and work with data
+              structures
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* HTML Form Generator */}
+            <Card className="border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300 hover:shadow-lg group">
+              <CardHeader>
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Code className="w-6 h-6 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">
+                  Free HTML Form Generator
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Create beautiful, responsive HTML forms with our visual form
+                  builder. Choose from templates, customize fields, and export
+                  clean HTML code.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full">
+                  <Link href="/free-html-form-generator">
+                    Try Form Generator
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* JSON Schema Builder */}
+            <Card className="border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-700 transition-all duration-300 hover:shadow-lg group">
+              <CardHeader>
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <Database className="w-6 h-6 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl">
+                  Free JSON Schema Builder
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Create, edit, and validate JSON schemas visually. Infer
+                  schemas from JSON data, test validation, and export code in
+                  multiple languages.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/free-json-schema-builder">
+                    Try Schema Builder
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* Coming Soon Section */}
       <section className="py-16 px-4 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto max-w-6xl">

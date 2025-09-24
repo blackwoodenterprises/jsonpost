@@ -41,6 +41,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/free-json-schema-builder" className="hover:text-white">
+                  Free JSON Schema Builder
+                </Link>
+              </li>
+              <li>
                 <Link href="/blog" className="hover:text-white">
                   Blog
                 </Link>
