@@ -41,8 +41,6 @@ export async function middleware(request: NextRequest) {
     '/privacy-policy',
     '/refund-policy',
     '/blog',
-    '/sitemap.xml',
-    '/robots.txt',
     '/api/zapier/auth',
     '/api/zapier/subscribe',
     '/api/zapier/unsubscribe',
@@ -74,10 +72,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - api/submit (public form submission endpoint)
-     * - sitemap.xml (sitemap file)
-     * - robots.txt (robots file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/submit|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/submit|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
