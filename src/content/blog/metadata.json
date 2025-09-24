@@ -1,0 +1,15 @@
+[
+  {
+  "slug": "why-do-we-need-jsonpost-backend-form-handlers",
+  "mdxFile": "why-do-we-need-jsonpost-backend-form-handlers.mdx",
+  "title": "Why Do We Need JSONPost (and Other Backend Form Handlers)?",
+  "description": "Understanding why backend form handlers like JSONPost exist and why they're essential for modern web development. Learn how they solve the complexity gap between simple HTML forms and backend infrastructure.",
+  "ogImage": "/blog-images/why-do-we-need-jsonpost-backend-form-handlers.png",
+  "date": "2024-02-15",
+  "author": "JSONPost Team",
+  "category": "Education",
+  "tags": ["forms", "backend", "static sites", "web development", "jsonpost"],
+  "readTime": "8 min read",
+  "featured": true
+}
+]

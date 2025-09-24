@@ -40,6 +40,7 @@ export async function middleware(request: NextRequest) {
     '/terms-of-service',
     '/privacy-policy',
     '/refund-policy',
+    '/blog',
     '/api/zapier/auth',
     '/api/zapier/subscribe',
     '/api/zapier/unsubscribe',
@@ -49,7 +50,7 @@ export async function middleware(request: NextRequest) {
   ]
   
   // If user is not signed in and the current path is not /auth/ or a public path, redirect the user to /auth/login
-  if (!user && !request.nextUrl.pathname.startsWith('/auth/') && !publicPaths.includes(request.nextUrl.pathname)) {
+  if (!user && !request.nextUrl.pathname.startsWith('/auth/') && !publicPaths.includes(request.nextUrl.pathname) && !request.nextUrl.pathname.startsWith('/blog/')) {
     return NextResponse.redirect(new URL('/auth/login?redirectTo=' + encodeURIComponent(request.nextUrl.pathname), request.url))
   }
 

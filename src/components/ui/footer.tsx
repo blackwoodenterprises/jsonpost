@@ -40,6 +40,11 @@ export function Footer() {
                   Free HTML Form Generator
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="hover:text-white">
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
