@@ -1,32 +1,66 @@
-"use client";
+import { Metadata } from "next";
+import { HtmlFormGeneratorClient } from "@/components/pages/html-form-generator-client";
 
-import { Header } from "@/components/ui/header";
-import { Footer } from "@/components/ui/footer";
-import { FormGeneratorWizard } from "@/components/form-generator/form-generator-wizard";
+export const metadata: Metadata = {
+  title: "Free HTML Form Generator | Create Beautiful Forms Instantly - JSONPost",
+  description: "Create stunning, responsive HTML forms with our free visual form builder. Choose from templates, customize fields, add validation, and export clean HTML code. No coding required!",
+  keywords: [
+    "HTML form generator",
+    "free form builder",
+    "form creator",
+    "HTML forms",
+    "contact form generator",
+    "responsive forms",
+    "form templates",
+    "web forms",
+    "form validation",
+    "bootstrap forms",
+    "CSS forms",
+    "form design tool"
+  ],
+  authors: [{ name: "JSONPost Team" }],
+  creator: "JSONPost",
+  publisher: "JSONPost",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://jsonpost.com/free-html-form-generator",
+    title: "Free HTML Form Generator | Create Beautiful Forms Instantly",
+    description: "Create stunning, responsive HTML forms with our free visual form builder. Choose from templates, customize fields, and export clean HTML code instantly.",
+    siteName: "JSONPost",
+    images: [
+      {
+        url: "/og-images/html-form-generator.png",
+        width: 1200,
+        height: 630,
+        alt: "Free HTML Form Generator - Create Beautiful Forms Instantly",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Free HTML Form Generator | Create Beautiful Forms Instantly",
+    description: "Create stunning, responsive HTML forms with our free visual form builder. Choose from templates, customize fields, and export clean HTML code instantly.",
+    images: ["/og-images/html-form-generator.png"],
+    creator: "@jsonpost",
+  },
+  alternates: {
+    canonical: "https://jsonpost.com/free-html-form-generator",
+  },
+  category: "Web Development Tools",
+};
 
 export default function FormGeneratorPage() {
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      <Header />
-
-      <main className="py-8 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Free HTML Form Generator
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Create beautiful, functional forms in minutes. Choose from
-              templates, customize fields, select themes, and get ready-to-use
-              code.
-            </p>
-          </div>
-
-          <FormGeneratorWizard />
-        </div>
-      </main>
-
-      <Footer />
-    </div>
-  );
+  return <HtmlFormGeneratorClient />;
 }
