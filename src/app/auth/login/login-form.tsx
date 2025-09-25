@@ -22,7 +22,8 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/dashboard";
@@ -30,7 +31,7 @@ export default function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     console.log("handleLogin called");
     e.preventDefault();
-    setLoading(true);
+    setEmailLoading(true);
     setError("");
 
     console.log("Attempting login with email:", email);
@@ -52,12 +53,12 @@ export default function LoginForm() {
     } catch {
       setError("An unexpected error occurred");
     } finally {
-      setLoading(false);
+      setEmailLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
+    setGoogleLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -71,7 +72,7 @@ export default function LoginForm() {
     } catch {
       setError("An unexpected error occurred");
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -105,9 +106,9 @@ export default function LoginForm() {
               variant="outline"
               className="w-full"
               onClick={handleGoogleLogin}
-              disabled={loading}
+              disabled={googleLoading || emailLoading}
             >
-              {loading ? (
+              {googleLoading ? (
                 <div className="flex items-center justify-center space-x-2">
                   <LoadingSpinner size="sm" />
                   <span>Connecting to Google...</span>
@@ -200,8 +201,8 @@ export default function LoginForm() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
+              <Button type="submit" className="w-full" disabled={emailLoading || googleLoading}>
+                {emailLoading ? (
                   <div className="flex items-center justify-center space-x-2">
                     <LoadingSpinner size="sm" />
                     <span>Signing in...</span>
