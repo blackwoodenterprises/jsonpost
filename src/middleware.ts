@@ -1,7 +1,146 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import Redis from 'ioredis'
+
+// Initialize Redis client for rate limiting
+let redis: Redis | null = null
+
+function getRedisClient(): Redis {
+  if (!redis) {
+    redis = new Redis(process.env.KEY_VALUE_STORE_REDIS_URL!, {
+      maxRetriesPerRequest: 3,
+      lazyConnect: true,
+    })
+  }
+  return redis
+}
+
+// Rate limiting function using sliding window approach
+async function checkRateLimit(
+  identifier: string,
+  windowSizeSeconds: number,
+  maxRequests: number
+): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  try {
+    const redisClient = getRedisClient()
+    const now = Date.now()
+    const windowStart = now - (windowSizeSeconds * 1000)
+    const key = `rate_limit:${identifier}:${windowSizeSeconds}`
+
+    // Use Redis pipeline for atomic operations
+    const pipeline = redisClient.pipeline()
+    
+    // Remove expired entries
+    pipeline.zremrangebyscore(key, 0, windowStart)
+    
+    // Count current requests in window
+    pipeline.zcard(key)
+    
+    // Add current request
+    pipeline.zadd(key, now, `${now}-${Math.random()}`)
+    
+    // Set expiration
+    pipeline.expire(key, windowSizeSeconds)
+    
+    const results = await pipeline.exec()
+    
+    if (!results) {
+      throw new Error('Redis pipeline failed')
+    }
+
+    const currentCount = (results[1][1] as number) + 1 // +1 for the request we just added
+    const allowed = currentCount <= maxRequests
+    const remaining = Math.max(0, maxRequests - currentCount)
+    const resetTime = now + (windowSizeSeconds * 1000)
+
+    if (!allowed) {
+      // Remove the request we just added since it's not allowed
+      await redisClient.zrem(key, `${now}-${Math.random()}`)
+    }
+
+    return { allowed, remaining, resetTime }
+  } catch (error) {
+    console.error('Rate limiting error:', error)
+    // Fail open - allow the request if Redis is unavailable
+    return { allowed: true, remaining: maxRequests - 1, resetTime: Date.now() + (windowSizeSeconds * 1000) }
+  }
+}
+
+// Get client identifier for rate limiting
+function getClientIdentifier(request: NextRequest): string {
+  // Try to get IP from various headers (for different deployment environments)
+  const forwarded = request.headers.get('x-forwarded-for')
+  const realIp = request.headers.get('x-real-ip')
+  const cfConnectingIp = request.headers.get('cf-connecting-ip')
+  
+  let ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown'
+  
+  // For submission endpoints, also include the endpoint path for more granular limiting
+  if (request.nextUrl.pathname.startsWith('/api/submit/')) {
+    const pathParts = request.nextUrl.pathname.split('/')
+    if (pathParts.length >= 5) {
+      const projectId = pathParts[3]
+      const endpointPath = pathParts[4]
+      ip = `${ip}:${projectId}:${endpointPath}`
+    }
+  }
+  
+  return ip
+}
 
 export async function middleware(request: NextRequest) {
+  // Apply rate limiting to submission endpoints
+  if (request.nextUrl.pathname.startsWith('/api/submit/')) {
+    const identifier = getClientIdentifier(request)
+    
+    // Check both rate limits: 5 requests per 10 seconds AND 100 requests per minute
+    const [shortTermLimit, longTermLimit] = await Promise.all([
+      checkRateLimit(identifier, 10, 5),    // 5 requests per 10 seconds
+      checkRateLimit(identifier, 60, 100)   // 100 requests per minute
+    ])
+    
+    // If either limit is exceeded, return rate limit error
+    if (!shortTermLimit.allowed || !longTermLimit.allowed) {
+      const limitExceeded = !shortTermLimit.allowed ? shortTermLimit : longTermLimit
+      const retryAfter = Math.ceil((limitExceeded.resetTime - Date.now()) / 1000)
+      
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Rate limit exceeded',
+          message: !shortTermLimit.allowed 
+            ? 'Too many requests. Maximum 5 requests per 10 seconds allowed.'
+            : 'Too many requests. Maximum 100 requests per minute allowed.',
+          retryAfter: retryAfter
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit-Short': '5',
+            'X-RateLimit-Remaining-Short': shortTermLimit.remaining.toString(),
+            'X-RateLimit-Reset-Short': Math.ceil(shortTermLimit.resetTime / 1000).toString(),
+            'X-RateLimit-Limit-Long': '100',
+            'X-RateLimit-Remaining-Long': longTermLimit.remaining.toString(),
+            'X-RateLimit-Reset-Long': Math.ceil(longTermLimit.resetTime / 1000).toString(),
+          },
+        }
+      )
+    }
+    
+    // Add rate limit headers to successful requests
+    const response = NextResponse.next()
+    response.headers.set('X-RateLimit-Limit-Short', '5')
+    response.headers.set('X-RateLimit-Remaining-Short', shortTermLimit.remaining.toString())
+    response.headers.set('X-RateLimit-Reset-Short', Math.ceil(shortTermLimit.resetTime / 1000).toString())
+    response.headers.set('X-RateLimit-Limit-Long', '100')
+    response.headers.set('X-RateLimit-Remaining-Long', longTermLimit.remaining.toString())
+    response.headers.set('X-RateLimit-Reset-Long', Math.ceil(longTermLimit.resetTime / 1000).toString())
+    
+    // Continue with the request but return early to avoid auth checks for API endpoints
+    return response
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
