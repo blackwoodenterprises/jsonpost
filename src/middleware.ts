@@ -1,15 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import Redis from 'ioredis'
+import { Redis } from '@upstash/redis'
 
 // Initialize Redis client for rate limiting
 let redis: Redis | null = null
 
 function getRedisClient(): Redis {
   if (!redis) {
-    redis = new Redis(process.env.KEY_VALUE_STORE_REDIS_URL!, {
-      maxRetriesPerRequest: 3,
-      lazyConnect: true,
+    redis = new Redis({
+      url: process.env.KEY_VALUE_STORE_KV_REST_API_URL!,
+      token: process.env.KEY_VALUE_STORE_KV_REST_API_TOKEN!,
     })
   }
   return redis
@@ -37,7 +37,7 @@ async function checkRateLimit(
     pipeline.zcard(key)
     
     // Add current request
-    pipeline.zadd(key, now, `${now}-${Math.random()}`)
+    pipeline.zadd(key, { score: now, member: `${now}-${Math.random()}` })
     
     // Set expiration
     pipeline.expire(key, windowSizeSeconds)
@@ -48,7 +48,7 @@ async function checkRateLimit(
       throw new Error('Redis pipeline failed')
     }
 
-    const currentCount = (results[1][1] as number) + 1 // +1 for the request we just added
+    const currentCount = (results[1] as number) + 1 // +1 for the request we just added
     const allowed = currentCount <= maxRequests
     const remaining = Math.max(0, maxRequests - currentCount)
     const resetTime = now + (windowSizeSeconds * 1000)
@@ -66,26 +66,28 @@ async function checkRateLimit(
   }
 }
 
-// Get client identifier for rate limiting
+// Get client identifier for rate limiting - purely based on IP and endpoint ID
 function getClientIdentifier(request: NextRequest): string {
   // Try to get IP from various headers (for different deployment environments)
   const forwarded = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
   const cfConnectingIp = request.headers.get('cf-connecting-ip')
   
-  let ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown'
+  const ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown'
   
-  // For submission endpoints, also include the endpoint path for more granular limiting
+  // Extract endpoint ID from URL path: /api/submit/[projectId]/[endpointPath]
   if (request.nextUrl.pathname.startsWith('/api/submit/')) {
     const pathParts = request.nextUrl.pathname.split('/')
     if (pathParts.length >= 5) {
       const projectId = pathParts[3]
       const endpointPath = pathParts[4]
-      ip = `${ip}:${projectId}:${endpointPath}`
+      // Create unique identifier: IP:projectId:endpointPath
+      return `${ip}:${projectId}:${endpointPath}`
     }
   }
   
-  return ip
+  // Fallback for other endpoints
+  return `${ip}:${request.nextUrl.pathname}`
 }
 
 export async function middleware(request: NextRequest) {
