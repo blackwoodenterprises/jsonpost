@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { emailService } from '@/lib/email'
+import { Svix } from 'svix'
 import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
 
@@ -693,73 +694,111 @@ export async function POST(
       console.log('Successfully updated monthly submission count')
     }
 
-    // Fetch multiple webhook URLs for this endpoint
-    const { data: webhookUrls } = await supabase
-      .from('endpoint_webhooks')
-      .select('id, webhook_url')
-      .eq('endpoint_id', endpoint.id)
-      .eq('is_active', true)
-
-    // Send webhooks if configured
-    if (webhookUrls && webhookUrls.length > 0) {
-      // Prepare webhook payload with file information
-      const webhookPayload = {
-        ...submissionData,
-        _files: fileUploadRecords.map(file => ({
-          id: file.id,
-          original_filename: file.original_filename,
-          file_size_bytes: file.file_size_bytes,
-          mime_type: file.mime_type,
-          download_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/form-uploads/${file.file_path}`
-        }))
-      }
-
-      const webhookPromises = webhookUrls.map(async (webhookConfig) => {
-        try {
-          const webhookResponse = await fetch(webhookConfig.webhook_url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'User-Agent': 'JSONPost-Webhook/1.0'
-            },
-            body: JSON.stringify(webhookPayload)
-          })
-
-          // Log webhook delivery
-          await supabase
-            .from('webhook_logs')
-            .insert({
-              submission_id: submission.id,
-              endpoint_webhook_id: webhookConfig.id,
-              webhook_url: webhookConfig.webhook_url,
-              status_code: webhookResponse.status,
-              response_body: await webhookResponse.text(),
-              status: 'sent',
-              sent_at: new Date().toISOString()
-            })
-
-          return { success: true, url: webhookConfig.webhook_url }
-        } catch (webhookError) {
-          console.error('Webhook delivery failed:', webhookError)
-          
-          // Log failed webhook delivery
-          await supabase
-            .from('webhook_logs')
-            .insert({
-              submission_id: submission.id,
-              endpoint_webhook_id: webhookConfig.id,
-              webhook_url: webhookConfig.webhook_url,
-              status_code: 0,
-              error_message: webhookError instanceof Error ? webhookError.message : 'Unknown error',
-              status: 'failed',
-              sent_at: new Date().toISOString()
-            })
-
-          return { success: false, url: webhookConfig.webhook_url, error: webhookError }
+    // Send webhooks via Svix if enabled
+    if (endpoint.webhooks_enabled && endpoint.svix_app_id) {
+      try {
+        const svix = new Svix(process.env.SVIX_AUTH_TOKEN!)
+        
+        // Prepare webhook payload with file information
+        const webhookPayload = {
+          ...submissionData,
+          _files: fileUploadRecords.map(file => ({
+            id: file.id,
+            original_filename: file.original_filename,
+            file_size_bytes: file.file_size_bytes,
+            mime_type: file.mime_type,
+            download_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/form-uploads/${file.file_path}`
+          })),
+          endpoint: {
+            id: endpoint.id,
+            name: endpoint.name,
+            path: endpoint.path
+          },
+          submission_id: submission.id,
+          created_at: submission.created_at
         }
-      })
 
-      await Promise.allSettled(webhookPromises)
+        // Send event to Svix
+        await svix.message.create(endpoint.svix_app_id, {
+          eventType: 'form.submitted',
+          payload: webhookPayload
+        })
+
+        console.log('Successfully sent webhook event to Svix')
+      } catch (svixError) {
+        console.error('Failed to send webhook event to Svix:', svixError)
+        // Don't fail the submission if webhook fails
+      }
+    } else {
+      // Fallback to direct webhooks for backward compatibility
+      // Fetch multiple webhook URLs for this endpoint
+      const { data: webhookUrls } = await supabase
+        .from('endpoint_webhooks')
+        .select('id, webhook_url')
+        .eq('endpoint_id', endpoint.id)
+        .eq('is_active', true)
+
+      // Send webhooks if configured
+      if (webhookUrls && webhookUrls.length > 0) {
+        // Prepare webhook payload with file information
+        const webhookPayload = {
+          ...submissionData,
+          _files: fileUploadRecords.map(file => ({
+            id: file.id,
+            original_filename: file.original_filename,
+            file_size_bytes: file.file_size_bytes,
+            mime_type: file.mime_type,
+            download_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/form-uploads/${file.file_path}`
+          }))
+        }
+
+        const webhookPromises = webhookUrls.map(async (webhookConfig) => {
+          try {
+            const webhookResponse = await fetch(webhookConfig.webhook_url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'JSONPost-Webhook/1.0'
+              },
+              body: JSON.stringify(webhookPayload)
+            })
+
+            // Log webhook delivery
+            await supabase
+              .from('webhook_logs')
+              .insert({
+                submission_id: submission.id,
+                endpoint_webhook_id: webhookConfig.id,
+                webhook_url: webhookConfig.webhook_url,
+                status_code: webhookResponse.status,
+                response_body: await webhookResponse.text(),
+                status: 'sent',
+                sent_at: new Date().toISOString()
+              })
+
+            return { success: true, url: webhookConfig.webhook_url }
+          } catch (webhookError) {
+            console.error('Webhook delivery failed:', webhookError)
+            
+            // Log failed webhook delivery
+            await supabase
+              .from('webhook_logs')
+              .insert({
+                submission_id: submission.id,
+                endpoint_webhook_id: webhookConfig.id,
+                webhook_url: webhookConfig.webhook_url,
+                status_code: 0,
+                error_message: webhookError instanceof Error ? webhookError.message : 'Unknown error',
+                status: 'failed',
+                sent_at: new Date().toISOString()
+              })
+
+            return { success: false, url: webhookConfig.webhook_url, error: webhookError }
+          }
+        })
+
+        await Promise.allSettled(webhookPromises)
+      }
     }
 
     // Fetch multiple email addresses for this endpoint

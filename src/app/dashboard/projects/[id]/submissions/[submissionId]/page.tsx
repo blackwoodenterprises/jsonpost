@@ -34,6 +34,7 @@ import {
   Download,
   Trash2,
   Zap,
+  Webhook,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -62,8 +63,8 @@ interface Submission {
     id: string;
     name: string;
     path: string;
-    webhook_url: string | null;
     email_notifications: boolean;
+    webhooks_enabled: boolean;
     project_id: string;
     projects: {
       id: string;
@@ -72,14 +73,7 @@ interface Submission {
   };
 }
 
-interface WebhookLog {
-  id: string;
-  submission_id: string;
-  webhook_url: string;
-  status_code: number;
-  response_body: string;
-  created_at: string;
-}
+
 
 interface EmailLog {
   id: string;
@@ -99,7 +93,6 @@ export default function SubmissionDetailPage() {
   const submissionId = params.submissionId as string;
 
   const [submission, setSubmission] = useState<Submission | null>(null);
-  const [webhookLogs, setWebhookLogs] = useState<WebhookLog[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,8 +112,8 @@ export default function SubmissionDetailPage() {
             id,
             name,
             path,
-            webhook_url,
             email_notifications,
+            webhooks_enabled,
             project_id,
             projects!endpoints_project_id_fkey(
               id,
@@ -165,8 +158,8 @@ export default function SubmissionDetailPage() {
           id: submissionData.endpoints?.id || "",
           name: submissionData.endpoints?.name || "",
           path: submissionData.endpoints?.path || "",
-          webhook_url: submissionData.endpoints?.webhook_url || null,
           email_notifications: submissionData.endpoints?.email_notifications || false,
+          webhooks_enabled: submissionData.endpoints?.webhooks_enabled || false,
           project_id: submissionData.endpoints?.project_id || "",
           projects: {
             id: submissionData.endpoints?.projects?.id || "",
@@ -174,22 +167,6 @@ export default function SubmissionDetailPage() {
           }
         }
       });
-
-      // Always fetch webhook logs (since we now support multiple webhooks)
-      const { data: webhookData } = await supabase
-        .from("webhook_logs")
-        .select("*")
-        .eq("submission_id", submissionId)
-        .order("created_at", { ascending: false });
-
-      if (webhookData) {
-        setWebhookLogs(webhookData.map(log => ({
-          ...log,
-          status_code: log.status_code || 0,
-          response_body: log.response_body || "",
-          created_at: log.created_at || ""
-        })));
-      }
 
       // Always fetch email logs (since we now support multiple email addresses)
       const { data: emailData } = await supabase
@@ -448,62 +425,7 @@ export default function SubmissionDetailPage() {
               </Card>
             )}
 
-            {/* Webhook Logs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <ExternalLink className="h-5 w-5 mr-2" />
-                  Webhook Delivery
-                </CardTitle>
-                <CardDescription>
-                  Webhook delivery status and logs
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {webhookLogs.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <ExternalLink className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No webhook delivery logs found</p>
-                    <p className="text-sm">
-                      No webhooks configured or delivery may still be processing
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {webhookLogs.map((log) => (
-                      <div key={log.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center">
-                            {log.status_code >= 200 &&
-                            log.status_code < 300 ? (
-                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                            ) : (
-                              <XCircle className="h-4 w-4 text-red-500 mr-2" />
-                            )}
-                            <span className="text-sm font-medium">
-                              Status: {log.status_code}
-                            </span>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            {new Date(log.created_at).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-600 mb-2">
-                          URL: {log.webhook_url}
-                        </div>
-                        {log.response_body && (
-                          <div className="bg-gray-50 dark:bg-gray-800 rounded p-3">
-                            <pre className="text-xs overflow-x-auto">
-                              {log.response_body}
-                            </pre>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+
 
             {/* Email Logs */}
             <Card>
@@ -647,6 +569,36 @@ export default function SubmissionDetailPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Webhook Section */}
+            {submission.endpoints?.webhooks_enabled && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Webhook className="h-4 w-4 mr-2" />
+                    Webhooks
+                  </CardTitle>
+                  <CardDescription>
+                    Webhook events for this submission
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      This submission triggered webhook events. View detailed logs and manage webhook settings.
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${submission.endpoints?.id}/webhooks`}
+                      >
+                        <Webhook className="h-4 w-4 mr-2" />
+                        Inspect Webhook Logs
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* File Attachments */}
             {submission.file_uploads && submission.file_uploads.length > 0 && (

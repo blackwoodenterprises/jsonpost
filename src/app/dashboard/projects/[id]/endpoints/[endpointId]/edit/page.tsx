@@ -80,7 +80,6 @@ export default function EditEndpointPage() {
     path: "",
     email_notifications: false,
     email_addresses: [] as string[],
-    webhook_urls: [] as string[],
     redirect_url: "",
     success_message: "Thank you for your submission!",
     error_message: "There was an error processing your submission.",
@@ -138,13 +137,6 @@ export default function EditEndpointPage() {
         .eq("endpoint_id", endpointId)
         .eq("is_active", true);
 
-      // Fetch existing webhook URLs
-      const { data: webhookData } = await supabase
-        .from("endpoint_webhooks")
-        .select("webhook_url")
-        .eq("endpoint_id", endpointId)
-        .eq("is_active", true);
-
       // Set form data
       setFormData({
         name: endpointData.name || "",
@@ -153,7 +145,6 @@ export default function EditEndpointPage() {
         path: endpointData.path || "",
         email_notifications: endpointData.email_notifications || false,
         email_addresses: emailData?.map(e => e.email_address) || [],
-        webhook_urls: webhookData?.map(w => w.webhook_url) || [],
         redirect_url: endpointData.redirect_url || "",
         success_message:
           endpointData.success_message || "Thank you for your submission!",
@@ -192,12 +183,10 @@ export default function EditEndpointPage() {
           method: formData.method,
           path: formData.path,
           email_notifications: formData.email_notifications,
-          webhook_url: formData.webhook_urls.length > 0 ? formData.webhook_urls[0] : null, // Keep backward compatibility
           redirect_url: formData.redirect_url || null,
           success_message: formData.success_message,
           error_message: formData.error_message,
           uses_multiple_emails: formData.email_addresses.length > 0,
-          uses_multiple_webhooks: formData.webhook_urls.length > 0,
           allowed_domains: formData.allowed_domains.length > 0 ? formData.allowed_domains : null,
           cors_enabled: formData.cors_enabled,
           require_api_key: formData.require_api_key,
@@ -213,14 +202,9 @@ export default function EditEndpointPage() {
 
       if (endpointError) throw endpointError;
 
-      // Delete existing email addresses and webhooks
+      // Delete existing email addresses
       await supabase
         .from("endpoint_emails")
-        .delete()
-        .eq("endpoint_id", endpointId);
-
-      await supabase
-        .from("endpoint_webhooks")
         .delete()
         .eq("endpoint_id", endpointId);
 
@@ -237,21 +221,6 @@ export default function EditEndpointPage() {
           .insert(emailInserts);
 
         if (emailError) throw emailError;
-      }
-
-      // Insert new webhook URLs if any
-      if (formData.webhook_urls.length > 0) {
-        const webhookInserts = formData.webhook_urls.map(url => ({
-          endpoint_id: endpointId,
-          webhook_url: url,
-          is_active: true,
-        }));
-
-        const { error: webhookError } = await supabase
-          .from("endpoint_webhooks")
-          .insert(webhookInserts);
-
-        if (webhookError) throw webhookError;
       }
 
       router.push(`/dashboard/projects/${projectId}/endpoints/${endpointId}`);
@@ -414,9 +383,9 @@ export default function EditEndpointPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Integrations</CardTitle>
+              <CardTitle>Email Settings</CardTitle>
               <CardDescription>
-                Configure notifications and webhooks
+                Configure email notifications for form submissions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -451,23 +420,6 @@ export default function EditEndpointPage() {
                   />
                 </div>
               )}
-
-              <div className="space-y-2">
-                <MultiInput
-                  label="Webhook URLs"
-                  type="url"
-                  values={formData.webhook_urls}
-                  onChange={(urls) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      webhook_urls: urls,
-                    }))
-                  }
-                  placeholder="Enter webhook URL"
-                  description="Add webhook URLs to receive HTTP POST requests with form data."
-                  maxItems={10}
-                />
-              </div>
             </CardContent>
           </Card>
 

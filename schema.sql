@@ -63,6 +63,7 @@ CREATE TABLE public.endpoints (
   max_files_per_submission integer DEFAULT 5,
   json_validation_enabled boolean DEFAULT false,
   json_schema jsonb,
+  variable_paths text[] DEFAULT ARRAY[]::text[],
   CONSTRAINT endpoints_pkey PRIMARY KEY (id),
   CONSTRAINT endpoints_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
 );

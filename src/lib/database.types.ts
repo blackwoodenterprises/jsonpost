@@ -175,7 +175,10 @@ export type Database = {
           updated_at: string | null
           uses_multiple_emails: boolean | null
           uses_multiple_webhooks: boolean | null
+          variable_paths: string[] | null
           webhook_url: string | null
+          svix_app_id: string | null
+          webhooks_enabled: boolean | null
         }
         Insert: {
           allowed_domains?: string[] | null
@@ -205,7 +208,10 @@ export type Database = {
           updated_at?: string | null
           uses_multiple_emails?: boolean | null
           uses_multiple_webhooks?: boolean | null
+          variable_paths?: string[] | null
           webhook_url?: string | null
+          svix_app_id?: string | null
+          webhooks_enabled?: boolean | null
         }
         Update: {
           allowed_domains?: string[] | null
@@ -235,7 +241,10 @@ export type Database = {
           updated_at?: string | null
           uses_multiple_emails?: boolean | null
           uses_multiple_webhooks?: boolean | null
+          variable_paths?: string[] | null
           webhook_url?: string | null
+          svix_app_id?: string | null
+          webhooks_enabled?: boolean | null
         }
         Relationships: [
           {

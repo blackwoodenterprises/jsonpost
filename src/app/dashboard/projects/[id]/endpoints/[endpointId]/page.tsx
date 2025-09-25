@@ -46,10 +46,15 @@ import {
   Shield,
   Globe,
   FileUp,
+  Code,
+  Plus,
+  X,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { SubmissionCard } from "@/components/dashboard/submission-card";
+import { extractVariablePaths } from "@/lib/utils";
 
 import { Database } from "@/lib/database.types";
 
@@ -66,7 +71,6 @@ interface Endpoint {
   error_message: string | null;
   created_at: string | null;
   email_addresses?: string[];
-  webhook_urls?: string[];
   allowed_domains: string[] | null;
   cors_enabled: boolean | null;
   require_api_key: boolean | null;
@@ -76,6 +80,7 @@ interface Endpoint {
   max_files_per_submission: number | null;
   json_validation_enabled: boolean | null;
   json_schema: Database["public"]["Tables"]["endpoints"]["Row"]["json_schema"];
+  variable_paths?: string[];
 }
 
 interface Project {
@@ -126,6 +131,11 @@ export default function EndpointDetailsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
+
+  // Variable paths state
+  const [variablePaths, setVariablePaths] = useState<string[]>([]);
+  const [newVariablePath, setNewVariablePath] = useState("");
+  const [isExtractingPaths, setIsExtractingPaths] = useState(false);
 
   const totalPages = Math.ceil(totalSubmissions / pageSize);
 
@@ -189,21 +199,17 @@ export default function EndpointDetailsPage() {
         .eq("endpoint_id", endpointId)
         .eq("is_active", true);
 
-      // Fetch webhook URLs for this endpoint
-      const { data: webhookUrls } = await supabase
-        .from("endpoint_webhooks")
-        .select("webhook_url")
-        .eq("endpoint_id", endpointId)
-        .eq("is_active", true);
-
-      // Combine endpoint data with email addresses and webhook URLs
+      // Combine endpoint data with email addresses
       const endpointWithExtras = {
         ...endpointData,
         email_addresses: emailAddresses?.map((e) => e.email_address) || [],
-        webhook_urls: webhookUrls?.map((w) => w.webhook_url) || [],
+        variable_paths: endpointData.variable_paths || [],
       };
 
       setEndpoint(endpointWithExtras);
+      
+      // Set variable paths from endpoint data
+      setVariablePaths(endpointData.variable_paths || []);
 
       // Fetch recent submissions for this endpoint
       const { count } = await supabase
@@ -282,6 +288,69 @@ export default function EndpointDetailsPage() {
     await navigator.clipboard.writeText(url);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  const addVariablePath = () => {
+    if (newVariablePath.trim() && !variablePaths.includes(newVariablePath.trim())) {
+      const updatedPaths = [...variablePaths, newVariablePath.trim()];
+      setVariablePaths(updatedPaths);
+      setNewVariablePath("");
+      updateVariablePathsInDatabase(updatedPaths);
+    }
+  };
+
+  const removeVariablePath = (pathToRemove: string) => {
+    const updatedPaths = variablePaths.filter(path => path !== pathToRemove);
+    setVariablePaths(updatedPaths);
+    updateVariablePathsInDatabase(updatedPaths);
+  };
+
+  const extractFromLatestSubmission = async () => {
+    if (!endpoint) return;
+    
+    setIsExtractingPaths(true);
+    try {
+      // Fetch the latest submission for this endpoint
+      const { data: latestSubmission, error } = await supabase
+        .from("submissions")
+        .select("data")
+        .eq("endpoint_id", endpointId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error || !latestSubmission) {
+        console.error("No submissions found or error:", error);
+        return;
+      }
+
+      // Extract variable paths from the submission data
+      const extractedPaths = extractVariablePaths(latestSubmission.data);
+      
+      // Merge with existing paths, avoiding duplicates
+      const uniquePaths = Array.from(new Set([...variablePaths, ...extractedPaths]));
+      setVariablePaths(uniquePaths);
+      updateVariablePathsInDatabase(uniquePaths);
+    } catch (error) {
+      console.error("Error extracting paths from latest submission:", error);
+    } finally {
+      setIsExtractingPaths(false);
+    }
+  };
+
+  const updateVariablePathsInDatabase = async (paths: string[]) => {
+    try {
+      const { error } = await supabase
+        .from("endpoints")
+        .update({ variable_paths: paths })
+        .eq("id", endpointId);
+
+      if (error) {
+        console.error("Error updating variable paths:", error);
+      }
+    } catch (error) {
+      console.error("Error updating variable paths:", error);
+    }
   };
 
   const deleteEndpoint = async () => {
@@ -386,14 +455,24 @@ export default function EndpointDetailsPage() {
                     Configuration details for this endpoint
                   </CardDescription>
                 </div>
-                <Button size="sm" variant="outline" asChild>
-                  <Link
-                    href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Configuration
-                  </Link>
-                </Button>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" asChild>
+                    <Link
+                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/webhooks`}
+                    >
+                      <Webhook className="h-4 w-4 mr-2" />
+                      Configure Webhooks
+                    </Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link
+                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Configuration
+                    </Link>
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -503,39 +582,7 @@ export default function EndpointDetailsPage() {
                     </div>
                   )}
 
-                {/* Webhook URLs Section */}
-                {endpoint.webhook_urls && endpoint.webhook_urls.length > 0 && (
-                  <div>
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Webhook className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                      <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Webhook URLs ({endpoint.webhook_urls.length})
-                      </label>
-                    </div>
-                    <div className="space-y-2">
-                      {endpoint.webhook_urls.map((url, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2"
-                        >
-                          <Input
-                            value={url}
-                            readOnly
-                            className="flex-1 font-mono text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
-                          />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(url, "_blank")}
-                            className="shrink-0"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
 
                 {endpoint.redirect_url && (
                   <div>
@@ -686,6 +733,84 @@ export default function EndpointDetailsPage() {
                       )}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Variable Paths */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Code className="h-5 w-5 mr-2" />
+                  Variable Paths
+                </CardTitle>
+                <CardDescription>
+                  Define and manage variable paths extracted from JSON submissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Add new variable path */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="e.g., user.email or order.items[0].sku"
+                      value={newVariablePath}
+                      onChange={(e) => setNewVariablePath(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          addVariablePath();
+                        }
+                      }}
+                    />
+                    <Button onClick={addVariablePath} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Extract from latest submission button */}
+                  <Button
+                    onClick={extractFromLatestSubmission}
+                    disabled={isExtractingPaths}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    {isExtractingPaths ? "Extracting..." : "Extract From Latest Submission"}
+                  </Button>
+
+                  {/* Display variable paths */}
+                  {variablePaths.length > 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Configured Paths ({variablePaths.length})
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {variablePaths.map((path, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="flex items-center gap-1 px-2 py-1"
+                          >
+                            <code className="text-xs">{path}</code>
+                            <button
+                              onClick={() => removeVariablePath(path)}
+                              className="ml-1 hover:text-red-600"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-gray-500">
+                      <Code className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No variable paths configured</p>
+                      <p className="text-xs">
+                        Add paths manually or extract them from your latest submission
+                      </p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
