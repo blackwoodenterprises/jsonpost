@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Code, Wand2 } from "lucide-react";
+import { Code } from "lucide-react";
 
 export function Header() {
   return (
@@ -16,18 +15,6 @@ export function Header() {
           <span className="text-xl font-bold">JSONPost</span>
         </Link>
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" asChild className="relative">
-            <Link
-              href="/free-html-form-generator"
-              className="flex items-center space-x-2"
-            >
-              <Wand2 className="w-4 h-4" />
-              <span>Free HTML Form Generator</span>
-              <Badge variant="secondary" className="ml-1 text-xs">
-                Beta
-              </Badge>
-            </Link>
-          </Button>
           <Button variant="ghost" asChild>
             <Link href="/auth/login">Sign In</Link>
           </Button>

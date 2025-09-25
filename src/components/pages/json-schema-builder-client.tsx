@@ -4,7 +4,6 @@ import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { SchemaBuilderWizard } from "@/components/schema-builder/schema-builder-wizard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Shield, Zap, Code, Database, Globe, ArrowRight } from "lucide-react";
 import Link from "next/link";
