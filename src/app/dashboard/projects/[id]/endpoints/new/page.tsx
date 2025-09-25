@@ -649,6 +649,21 @@ export default function NewEndpointPage() {
                 />
               </div>
 
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  💡 Need help creating JSON schemas? Use our{" "}
+                  <Link
+                    href="/free-json-schema-builder"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium underline hover:no-underline"
+                  >
+                    free JSON Schema Builder
+                  </Link>{" "}
+                  to learn more about JSON validation and create schemas visually.
+                </p>
+              </div>
+
               {formData.json_validation_enabled && (
                 <div>
                   <Label htmlFor="json_schema">JSON Schema</Label>
