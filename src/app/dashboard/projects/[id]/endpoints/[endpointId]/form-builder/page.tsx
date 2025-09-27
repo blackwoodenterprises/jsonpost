@@ -225,15 +225,20 @@ export default function FormBuilderPage() {
       if (endpointError) throw endpointError;
       setEndpoint(endpointData);
 
-      // Set submit endpoint URL
-      const submitUrl = `${window.location.origin}/api/submit/${endpointData.id}/${endpointData.path}`;
+      // Set submit endpoint URL using project ID
+      const submitUrl = `${window.location.origin}/api/submit/${params.id}/${endpointData.path}`;
 
       // Load existing form or create default
       if (
         endpointData.form_json &&
         typeof endpointData.form_json === "object"
       ) {
-        setFormSchema(endpointData.form_json as unknown as FormSchema);
+        const existingFormSchema = endpointData.form_json as unknown as FormSchema;
+        // Ensure submitEndpoint is always set, even if it was stored in the database
+        setFormSchema({
+          ...existingFormSchema,
+          submitEndpoint: submitUrl,
+        });
       } else {
         setFormSchema((prev) => ({
           ...prev,
@@ -380,7 +385,7 @@ export default function FormBuilderPage() {
       }
 
       // Update the submit endpoint to match current endpoint
-      const submitUrl = `${window.location.origin}/api/submit/${endpointId}`;
+      const submitUrl = `${window.location.origin}/api/submit/${endpointId}/${endpoint?.path || ''}`;
 
       setFormSchema({
         ...templateData,
@@ -396,10 +401,13 @@ export default function FormBuilderPage() {
 
     setIsSaving(true);
     try {
+      // Remove submitEndpoint from form schema before saving to database
+      const { submitEndpoint, ...formSchemaWithoutSubmitEndpoint } = formSchema;
+      
       const { error } = await supabase
         .from("endpoints")
         .update({
-          form_json: formSchema as unknown as Json,
+          form_json: formSchemaWithoutSubmitEndpoint as unknown as Json,
           theme_id: selectedTheme,
         })
         .eq("id", endpointId);

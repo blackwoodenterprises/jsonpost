@@ -19,10 +19,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch the endpoint with the form_json
+    // Fetch the endpoint with the form_json, path, and project_id
     const { data: endpoint, error } = await supabase
       .from('endpoints')
-      .select('form_json, theme_id')
+      .select('form_json, theme_id, path, project_id')
       .eq('id', uuid)
       .single();
 
@@ -41,8 +41,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Return the form JSON as-is
-    return NextResponse.json(endpoint.form_json, {
+    // Construct the submit endpoint URL dynamically with project_id and path
+    const submitEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/submit/${endpoint.project_id}/${endpoint.path}`;
+    
+    // Add the submitEndpoint to the form schema
+    const formSchemaWithSubmitEndpoint = {
+      ...endpoint.form_json,
+      submitEndpoint
+    };
+
+    // Return the form JSON with the dynamic submit endpoint
+    return NextResponse.json(formSchemaWithSubmitEndpoint, {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET',
