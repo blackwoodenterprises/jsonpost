@@ -1,0 +1,216 @@
+{
+  "title": "Tech Conference 2024 Registration",
+  "description": "Register for the most exciting tech conference of the year",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Welcome to Tech Conference 2024",
+      "content": "Join us for three days of inspiring talks, networking, and hands-on workshops with industry leaders. Register now to secure your spot!",
+      "required": false
+    },
+    {
+      "id": "attendee_name",
+      "type": "short_text",
+      "title": "Full Name",
+      "placeholder": "Enter your full name as it should appear on your badge",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "mask": "(999) 999-9999",
+      "required": true
+    },
+    {
+      "id": "company",
+      "type": "short_text",
+      "title": "Company/Organization",
+      "placeholder": "Enter your company name",
+      "required": false,
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "job_title",
+      "type": "short_text",
+      "title": "Job Title",
+      "placeholder": "Enter your current job title",
+      "required": false,
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "ticket_type",
+      "type": "single_select",
+      "title": "Select your ticket type",
+      "required": true,
+      "options": [
+        { "value": "early_bird", "label": "Early Bird - $299 (Limited time)" },
+        { "value": "regular", "label": "Regular - $399" },
+        { "value": "student", "label": "Student - $99 (ID required)" },
+        { "value": "vip", "label": "VIP - $599 (Includes exclusive sessions)" }
+      ]
+    },
+    {
+      "id": "attendance_days",
+      "type": "multiple_select",
+      "title": "Which days will you attend?",
+      "required": true,
+      "options": [
+        { "value": "day1", "label": "Day 1 - March 15 (Keynotes & AI Track)" },
+        { "value": "day2", "label": "Day 2 - March 16 (Web Dev & Cloud Track)" },
+        { "value": "day3", "label": "Day 3 - March 17 (Workshops & Networking)" }
+      ]
+    },
+    {
+      "id": "session_interests",
+      "type": "multiple_select",
+      "title": "Which session tracks interest you most?",
+      "required": false,
+      "options": [
+        { "value": "ai_ml", "label": "AI & Machine Learning" },
+        { "value": "web_dev", "label": "Web Development" },
+        { "value": "cloud", "label": "Cloud & DevOps" },
+        { "value": "mobile", "label": "Mobile Development" },
+        { "value": "blockchain", "label": "Blockchain & Web3" },
+        { "value": "cybersecurity", "label": "Cybersecurity" },
+        { "value": "startup", "label": "Startup & Entrepreneurship" },
+        { "value": "design", "label": "UI/UX Design" }
+      ]
+    },
+    {
+      "id": "experience_level",
+      "type": "dropdown",
+      "title": "What's your experience level?",
+      "required": true,
+      "options": [
+        { "value": "student", "label": "Student" },
+        { "value": "junior", "label": "Junior (0-2 years)" },
+        { "value": "mid", "label": "Mid-level (3-5 years)" },
+        { "value": "senior", "label": "Senior (6-10 years)" },
+        { "value": "expert", "label": "Expert/Lead (10+ years)" },
+        { "value": "executive", "label": "Executive/C-level" }
+      ]
+    },
+    {
+      "id": "dietary_requirements",
+      "type": "multiple_select",
+      "title": "Do you have any dietary requirements?",
+      "required": false,
+      "options": [
+        { "value": "vegetarian", "label": "Vegetarian" },
+        { "value": "vegan", "label": "Vegan" },
+        { "value": "gluten_free", "label": "Gluten-free" },
+        { "value": "halal", "label": "Halal" },
+        { "value": "kosher", "label": "Kosher" },
+        { "value": "no_nuts", "label": "Nut allergy" },
+        { "value": "none", "label": "No special requirements" }
+      ]
+    },
+    {
+      "id": "t_shirt_size",
+      "type": "dropdown",
+      "title": "T-shirt size (conference swag)",
+      "required": false,
+      "options": [
+        { "value": "xs", "label": "XS" },
+        { "value": "s", "label": "S" },
+        { "value": "m", "label": "M" },
+        { "value": "l", "label": "L" },
+        { "value": "xl", "label": "XL" },
+        { "value": "xxl", "label": "XXL" }
+      ]
+    },
+    {
+      "id": "networking_interest",
+      "type": "opinion_scale",
+      "title": "How interested are you in networking opportunities?",
+      "required": false,
+      "scale": {
+        "min": 1,
+        "max": 9,
+        "minLabel": "Not interested",
+        "maxLabel": "Very interested"
+      }
+    },
+    {
+      "id": "conference_rating_expectation",
+      "type": "star_rating",
+      "title": "How do you expect to rate this conference?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Poor",
+        "2": "Fair", 
+        "3": "Good",
+        "4": "Very Good",
+        "5": "Excellent"
+      }
+    },
+    {
+      "id": "how_did_you_hear",
+      "type": "dropdown",
+      "title": "How did you hear about this conference?",
+      "required": false,
+      "options": [
+        { "value": "social_media", "label": "Social Media" },
+        { "value": "colleague", "label": "Colleague/Friend" },
+        { "value": "company", "label": "Company/Employer" },
+        { "value": "website", "label": "Conference Website" },
+        { "value": "newsletter", "label": "Newsletter" },
+        { "value": "search", "label": "Google Search" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "special_requests",
+      "type": "long_text",
+      "title": "Any special requests or accessibility needs?",
+      "placeholder": "Please let us know if you need any special accommodations...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "emergency_contact",
+      "type": "contact_info",
+      "title": "Emergency Contact Information",
+      "required": false,
+      "fields": {
+        "firstName": { "label": "Contact First Name", "required": true },
+        "lastName": { "label": "Contact Last Name", "required": true },
+        "email": { "label": "Emergency Email", "required": true },
+        "phone": { "label": "Emergency Phone", "required": true },
+        "address": { "label": "Contact Address", "required": false }
+      }
+    },
+    {
+      "id": "confirmation",
+      "type": "statement",
+      "title": "Registration Complete!",
+      "content": "Thank you for registering for Tech Conference 2024! You'll receive a confirmation email shortly with your ticket and event details. We can't wait to see you there!",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "title": "Job Application Form",
+  "description": "Apply for exciting career opportunities with our company",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Welcome to Our Careers Portal",
+      "content": "Thank you for your interest in joining our team! Please complete this application form to help us learn more about your background and qualifications.",
+      "required": false
+    },
+    {
+      "id": "full_name",
+      "type": "short_text",
+      "title": "Full Name",
+      "placeholder": "Enter your full legal name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "mask": "(999) 999-9999",
+      "required": true
+    },
+    {
+      "id": "contact_info",
+      "type": "contact_info",
+      "title": "Contact Information",
+      "required": false,
+      "fields": {
+        "firstName": { "label": "First Name", "required": true },
+        "lastName": { "label": "Last Name", "required": true },
+        "email": { "label": "Email Address", "required": true },
+        "phone": { "label": "Phone Number", "required": true },
+        "address": { "label": "Current Address", "required": true }
+      }
+    },
+    {
+      "id": "position_applied",
+      "type": "dropdown",
+      "title": "Which position are you applying for?",
+      "required": true,
+      "options": [
+        { "value": "frontend_dev", "label": "Frontend Developer" },
+        { "value": "backend_dev", "label": "Backend Developer" },
+        { "value": "fullstack_dev", "label": "Full Stack Developer" },
+        { "value": "ui_designer", "label": "UI/UX Designer" },
+        { "value": "product_manager", "label": "Product Manager" },
+        { "value": "data_scientist", "label": "Data Scientist" },
+        { "value": "devops_engineer", "label": "DevOps Engineer" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "experience_level",
+      "type": "single_select",
+      "title": "What's your experience level?",
+      "required": true,
+      "options": [
+        { "value": "entry", "label": "Entry Level (0-2 years)" },
+        { "value": "mid", "label": "Mid Level (3-5 years)" },
+        { "value": "senior", "label": "Senior Level (6-10 years)" },
+        { "value": "lead", "label": "Lead/Principal (10+ years)" }
+      ]
+    },
+    {
+      "id": "skills",
+      "type": "multiple_select",
+      "title": "What are your key technical skills?",
+      "required": true,
+      "options": [
+        { "value": "javascript", "label": "JavaScript" },
+        { "value": "typescript", "label": "TypeScript" },
+        { "value": "react", "label": "React" },
+        { "value": "nodejs", "label": "Node.js" },
+        { "value": "python", "label": "Python" },
+        { "value": "java", "label": "Java" },
+        { "value": "aws", "label": "AWS" },
+        { "value": "docker", "label": "Docker" },
+        { "value": "sql", "label": "SQL" },
+        { "value": "git", "label": "Git" }
+      ]
+    },
+    {
+      "id": "availability",
+      "type": "date",
+      "title": "When can you start?",
+      "required": true,
+      "validation": {
+        "minDate": "today"
+      }
+    },
+    {
+      "id": "salary_expectation",
+      "type": "number",
+      "title": "Expected annual salary (USD)",
+      "placeholder": "Enter amount without commas",
+      "required": false,
+      "validation": {
+        "min": 30000,
+        "max": 500000
+      }
+    },
+    {
+      "id": "work_preference",
+      "type": "single_select",
+      "title": "What's your preferred work arrangement?",
+      "required": true,
+      "options": [
+        { "value": "remote", "label": "Fully Remote" },
+        { "value": "hybrid", "label": "Hybrid (2-3 days in office)" },
+        { "value": "onsite", "label": "Fully On-site" },
+        { "value": "flexible", "label": "Flexible/Open to discuss" }
+      ]
+    },
+    {
+      "id": "education",
+      "type": "dropdown",
+      "title": "Highest level of education completed",
+      "required": false,
+      "options": [
+        { "value": "high_school", "label": "High School" },
+        { "value": "associate", "label": "Associate Degree" },
+        { "value": "bachelor", "label": "Bachelor's Degree" },
+        { "value": "master", "label": "Master's Degree" },
+        { "value": "phd", "label": "PhD" },
+        { "value": "bootcamp", "label": "Coding Bootcamp" },
+        { "value": "self_taught", "label": "Self-taught" }
+      ]
+    },
+    {
+      "id": "cover_letter",
+      "type": "long_text",
+      "title": "Why are you interested in this position?",
+      "placeholder": "Tell us about your motivation and what makes you a great fit...",
+      "required": true,
+      "validation": {
+        "minLength": 100,
+        "maxLength": 1000
+      }
+    },
+    {
+      "id": "previous_experience",
+      "type": "long_text",
+      "title": "Describe your most relevant work experience",
+      "placeholder": "Share details about your previous roles and achievements...",
+      "required": false,
+      "validation": {
+        "maxLength": 1500
+      }
+    },
+    {
+      "id": "portfolio_website",
+      "type": "website",
+      "title": "Portfolio or LinkedIn URL",
+      "placeholder": "https://yourportfolio.com or https://linkedin.com/in/yourname",
+      "required": false,
+      "validation": {
+        "pattern": "^https?:\\/\\/.+"
+      }
+    },
+    {
+      "id": "resume",
+      "type": "file_upload",
+      "title": "Upload your resume",
+      "required": true,
+      "acceptedTypes": [".pdf", ".doc", ".docx"],
+      "maxSize": "5MB",
+      "multiple": false
+    },
+    {
+      "id": "application_rating",
+      "type": "star_rating",
+      "title": "How would you rate your confidence in this application?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Not confident",
+        "2": "Somewhat confident", 
+        "3": "Moderately confident",
+        "4": "Very confident",
+        "5": "Extremely confident"
+      }
+    },
+    {
+      "id": "thank_you",
+      "type": "statement",
+      "title": "Application Submitted Successfully!",
+      "content": "Thank you for applying! We've received your application and will review it carefully. You can expect to hear from us within 1-2 weeks.",
+      "required": false
+    }
+  ]
+}

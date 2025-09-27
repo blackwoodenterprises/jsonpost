@@ -50,6 +50,7 @@ import {
   Plus,
   X,
   Download,
+  FormInput,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -167,7 +168,7 @@ export default function EndpointDetailsPage() {
 
   const fetchData = async () => {
     if (!user?.id) return; // Early return if user or user.id is not available
-    
+
     try {
       setIsLoading(true);
 
@@ -207,7 +208,7 @@ export default function EndpointDetailsPage() {
       };
 
       setEndpoint(endpointWithExtras);
-      
+
       // Set variable paths from endpoint data
       setVariablePaths(endpointData.variable_paths || []);
 
@@ -291,7 +292,10 @@ export default function EndpointDetailsPage() {
   };
 
   const addVariablePath = () => {
-    if (newVariablePath.trim() && !variablePaths.includes(newVariablePath.trim())) {
+    if (
+      newVariablePath.trim() &&
+      !variablePaths.includes(newVariablePath.trim())
+    ) {
       const updatedPaths = [...variablePaths, newVariablePath.trim()];
       setVariablePaths(updatedPaths);
       setNewVariablePath("");
@@ -300,14 +304,14 @@ export default function EndpointDetailsPage() {
   };
 
   const removeVariablePath = (pathToRemove: string) => {
-    const updatedPaths = variablePaths.filter(path => path !== pathToRemove);
+    const updatedPaths = variablePaths.filter((path) => path !== pathToRemove);
     setVariablePaths(updatedPaths);
     updateVariablePathsInDatabase(updatedPaths);
   };
 
   const extractFromLatestSubmission = async () => {
     if (!endpoint) return;
-    
+
     setIsExtractingPaths(true);
     try {
       // Fetch the latest submission for this endpoint
@@ -326,9 +330,11 @@ export default function EndpointDetailsPage() {
 
       // Extract variable paths from the submission data
       const extractedPaths = extractVariablePaths(latestSubmission.data);
-      
+
       // Merge with existing paths, avoiding duplicates
-      const uniquePaths = Array.from(new Set([...variablePaths, ...extractedPaths]));
+      const uniquePaths = Array.from(
+        new Set([...variablePaths, ...extractedPaths])
+      );
       setVariablePaths(uniquePaths);
       updateVariablePathsInDatabase(uniquePaths);
     } catch (error) {
@@ -458,6 +464,14 @@ export default function EndpointDetailsPage() {
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" asChild>
                     <Link
+                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/form-builder`}
+                    >
+                      <FormInput className="h-4 w-4 mr-2" />
+                      Form Builder
+                    </Link>
+                  </Button>
+                  <Button size="sm" variant="outline" asChild>
+                    <Link
                       href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/webhooks`}
                     >
                       <Webhook className="h-4 w-4 mr-2" />
@@ -581,8 +595,6 @@ export default function EndpointDetailsPage() {
                       </div>
                     </div>
                   )}
-
-
 
                 {endpoint.redirect_url && (
                   <div>
@@ -744,7 +756,8 @@ export default function EndpointDetailsPage() {
                   Variable Paths
                 </CardTitle>
                 <CardDescription>
-                  Define and manage variable paths extracted from JSON submissions
+                  Define and manage variable paths extracted from JSON
+                  submissions
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -756,7 +769,7 @@ export default function EndpointDetailsPage() {
                       value={newVariablePath}
                       onChange={(e) => setNewVariablePath(e.target.value)}
                       onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
+                        if (e.key === "Enter") {
                           addVariablePath();
                         }
                       }}
@@ -774,7 +787,9 @@ export default function EndpointDetailsPage() {
                     className="w-full"
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    {isExtractingPaths ? "Extracting..." : "Extract From Latest Submission"}
+                    {isExtractingPaths
+                      ? "Extracting..."
+                      : "Extract From Latest Submission"}
                   </Button>
 
                   {/* Display variable paths */}
@@ -806,7 +821,8 @@ export default function EndpointDetailsPage() {
                       <Code className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">No variable paths configured</p>
                       <p className="text-xs">
-                        Add paths manually or extract them from your latest submission
+                        Add paths manually or extract them from your latest
+                        submission
                       </p>
                     </div>
                   )}

@@ -1,0 +1,193 @@
+{
+  "title": "Demo Form Wizard",
+  "description": "A comprehensive demo showcasing all available form field types",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Welcome to Our Demo Form",
+      "content": "This is a comprehensive form wizard that demonstrates all available field types. Let's get started!",
+      "required": false
+    },
+    {
+      "id": "name",
+      "type": "short_text",
+      "title": "What's your full name?",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "What's your email address?",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "What's your phone number?",
+      "placeholder": "+1 (555) 123-4567",
+      "mask": "(999) 999-9999",
+      "required": true
+    },
+    {
+      "id": "website",
+      "type": "website",
+      "title": "Do you have a website?",
+      "placeholder": "https://yourwebsite.com",
+      "required": false,
+      "validation": {
+        "pattern": "^https?:\\/\\/.+"
+      }
+    },
+    {
+      "id": "age",
+      "type": "number",
+      "title": "How old are you?",
+      "placeholder": "Enter your age",
+      "required": true,
+      "validation": {
+        "min": 13,
+        "max": 120
+      }
+    },
+    {
+      "id": "bio",
+      "type": "long_text",
+      "title": "Tell us about yourself",
+      "placeholder": "Write a brief bio about yourself...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "experience",
+      "type": "single_select",
+      "title": "What's your experience level?",
+      "required": true,
+      "options": [
+        { "value": "beginner", "label": "Beginner (0-1 years)" },
+        { "value": "intermediate", "label": "Intermediate (2-5 years)" },
+        { "value": "advanced", "label": "Advanced (5+ years)" },
+        { "value": "expert", "label": "Expert (10+ years)" }
+      ]
+    },
+    {
+      "id": "skills",
+      "type": "multiple_select",
+      "title": "What skills do you have?",
+      "required": false,
+      "options": [
+        { "value": "javascript", "label": "JavaScript" },
+        { "value": "python", "label": "Python" },
+        { "value": "react", "label": "React" },
+        { "value": "nodejs", "label": "Node.js" },
+        { "value": "design", "label": "UI/UX Design" },
+        { "value": "marketing", "label": "Digital Marketing" }
+      ]
+    },
+    {
+      "id": "country",
+      "type": "dropdown",
+      "title": "Which country are you from?",
+      "required": true,
+      "options": [
+        { "value": "us", "label": "United States" },
+        { "value": "ca", "label": "Canada" },
+        { "value": "uk", "label": "United Kingdom" },
+        { "value": "de", "label": "Germany" },
+        { "value": "fr", "label": "France" },
+        { "value": "in", "label": "India" },
+        { "value": "au", "label": "Australia" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "birthdate",
+      "type": "date",
+      "title": "When is your birthday?",
+      "required": false,
+      "validation": {
+        "maxDate": "today"
+      }
+    },
+    {
+      "id": "address",
+      "type": "address",
+      "title": "What's your address?",
+      "required": false,
+      "fields": {
+        "street": { "label": "Street Address", "required": true },
+        "city": { "label": "City", "required": true },
+        "state": { "label": "State/Province", "required": true },
+        "zip": { "label": "ZIP/Postal Code", "required": true },
+        "country": { "label": "Country", "required": true }
+      }
+    },
+    {
+      "id": "contact_info",
+      "type": "contact_info",
+      "title": "Complete your contact information",
+      "required": false,
+      "fields": {
+        "firstName": { "label": "First Name", "required": true },
+        "lastName": { "label": "Last Name", "required": true },
+        "email": { "label": "Email Address", "required": true },
+        "phone": { "label": "Phone Number", "required": true },
+        "address": { "label": "Home Address", "required": false }
+      }
+    },
+    {
+      "id": "rating",
+      "type": "star_rating",
+      "title": "How would you rate our service?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Poor",
+        "2": "Fair", 
+        "3": "Good",
+        "4": "Very Good",
+        "5": "Excellent"
+      }
+    },
+    {
+      "id": "satisfaction",
+      "type": "opinion_scale",
+      "title": "How satisfied are you with our product?",
+      "required": false,
+      "scale": {
+        "min": 1,
+        "max": 9,
+        "minLabel": "Not satisfied",
+        "maxLabel": "Very satisfied"
+      }
+    },
+    {
+      "id": "resume",
+      "type": "file_upload",
+      "title": "Upload your resume",
+      "required": false,
+      "acceptedTypes": [".pdf", ".doc", ".docx"],
+      "maxSize": "5MB",
+      "multiple": false
+    },
+    {
+      "id": "thank_you",
+      "type": "statement",
+      "title": "Thank You!",
+      "content": "Thank you for completing our demo form. Your responses have been recorded successfully.",
+      "required": false
+    }
+  ]
+}

@@ -158,6 +158,7 @@ export type Database = {
           endpoint_key_deprecated: boolean | null
           error_message: string | null
           file_uploads_enabled: boolean | null
+          form_json: Json | null
           id: string
           json_schema: Json | null
           json_validation_enabled: boolean | null
@@ -172,6 +173,7 @@ export type Database = {
           spam_protection: boolean | null
           store_submissions: boolean | null
           success_message: string | null
+          theme_id: string | null
           updated_at: string | null
           uses_multiple_emails: boolean | null
           uses_multiple_webhooks: boolean | null
@@ -191,6 +193,7 @@ export type Database = {
           endpoint_key_deprecated?: boolean | null
           error_message?: string | null
           file_uploads_enabled?: boolean | null
+          form_json?: Json | null
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
@@ -205,6 +208,7 @@ export type Database = {
           spam_protection?: boolean | null
           store_submissions?: boolean | null
           success_message?: string | null
+          theme_id?: string | null
           updated_at?: string | null
           uses_multiple_emails?: boolean | null
           uses_multiple_webhooks?: boolean | null
@@ -224,6 +228,7 @@ export type Database = {
           endpoint_key_deprecated?: boolean | null
           error_message?: string | null
           file_uploads_enabled?: boolean | null
+          form_json?: Json | null
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
@@ -238,6 +243,7 @@ export type Database = {
           spam_protection?: boolean | null
           store_submissions?: boolean | null
           success_message?: string | null
+          theme_id?: string | null
           updated_at?: string | null
           uses_multiple_emails?: boolean | null
           uses_multiple_webhooks?: boolean | null

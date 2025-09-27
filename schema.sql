@@ -64,6 +64,8 @@ CREATE TABLE public.endpoints (
   json_validation_enabled boolean DEFAULT false,
   json_schema jsonb,
   variable_paths text[] DEFAULT ARRAY[]::text[],
+  form_json jsonb,
+  theme_id text,
   CONSTRAINT endpoints_pkey PRIMARY KEY (id),
   CONSTRAINT endpoints_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
 );
