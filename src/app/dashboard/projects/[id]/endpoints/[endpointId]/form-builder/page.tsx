@@ -96,7 +96,8 @@ interface FormStep {
   mask?: string; // For phone type
   maxStars?: number; // For star_rating
   labels?: Record<string, string>; // For star_rating
-  scale?: { // For opinion_scale
+  scale?: {
+    // For opinion_scale
     min: number;
     max: number;
     minLabel: string;
@@ -117,21 +118,65 @@ interface FormSchema {
 
 const FIELD_TYPES = [
   { value: "statement", label: "Statement", description: "Display text only" },
-  { value: "short_text", label: "Short Text", description: "Single line input" },
-  { value: "long_text", label: "Long Text", description: "Multi-line textarea" },
-  { value: "email", label: "Email", description: "Email input with validation" },
+  {
+    value: "short_text",
+    label: "Short Text",
+    description: "Single line input",
+  },
+  {
+    value: "long_text",
+    label: "Long Text",
+    description: "Multi-line textarea",
+  },
+  {
+    value: "email",
+    label: "Email",
+    description: "Email input with validation",
+  },
   { value: "phone", label: "Phone", description: "Phone number input" },
-  { value: "website", label: "Website", description: "URL input with validation" },
+  {
+    value: "website",
+    label: "Website",
+    description: "URL input with validation",
+  },
   { value: "number", label: "Number", description: "Numeric input" },
-  { value: "single_select", label: "Single Select", description: "Radio buttons" },
-  { value: "multiple_select", label: "Multiple Select", description: "Checkboxes" },
+  {
+    value: "single_select",
+    label: "Single Select",
+    description: "Radio buttons",
+  },
+  {
+    value: "multiple_select",
+    label: "Multiple Select",
+    description: "Checkboxes",
+  },
   { value: "dropdown", label: "Dropdown", description: "Select dropdown" },
   { value: "date", label: "Date", description: "Date picker" },
-  { value: "address", label: "Address", description: "Address fields (fixed structure)" },
-  { value: "contact_info", label: "Contact Info", description: "Contact form fields (fixed structure)" },
-  { value: "star_rating", label: "Star Rating", description: "Star rating input" },
-  { value: "opinion_scale", label: "Opinion Scale", description: "Scale rating" },
-  { value: "file_upload", label: "File Upload", description: "File upload input" },
+  {
+    value: "address",
+    label: "Address",
+    description: "Address fields (fixed structure)",
+  },
+  {
+    value: "contact_info",
+    label: "Contact Info",
+    description: "Contact form fields (fixed structure)",
+  },
+  {
+    value: "star_rating",
+    label: "Star Rating",
+    description: "Star rating input",
+  },
+  {
+    value: "opinion_scale",
+    label: "Opinion Scale",
+    description: "Scale rating",
+  },
+  {
+    value: "file_upload",
+    label: "File Upload",
+    description: "File upload input",
+  },
 ];
 
 export default function FormBuilderPage() {
@@ -156,7 +201,7 @@ export default function FormBuilderPage() {
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
-    
+
     try {
       // Fetch project
       const { data: projectData, error: projectError } = await supabase
@@ -181,13 +226,16 @@ export default function FormBuilderPage() {
       setEndpoint(endpointData);
 
       // Set submit endpoint URL
-      const submitUrl = `${window.location.origin}/api/submit/${endpointData.id}`;
-      
+      const submitUrl = `${window.location.origin}/api/submit/${endpointData.id}/${endpointData.path}`;
+
       // Load existing form or create default
-      if (endpointData.form_json && typeof endpointData.form_json === 'object') {
+      if (
+        endpointData.form_json &&
+        typeof endpointData.form_json === "object"
+      ) {
         setFormSchema(endpointData.form_json as unknown as FormSchema);
       } else {
-        setFormSchema(prev => ({
+        setFormSchema((prev) => ({
           ...prev,
           submitEndpoint: submitUrl,
         }));
@@ -213,7 +261,7 @@ export default function FormBuilderPage() {
     const newStep: FormStep = {
       id: `step_${Date.now()}`,
       type,
-      title: `New ${FIELD_TYPES.find(t => t.value === type)?.label || type}`,
+      title: `New ${FIELD_TYPES.find((t) => t.value === type)?.label || type}`,
       required: false,
     };
 
@@ -222,7 +270,11 @@ export default function FormBuilderPage() {
       newStep.content = "Your statement content here";
     } else if (type === "phone") {
       newStep.mask = "(999) 999-9999";
-    } else if (type === "single_select" || type === "multiple_select" || type === "dropdown") {
+    } else if (
+      type === "single_select" ||
+      type === "multiple_select" ||
+      type === "dropdown"
+    ) {
       newStep.options = [
         { value: "option1", label: "Option 1" },
         { value: "option2", label: "Option 2" },
@@ -234,14 +286,14 @@ export default function FormBuilderPage() {
         "2": "Fair",
         "3": "Good",
         "4": "Very Good",
-        "5": "Excellent"
+        "5": "Excellent",
       };
     } else if (type === "opinion_scale") {
       newStep.scale = {
         min: 1,
         max: 10,
         minLabel: "Not satisfied",
-        maxLabel: "Very satisfied"
+        maxLabel: "Very satisfied",
       };
     } else if (type === "file_upload") {
       newStep.acceptedTypes = [".pdf", ".doc", ".docx"];
@@ -253,7 +305,7 @@ export default function FormBuilderPage() {
         city: { label: "City", required: true },
         state: { label: "State/Province", required: true },
         zip: { label: "ZIP/Postal Code", required: true },
-        country: { label: "Country", required: true }
+        country: { label: "Country", required: true },
       };
     } else if (type === "contact_info") {
       newStep.fields = {
@@ -261,44 +313,44 @@ export default function FormBuilderPage() {
         lastName: { label: "Last Name", required: true },
         email: { label: "Email Address", required: true },
         phone: { label: "Phone Number", required: true },
-        address: { label: "Home Address", required: false }
+        address: { label: "Home Address", required: false },
       };
     } else {
-      newStep.placeholder = `Enter your ${type.replace('_', ' ')}`;
+      newStep.placeholder = `Enter your ${type.replace("_", " ")}`;
     }
 
-    setFormSchema(prev => ({
+    setFormSchema((prev) => ({
       ...prev,
       steps: [...prev.steps, newStep],
     }));
   };
 
   const removeStep = (stepId: string) => {
-    setFormSchema(prev => ({
+    setFormSchema((prev) => ({
       ...prev,
-      steps: prev.steps.filter(step => step.id !== stepId),
+      steps: prev.steps.filter((step) => step.id !== stepId),
     }));
   };
 
   const moveStep = (stepId: string, direction: "up" | "down") => {
-    setFormSchema(prev => {
+    setFormSchema((prev) => {
       const steps = [...prev.steps];
-      const index = steps.findIndex(step => step.id === stepId);
-      
+      const index = steps.findIndex((step) => step.id === stepId);
+
       if (direction === "up" && index > 0) {
         [steps[index], steps[index - 1]] = [steps[index - 1], steps[index]];
       } else if (direction === "down" && index < steps.length - 1) {
         [steps[index], steps[index + 1]] = [steps[index + 1], steps[index]];
       }
-      
+
       return { ...prev, steps };
     });
   };
 
   const updateStep = (updatedStep: FormStep) => {
-    setFormSchema(prev => ({
+    setFormSchema((prev) => ({
       ...prev,
-      steps: prev.steps.map(step => 
+      steps: prev.steps.map((step) =>
         step.id === updatedStep.id ? updatedStep : step
       ),
     }));
@@ -308,7 +360,7 @@ export default function FormBuilderPage() {
   const loadTemplate = (templateName: string) => {
     try {
       let templateData;
-      
+
       switch (templateName) {
         case "customer-feedback-form":
           templateData = customerFeedbackForm;
@@ -326,10 +378,10 @@ export default function FormBuilderPage() {
           console.error("Unknown template:", templateName);
           return;
       }
-      
+
       // Update the submit endpoint to match current endpoint
       const submitUrl = `${window.location.origin}/api/submit/${endpointId}`;
-      
+
       setFormSchema({
         ...templateData,
         submitEndpoint: submitUrl,
@@ -353,7 +405,7 @@ export default function FormBuilderPage() {
         .eq("id", endpointId);
 
       if (error) throw error;
-      
+
       toast({
         title: "Form saved successfully!",
         description: "Your form has been saved and is ready to use.",
@@ -394,7 +446,9 @@ export default function FormBuilderPage() {
         subtitle={`Build a custom form for ${endpoint?.name}`}
         actions={
           <div className="flex space-x-3">
-            <Link href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}>
+            <Link
+              href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}
+            >
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Endpoint
@@ -423,15 +477,21 @@ export default function FormBuilderPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div>
-                  <h3 className="text-lg font-medium">Form Gallery & Templates</h3>
-                  <p className="text-sm text-gray-600">Explore form examples or load pre-built templates</p>
+                  <h3 className="text-lg font-medium">
+                    Form Gallery & Templates
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Explore form examples or load pre-built templates
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.open("https://forms.jsonpost.com", "_blank")}
+                  onClick={() =>
+                    window.open("https://forms.jsonpost.com", "_blank")
+                  }
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Gallery
@@ -442,10 +502,18 @@ export default function FormBuilderPage() {
                       <SelectValue placeholder="Load Template" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="demo-form">Demo Form Wizard</SelectItem>
-                      <SelectItem value="customer-feedback-form">Customer Feedback</SelectItem>
-                      <SelectItem value="event-registration-form">Event Registration</SelectItem>
-                      <SelectItem value="job-application-form">Job Application</SelectItem>
+                      <SelectItem value="demo-form">
+                        Demo Form Wizard
+                      </SelectItem>
+                      <SelectItem value="customer-feedback-form">
+                        Customer Feedback
+                      </SelectItem>
+                      <SelectItem value="event-registration-form">
+                        Event Registration
+                      </SelectItem>
+                      <SelectItem value="job-application-form">
+                        Job Application
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -461,7 +529,9 @@ export default function FormBuilderPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Form Settings</CardTitle>
-                <CardDescription>Configure your form&apos;s basic information</CardDescription>
+                <CardDescription>
+                  Configure your form&apos;s basic information
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -469,7 +539,12 @@ export default function FormBuilderPage() {
                   <Input
                     id="form-title"
                     value={formSchema.title}
-                    onChange={(e) => setFormSchema(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={(e) =>
+                      setFormSchema((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }))
+                    }
                     placeholder="Enter form title"
                   />
                 </div>
@@ -478,12 +553,16 @@ export default function FormBuilderPage() {
                   <Textarea
                     id="form-description"
                     value={formSchema.description}
-                    onChange={(e) => setFormSchema(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) =>
+                      setFormSchema((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                     placeholder="Enter form description"
                     rows={3}
                   />
                 </div>
-
               </CardContent>
             </Card>
 
@@ -492,7 +571,9 @@ export default function FormBuilderPage() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle>Form Steps</CardTitle>
-                  <CardDescription>Each step represents one question in your form</CardDescription>
+                  <CardDescription>
+                    Each step represents one question in your form
+                  </CardDescription>
                 </div>
                 <Select onValueChange={addStep}>
                   <SelectTrigger className="w-48">
@@ -503,7 +584,9 @@ export default function FormBuilderPage() {
                       <SelectItem key={type.value} value={type.value}>
                         <div>
                           <div className="font-medium">{type.label}</div>
-                          <div className="text-xs text-gray-500">{type.description}</div>
+                          <div className="text-xs text-gray-500">
+                            {type.description}
+                          </div>
                         </div>
                       </SelectItem>
                     ))}
@@ -513,7 +596,8 @@ export default function FormBuilderPage() {
               <CardContent>
                 {formSchema.steps.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    No steps added yet. Add your first step using the dropdown above.
+                    No steps added yet. Add your first step using the dropdown
+                    above.
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -559,11 +643,21 @@ export default function FormBuilderPage() {
                                 {step.title || "Untitled Step"}
                               </h4>
                               <div className="flex flex-wrap items-center gap-2 mb-2">
-                                <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                                  {FIELD_TYPES.find(t => t.value === step.type)?.label}
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                                >
+                                  {
+                                    FIELD_TYPES.find(
+                                      (t) => t.value === step.type
+                                    )?.label
+                                  }
                                 </Badge>
                                 {step.required && (
-                                  <Badge variant="outline" className="border-orange-300 text-orange-700 dark:border-orange-600 dark:text-orange-400">
+                                  <Badge
+                                    variant="outline"
+                                    className="border-orange-300 text-orange-700 dark:border-orange-600 dark:text-orange-400"
+                                  >
                                     Required
                                   </Badge>
                                 )}
@@ -617,7 +711,9 @@ export default function FormBuilderPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Theme & Gallery</CardTitle>
-                <CardDescription>Customize appearance and explore examples</CardDescription>
+                <CardDescription>
+                  Customize appearance and explore examples
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -625,16 +721,20 @@ export default function FormBuilderPage() {
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center space-x-2">
                       <div className="flex space-x-1">
-                        {themes.find(t => t.id === selectedTheme)?.colors.slice(0, 3).map((color, index) => (
-                          <div
-                            key={index}
-                            className="w-4 h-4 rounded-full border"
-                            style={{ backgroundColor: color }}
-                          />
-                        ))}
+                        {themes
+                          .find((t) => t.id === selectedTheme)
+                          ?.colors.slice(0, 3)
+                          .map((color, index) => (
+                            <div
+                              key={index}
+                              className="w-4 h-4 rounded-full border"
+                              style={{ backgroundColor: color }}
+                            />
+                          ))}
                       </div>
                       <span className="text-sm text-gray-600">
-                        {themes.find(t => t.id === selectedTheme)?.name || "Default"}
+                        {themes.find((t) => t.id === selectedTheme)?.name ||
+                          "Default"}
                       </span>
                     </div>
                     <Button
@@ -652,7 +752,9 @@ export default function FormBuilderPage() {
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    onClick={() => window.open("https://forms.jsonpost.com", "_blank")}
+                    onClick={() =>
+                      window.open("https://forms.jsonpost.com", "_blank")
+                    }
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
                     View Form Gallery
@@ -664,7 +766,9 @@ export default function FormBuilderPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Form Production</CardTitle>
-                <CardDescription>Your live form URL with selected theme</CardDescription>
+                <CardDescription>
+                  Your live form URL with selected theme
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
@@ -678,7 +782,9 @@ export default function FormBuilderPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigator.clipboard.writeText(generatePreviewUrl())}
+                      onClick={() =>
+                        navigator.clipboard.writeText(generatePreviewUrl())
+                      }
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
@@ -713,7 +819,8 @@ export default function FormBuilderPage() {
           <DialogHeader>
             <DialogTitle>Choose a Theme</DialogTitle>
             <DialogDescription>
-              Select a theme for your form. This will affect the appearance of your form when users fill it out.
+              Select a theme for your form. This will affect the appearance of
+              your form when users fill it out.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
@@ -730,7 +837,9 @@ export default function FormBuilderPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium">{theme.name}</div>
-                    <div className="text-sm text-gray-500">{theme.description}</div>
+                    <div className="text-sm text-gray-500">
+                      {theme.description}
+                    </div>
                   </div>
                   <div className="flex space-x-1">
                     {theme.colors.map((color, index) => (
@@ -776,27 +885,36 @@ function StepEditorDialog({
 
   const addOption = () => {
     const newOptions = [...(editedStep.options || [])];
-    newOptions.push({ value: `option${newOptions.length + 1}`, label: `Option ${newOptions.length + 1}` });
-    setEditedStep(prev => ({ ...prev, options: newOptions }));
+    newOptions.push({
+      value: `option${newOptions.length + 1}`,
+      label: `Option ${newOptions.length + 1}`,
+    });
+    setEditedStep((prev) => ({ ...prev, options: newOptions }));
   };
 
-  const updateOption = (index: number, field: 'value' | 'label', value: string) => {
+  const updateOption = (
+    index: number,
+    field: "value" | "label",
+    value: string
+  ) => {
     const newOptions = [...(editedStep.options || [])];
     newOptions[index] = { ...newOptions[index], [field]: value };
-    setEditedStep(prev => ({ ...prev, options: newOptions }));
+    setEditedStep((prev) => ({ ...prev, options: newOptions }));
   };
 
   const removeOption = (index: number) => {
     const newOptions = [...(editedStep.options || [])];
     newOptions.splice(index, 1);
-    setEditedStep(prev => ({ ...prev, options: newOptions }));
+    setEditedStep((prev) => ({ ...prev, options: newOptions }));
   };
 
   return (
     <Dialog open={true} onOpenChange={onCancel}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Step: {FIELD_TYPES.find(t => t.value === step.type)?.label}</DialogTitle>
+          <DialogTitle>
+            Edit Step: {FIELD_TYPES.find((t) => t.value === step.type)?.label}
+          </DialogTitle>
           <DialogDescription>
             Configure the properties for this form step
           </DialogDescription>
@@ -809,7 +927,9 @@ function StepEditorDialog({
             <Input
               id="step-title"
               value={editedStep.title}
-              onChange={(e) => setEditedStep(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setEditedStep((prev) => ({ ...prev, title: e.target.value }))
+              }
               placeholder="Enter step title"
             />
           </div>
@@ -821,7 +941,12 @@ function StepEditorDialog({
               <Textarea
                 id="step-content"
                 value={editedStep.content || ""}
-                onChange={(e) => setEditedStep(prev => ({ ...prev, content: e.target.value }))}
+                onChange={(e) =>
+                  setEditedStep((prev) => ({
+                    ...prev,
+                    content: e.target.value,
+                  }))
+                }
                 placeholder="Enter statement content"
                 rows={3}
               />
@@ -829,13 +954,28 @@ function StepEditorDialog({
           )}
 
           {/* Placeholder for input fields */}
-          {!["statement", "single_select", "multiple_select", "dropdown", "address", "contact_info", "star_rating", "opinion_scale", "file_upload"].includes(editedStep.type) && (
+          {![
+            "statement",
+            "single_select",
+            "multiple_select",
+            "dropdown",
+            "address",
+            "contact_info",
+            "star_rating",
+            "opinion_scale",
+            "file_upload",
+          ].includes(editedStep.type) && (
             <div>
               <Label htmlFor="step-placeholder">Placeholder</Label>
               <Input
                 id="step-placeholder"
                 value={editedStep.placeholder || ""}
-                onChange={(e) => setEditedStep(prev => ({ ...prev, placeholder: e.target.value }))}
+                onChange={(e) =>
+                  setEditedStep((prev) => ({
+                    ...prev,
+                    placeholder: e.target.value,
+                  }))
+                }
                 placeholder="Enter placeholder text"
               />
             </div>
@@ -847,14 +987,18 @@ function StepEditorDialog({
               <Switch
                 id="step-required"
                 checked={editedStep.required}
-                onCheckedChange={(checked) => setEditedStep(prev => ({ ...prev, required: checked }))}
+                onCheckedChange={(checked) =>
+                  setEditedStep((prev) => ({ ...prev, required: checked }))
+                }
               />
               <Label htmlFor="step-required">Required field</Label>
             </div>
           )}
 
           {/* Options for select fields */}
-          {["single_select", "multiple_select", "dropdown"].includes(editedStep.type) && (
+          {["single_select", "multiple_select", "dropdown"].includes(
+            editedStep.type
+          ) && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label>Options</Label>
@@ -869,13 +1013,17 @@ function StepEditorDialog({
                     <Input
                       placeholder="Value"
                       value={option.value}
-                      onChange={(e) => updateOption(index, 'value', e.target.value)}
+                      onChange={(e) =>
+                        updateOption(index, "value", e.target.value)
+                      }
                       className="flex-1"
                     />
                     <Input
                       placeholder="Label"
                       value={option.label}
-                      onChange={(e) => updateOption(index, 'label', e.target.value)}
+                      onChange={(e) =>
+                        updateOption(index, "label", e.target.value)
+                      }
                       className="flex-1"
                     />
                     <Button
@@ -902,22 +1050,35 @@ function StepEditorDialog({
                   min="1"
                   max="10"
                   value={editedStep.maxStars || 5}
-                  onChange={(e) => setEditedStep(prev => ({ ...prev, maxStars: parseInt(e.target.value) }))}
+                  onChange={(e) =>
+                    setEditedStep((prev) => ({
+                      ...prev,
+                      maxStars: parseInt(e.target.value),
+                    }))
+                  }
                 />
               </div>
               <div>
                 <Label>Star Labels (Optional)</Label>
                 <div className="space-y-2">
-                  {Array.from({ length: editedStep.maxStars || 5 }, (_, i) => i + 1).map(star => (
+                  {Array.from(
+                    { length: editedStep.maxStars || 5 },
+                    (_, i) => i + 1
+                  ).map((star) => (
                     <div key={star} className="flex items-center space-x-2">
                       <span className="w-8 text-sm">{star}★</span>
                       <Input
-                        placeholder={`Label for ${star} star${star > 1 ? 's' : ''}`}
+                        placeholder={`Label for ${star} star${star > 1 ? "s" : ""}`}
                         value={editedStep.labels?.[star.toString()] || ""}
-                        onChange={(e) => setEditedStep(prev => ({
-                          ...prev,
-                          labels: { ...prev.labels, [star.toString()]: e.target.value }
-                        }))}
+                        onChange={(e) =>
+                          setEditedStep((prev) => ({
+                            ...prev,
+                            labels: {
+                              ...prev.labels,
+                              [star.toString()]: e.target.value,
+                            },
+                          }))
+                        }
                       />
                     </div>
                   ))}
@@ -936,10 +1097,15 @@ function StepEditorDialog({
                     id="scale-min"
                     type="number"
                     value={editedStep.scale?.min || 1}
-                    onChange={(e) => setEditedStep(prev => ({
-                      ...prev,
-                      scale: { ...prev.scale!, min: parseInt(e.target.value) }
-                    }))}
+                    onChange={(e) =>
+                      setEditedStep((prev) => ({
+                        ...prev,
+                        scale: {
+                          ...prev.scale!,
+                          min: parseInt(e.target.value),
+                        },
+                      }))
+                    }
                   />
                 </div>
                 <div>
@@ -948,10 +1114,15 @@ function StepEditorDialog({
                     id="scale-max"
                     type="number"
                     value={editedStep.scale?.max || 10}
-                    onChange={(e) => setEditedStep(prev => ({
-                      ...prev,
-                      scale: { ...prev.scale!, max: parseInt(e.target.value) }
-                    }))}
+                    onChange={(e) =>
+                      setEditedStep((prev) => ({
+                        ...prev,
+                        scale: {
+                          ...prev.scale!,
+                          max: parseInt(e.target.value),
+                        },
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -961,10 +1132,12 @@ function StepEditorDialog({
                   <Input
                     id="scale-min-label"
                     value={editedStep.scale?.minLabel || ""}
-                    onChange={(e) => setEditedStep(prev => ({
-                      ...prev,
-                      scale: { ...prev.scale!, minLabel: e.target.value }
-                    }))}
+                    onChange={(e) =>
+                      setEditedStep((prev) => ({
+                        ...prev,
+                        scale: { ...prev.scale!, minLabel: e.target.value },
+                      }))
+                    }
                     placeholder="e.g., Not satisfied"
                   />
                 </div>
@@ -973,10 +1146,12 @@ function StepEditorDialog({
                   <Input
                     id="scale-max-label"
                     value={editedStep.scale?.maxLabel || ""}
-                    onChange={(e) => setEditedStep(prev => ({
-                      ...prev,
-                      scale: { ...prev.scale!, maxLabel: e.target.value }
-                    }))}
+                    onChange={(e) =>
+                      setEditedStep((prev) => ({
+                        ...prev,
+                        scale: { ...prev.scale!, maxLabel: e.target.value },
+                      }))
+                    }
                     placeholder="e.g., Very satisfied"
                   />
                 </div>
@@ -992,10 +1167,15 @@ function StepEditorDialog({
                 <Input
                   id="accepted-types"
                   value={editedStep.acceptedTypes?.join(", ") || ""}
-                  onChange={(e) => setEditedStep(prev => ({
-                    ...prev,
-                    acceptedTypes: e.target.value.split(",").map(t => t.trim()).filter(Boolean)
-                  }))}
+                  onChange={(e) =>
+                    setEditedStep((prev) => ({
+                      ...prev,
+                      acceptedTypes: e.target.value
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="e.g., .pdf, .doc, .docx"
                 />
               </div>
@@ -1004,7 +1184,12 @@ function StepEditorDialog({
                 <Input
                   id="max-size"
                   value={editedStep.maxSize || ""}
-                  onChange={(e) => setEditedStep(prev => ({ ...prev, maxSize: e.target.value }))}
+                  onChange={(e) =>
+                    setEditedStep((prev) => ({
+                      ...prev,
+                      maxSize: e.target.value,
+                    }))
+                  }
                   placeholder="e.g., 5MB"
                 />
               </div>
@@ -1012,7 +1197,9 @@ function StepEditorDialog({
                 <Switch
                   id="multiple-files"
                   checked={editedStep.multiple || false}
-                  onCheckedChange={(checked) => setEditedStep(prev => ({ ...prev, multiple: checked }))}
+                  onCheckedChange={(checked) =>
+                    setEditedStep((prev) => ({ ...prev, multiple: checked }))
+                  }
                 />
                 <Label htmlFor="multiple-files">Allow multiple files</Label>
               </div>
@@ -1020,11 +1207,20 @@ function StepEditorDialog({
           )}
 
           {/* Validation Rules */}
-          {!["statement", "address", "contact_info", "star_rating", "opinion_scale", "file_upload"].includes(editedStep.type) && (
+          {![
+            "statement",
+            "address",
+            "contact_info",
+            "star_rating",
+            "opinion_scale",
+            "file_upload",
+          ].includes(editedStep.type) && (
             <div>
               <Label>Validation Rules (Optional)</Label>
               <div className="grid grid-cols-2 gap-3 mt-2">
-                {["short_text", "long_text", "email"].includes(editedStep.type) && (
+                {["short_text", "long_text", "email"].includes(
+                  editedStep.type
+                ) && (
                   <>
                     <div>
                       <Label htmlFor="min-length">Min Length</Label>
@@ -1033,10 +1229,17 @@ function StepEditorDialog({
                         type="number"
                         min="0"
                         value={editedStep.validation?.minLength || ""}
-                        onChange={(e) => setEditedStep(prev => ({
-                          ...prev,
-                          validation: { ...prev.validation, minLength: e.target.value ? parseInt(e.target.value) : undefined }
-                        }))}
+                        onChange={(e) =>
+                          setEditedStep((prev) => ({
+                            ...prev,
+                            validation: {
+                              ...prev.validation,
+                              minLength: e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                            },
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -1046,10 +1249,17 @@ function StepEditorDialog({
                         type="number"
                         min="0"
                         value={editedStep.validation?.maxLength || ""}
-                        onChange={(e) => setEditedStep(prev => ({
-                          ...prev,
-                          validation: { ...prev.validation, maxLength: e.target.value ? parseInt(e.target.value) : undefined }
-                        }))}
+                        onChange={(e) =>
+                          setEditedStep((prev) => ({
+                            ...prev,
+                            validation: {
+                              ...prev.validation,
+                              maxLength: e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                            },
+                          }))
+                        }
                       />
                     </div>
                   </>
@@ -1062,10 +1272,17 @@ function StepEditorDialog({
                         id="min-value"
                         type="number"
                         value={editedStep.validation?.min || ""}
-                        onChange={(e) => setEditedStep(prev => ({
-                          ...prev,
-                          validation: { ...prev.validation, min: e.target.value ? parseInt(e.target.value) : undefined }
-                        }))}
+                        onChange={(e) =>
+                          setEditedStep((prev) => ({
+                            ...prev,
+                            validation: {
+                              ...prev.validation,
+                              min: e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                            },
+                          }))
+                        }
                       />
                     </div>
                     <div>
@@ -1074,10 +1291,17 @@ function StepEditorDialog({
                         id="max-value"
                         type="number"
                         value={editedStep.validation?.max || ""}
-                        onChange={(e) => setEditedStep(prev => ({
-                          ...prev,
-                          validation: { ...prev.validation, max: e.target.value ? parseInt(e.target.value) : undefined }
-                        }))}
+                        onChange={(e) =>
+                          setEditedStep((prev) => ({
+                            ...prev,
+                            validation: {
+                              ...prev.validation,
+                              max: e.target.value
+                                ? parseInt(e.target.value)
+                                : undefined,
+                            },
+                          }))
+                        }
                       />
                     </div>
                   </>
@@ -1088,10 +1312,15 @@ function StepEditorDialog({
                     <Input
                       id="pattern"
                       value={editedStep.validation?.pattern || ""}
-                      onChange={(e) => setEditedStep(prev => ({
-                        ...prev,
-                        validation: { ...prev.validation, pattern: e.target.value }
-                      }))}
+                      onChange={(e) =>
+                        setEditedStep((prev) => ({
+                          ...prev,
+                          validation: {
+                            ...prev.validation,
+                            pattern: e.target.value,
+                          },
+                        }))
+                      }
                       placeholder="Regular expression pattern"
                     />
                   </div>
@@ -1107,10 +1336,9 @@ function StepEditorDialog({
                 Fixed Fields Structure
               </div>
               <div className="text-sm text-blue-600 dark:text-blue-300">
-                {editedStep.type === "address" 
+                {editedStep.type === "address"
                   ? "This field includes: Street Address, City, State/Province, ZIP/Postal Code, Country"
-                  : "This field includes: First Name, Last Name, Email Address, Phone Number, Home Address"
-                }
+                  : "This field includes: First Name, Last Name, Email Address, Phone Number, Home Address"}
               </div>
             </div>
           )}
@@ -1120,9 +1348,7 @@ function StepEditorDialog({
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            Save Changes
-          </Button>
+          <Button onClick={handleSave}>Save Changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
