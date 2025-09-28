@@ -1,0 +1,329 @@
+{
+  "title": "Travel Booking Consultation",
+  "description": "Plan your perfect getaway with our personalized travel planning service",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Let's Plan Your Dream Trip",
+      "content": "Whether you're looking for adventure, relaxation, or cultural exploration, we're here to create the perfect travel experience tailored to your preferences and budget.",
+      "required": false
+    },
+    {
+      "id": "full_name",
+      "type": "short_text",
+      "title": "Full Name",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": true
+    },
+    {
+      "id": "travel_type",
+      "type": "single_select",
+      "title": "What type of trip are you planning?",
+      "required": true,
+      "options": [
+        { "value": "vacation", "label": "Leisure vacation" },
+        { "value": "business", "label": "Business travel" },
+        { "value": "honeymoon", "label": "Honeymoon/Anniversary" },
+        { "value": "family", "label": "Family trip" },
+        { "value": "adventure", "label": "Adventure/Outdoor activities" },
+        { "value": "cultural", "label": "Cultural/Educational" },
+        { "value": "wellness", "label": "Wellness/Spa retreat" },
+        { "value": "group", "label": "Group travel" },
+        { "value": "solo", "label": "Solo travel" }
+      ]
+    },
+    {
+      "id": "destination_preference",
+      "type": "multiple_select",
+      "title": "What type of destinations interest you?",
+      "required": true,
+      "options": [
+        { "value": "beach_tropical", "label": "Beach/Tropical islands" },
+        { "value": "mountains", "label": "Mountains/Ski resorts" },
+        { "value": "cities", "label": "Major cities" },
+        { "value": "countryside", "label": "Countryside/Rural areas" },
+        { "value": "historical", "label": "Historical sites" },
+        { "value": "national_parks", "label": "National parks/Nature" },
+        { "value": "cruise", "label": "Cruise destinations" },
+        { "value": "exotic", "label": "Exotic/Off-the-beaten-path" },
+        { "value": "domestic", "label": "Domestic destinations" },
+        { "value": "international", "label": "International destinations" }
+      ]
+    },
+    {
+      "id": "specific_destination",
+      "type": "short_text",
+      "title": "Do you have a specific destination in mind?",
+      "placeholder": "e.g., Paris, Bali, Japan, or 'Open to suggestions'",
+      "required": false,
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "travel_dates",
+      "type": "date",
+      "title": "Preferred departure date",
+      "required": true,
+      "validation": {
+        "minDate": "today"
+      }
+    },
+    {
+      "id": "trip_duration",
+      "type": "dropdown",
+      "title": "How long is your trip?",
+      "required": true,
+      "options": [
+        { "value": "weekend", "label": "Weekend (2-3 days)" },
+        { "value": "short", "label": "Short trip (4-6 days)" },
+        { "value": "week", "label": "One week" },
+        { "value": "extended", "label": "Extended (8-14 days)" },
+        { "value": "long", "label": "Long trip (2-4 weeks)" },
+        { "value": "month_plus", "label": "Month or longer" },
+        { "value": "flexible", "label": "Flexible duration" }
+      ]
+    },
+    {
+      "id": "travelers_count",
+      "type": "number",
+      "title": "Number of travelers",
+      "placeholder": "Enter total number of travelers",
+      "required": true,
+      "validation": {
+        "min": 1,
+        "max": 50
+      }
+    },
+    {
+      "id": "traveler_ages",
+      "type": "short_text",
+      "title": "Ages of travelers (if traveling with others)",
+      "placeholder": "e.g., Adults: 2, Children: 1 (age 8), or 'Just me'",
+      "required": false,
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "budget_range",
+      "type": "dropdown",
+      "title": "What's your total budget for this trip?",
+      "required": true,
+      "options": [
+        { "value": "under_1k", "label": "Under $1,000" },
+        { "value": "1k_3k", "label": "$1,000 - $3,000" },
+        { "value": "3k_5k", "label": "$3,000 - $5,000" },
+        { "value": "5k_10k", "label": "$5,000 - $10,000" },
+        { "value": "10k_20k", "label": "$10,000 - $20,000" },
+        { "value": "over_20k", "label": "Over $20,000" },
+        { "value": "flexible", "label": "Flexible budget" },
+        { "value": "prefer_not_say", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "accommodation_type",
+      "type": "multiple_select",
+      "title": "What type of accommodation do you prefer?",
+      "required": true,
+      "options": [
+        { "value": "luxury_hotel", "label": "Luxury hotel/Resort" },
+        { "value": "mid_range_hotel", "label": "Mid-range hotel" },
+        { "value": "budget_hotel", "label": "Budget hotel/Motel" },
+        { "value": "boutique", "label": "Boutique hotel" },
+        { "value": "vacation_rental", "label": "Vacation rental (Airbnb, VRBO)" },
+        { "value": "bed_breakfast", "label": "Bed & Breakfast" },
+        { "value": "hostel", "label": "Hostel" },
+        { "value": "camping", "label": "Camping/Glamping" },
+        { "value": "cruise", "label": "Cruise ship" },
+        { "value": "all_inclusive", "label": "All-inclusive resort" }
+      ]
+    },
+    {
+      "id": "travel_style",
+      "type": "single_select",
+      "title": "What's your preferred travel style?",
+      "required": true,
+      "options": [
+        { "value": "luxury", "label": "Luxury - Best of everything" },
+        { "value": "comfort", "label": "Comfortable - Good quality, some splurges" },
+        { "value": "mid_range", "label": "Mid-range - Balance of comfort and cost" },
+        { "value": "budget", "label": "Budget-conscious - Maximize value" },
+        { "value": "backpacker", "label": "Backpacker - Minimal cost, maximum experience" },
+        { "value": "mixed", "label": "Mixed - Splurge on some things, save on others" }
+      ]
+    },
+    {
+      "id": "activities_interests",
+      "type": "multiple_select",
+      "title": "What activities and experiences interest you?",
+      "required": true,
+      "options": [
+        { "value": "sightseeing", "label": "Sightseeing/Tourist attractions" },
+        { "value": "museums", "label": "Museums/Art galleries" },
+        { "value": "food_wine", "label": "Food & wine experiences" },
+        { "value": "shopping", "label": "Shopping" },
+        { "value": "nightlife", "label": "Nightlife/Entertainment" },
+        { "value": "outdoor_adventure", "label": "Outdoor adventures" },
+        { "value": "water_sports", "label": "Water sports" },
+        { "value": "cultural", "label": "Cultural experiences" },
+        { "value": "wellness", "label": "Spa/Wellness activities" },
+        { "value": "photography", "label": "Photography tours" },
+        { "value": "local_experiences", "label": "Local/Authentic experiences" },
+        { "value": "relaxation", "label": "Relaxation/Beach time" }
+      ]
+    },
+    {
+      "id": "transportation_preference",
+      "type": "multiple_select",
+      "title": "What transportation methods do you prefer?",
+      "required": false,
+      "options": [
+        { "value": "flights", "label": "Flights" },
+        { "value": "rental_car", "label": "Rental car" },
+        { "value": "public_transport", "label": "Public transportation" },
+        { "value": "private_transfers", "label": "Private transfers/Taxis" },
+        { "value": "train", "label": "Train travel" },
+        { "value": "cruise", "label": "Cruise ship" },
+        { "value": "walking", "label": "Walking/Biking" },
+        { "value": "tours", "label": "Guided tours/Tour bus" }
+      ]
+    },
+    {
+      "id": "dietary_restrictions",
+      "type": "multiple_select",
+      "title": "Do you have any dietary restrictions or preferences?",
+      "required": false,
+      "options": [
+        { "value": "none", "label": "No restrictions" },
+        { "value": "vegetarian", "label": "Vegetarian" },
+        { "value": "vegan", "label": "Vegan" },
+        { "value": "gluten_free", "label": "Gluten-free" },
+        { "value": "kosher", "label": "Kosher" },
+        { "value": "halal", "label": "Halal" },
+        { "value": "allergies", "label": "Food allergies" },
+        { "value": "low_sodium", "label": "Low sodium" },
+        { "value": "diabetic", "label": "Diabetic-friendly" }
+      ]
+    },
+    {
+      "id": "accessibility_needs",
+      "type": "multiple_select",
+      "title": "Do you have any accessibility needs?",
+      "required": false,
+      "options": [
+        { "value": "none", "label": "No special needs" },
+        { "value": "wheelchair", "label": "Wheelchair accessible" },
+        { "value": "mobility_assistance", "label": "Mobility assistance" },
+        { "value": "hearing_impaired", "label": "Hearing impaired accommodations" },
+        { "value": "vision_impaired", "label": "Vision impaired accommodations" },
+        { "value": "medical_equipment", "label": "Medical equipment needs" },
+        { "value": "service_animal", "label": "Service animal" }
+      ]
+    },
+    {
+      "id": "travel_experience",
+      "type": "single_select",
+      "title": "How would you describe your travel experience?",
+      "required": false,
+      "options": [
+        { "value": "first_time", "label": "First-time traveler" },
+        { "value": "occasional", "label": "Occasional traveler" },
+        { "value": "frequent", "label": "Frequent traveler" },
+        { "value": "expert", "label": "Very experienced traveler" },
+        { "value": "first_international", "label": "First international trip" }
+      ]
+    },
+    {
+      "id": "planning_assistance",
+      "type": "multiple_select",
+      "title": "What type of planning assistance do you need?",
+      "required": true,
+      "options": [
+        { "value": "full_planning", "label": "Full trip planning" },
+        { "value": "flights_hotels", "label": "Flights and hotels only" },
+        { "value": "activities", "label": "Activity recommendations" },
+        { "value": "itinerary", "label": "Detailed itinerary" },
+        { "value": "restaurant_reservations", "label": "Restaurant reservations" },
+        { "value": "travel_insurance", "label": "Travel insurance" },
+        { "value": "visa_passport", "label": "Visa/Passport assistance" },
+        { "value": "packing_tips", "label": "Packing and travel tips" }
+      ]
+    },
+    {
+      "id": "excitement_level",
+      "type": "opinion_scale",
+      "title": "How excited are you about this trip?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Mildly interested",
+        "maxLabel": "Extremely excited"
+      }
+    },
+    {
+      "id": "service_expectation",
+      "type": "star_rating",
+      "title": "What level of service do you expect from us?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Basic service",
+        "2": "Good service",
+        "3": "Very good service",
+        "4": "Excellent service",
+        "5": "Exceptional service"
+      }
+    },
+    {
+      "id": "special_occasions",
+      "type": "single_select",
+      "title": "Is this trip for a special occasion?",
+      "required": false,
+      "options": [
+        { "value": "none", "label": "No special occasion" },
+        { "value": "honeymoon", "label": "Honeymoon" },
+        { "value": "anniversary", "label": "Anniversary" },
+        { "value": "birthday", "label": "Birthday celebration" },
+        { "value": "retirement", "label": "Retirement trip" },
+        { "value": "graduation", "label": "Graduation celebration" },
+        { "value": "family_reunion", "label": "Family reunion" },
+        { "value": "other", "label": "Other special occasion" }
+      ]
+    },
+    {
+      "id": "additional_requests",
+      "type": "long_text",
+      "title": "Additional requests or special requirements",
+      "placeholder": "Tell us about any special requests, concerns, or specific things you want to include in your trip...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    }
+  ]
+}

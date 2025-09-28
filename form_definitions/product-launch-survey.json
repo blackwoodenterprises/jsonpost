@@ -1,0 +1,167 @@
+{
+  "title": "Product Launch Survey",
+  "description": "Help us understand market demand for our upcoming product launch",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Help Shape Our Next Product",
+      "content": "Your insights are valuable to us! This survey will help us understand market needs and preferences for our upcoming product launch. It takes about 5 minutes to complete.",
+      "required": false
+    },
+    {
+      "id": "participant_name",
+      "type": "short_text",
+      "title": "What's your name?",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Your email address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "age_group",
+      "type": "dropdown",
+      "title": "Which age group do you belong to?",
+      "required": true,
+      "options": [
+        { "value": "18-24", "label": "18-24 years" },
+        { "value": "25-34", "label": "25-34 years" },
+        { "value": "35-44", "label": "35-44 years" },
+        { "value": "45-54", "label": "45-54 years" },
+        { "value": "55-64", "label": "55-64 years" },
+        { "value": "65+", "label": "65+ years" }
+      ]
+    },
+    {
+      "id": "industry",
+      "type": "single_select",
+      "title": "Which industry do you work in?",
+      "required": true,
+      "options": [
+        { "value": "technology", "label": "Technology" },
+        { "value": "healthcare", "label": "Healthcare" },
+        { "value": "finance", "label": "Finance" },
+        { "value": "education", "label": "Education" },
+        { "value": "retail", "label": "Retail" },
+        { "value": "manufacturing", "label": "Manufacturing" },
+        { "value": "consulting", "label": "Consulting" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "current_solutions",
+      "type": "multiple_select",
+      "title": "What solutions do you currently use for project management?",
+      "required": false,
+      "options": [
+        { "value": "asana", "label": "Asana" },
+        { "value": "trello", "label": "Trello" },
+        { "value": "jira", "label": "Jira" },
+        { "value": "monday", "label": "Monday.com" },
+        { "value": "notion", "label": "Notion" },
+        { "value": "slack", "label": "Slack" },
+        { "value": "teams", "label": "Microsoft Teams" },
+        { "value": "excel", "label": "Excel/Spreadsheets" },
+        { "value": "none", "label": "None" }
+      ]
+    },
+    {
+      "id": "pain_points",
+      "type": "long_text",
+      "title": "What are your biggest challenges with current project management tools?",
+      "placeholder": "Describe the main issues you face with existing solutions...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "feature_importance",
+      "type": "opinion_scale",
+      "title": "How important is real-time collaboration to you?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Not important",
+        "maxLabel": "Extremely important"
+      }
+    },
+    {
+      "id": "pricing_preference",
+      "type": "single_select",
+      "title": "What's your preferred pricing model?",
+      "required": true,
+      "options": [
+        { "value": "free", "label": "Free with limited features" },
+        { "value": "freemium", "label": "Freemium (free basic, paid premium)" },
+        { "value": "subscription", "label": "Monthly subscription" },
+        { "value": "one_time", "label": "One-time purchase" },
+        { "value": "usage_based", "label": "Pay per usage" }
+      ]
+    },
+    {
+      "id": "budget_range",
+      "type": "dropdown",
+      "title": "What's your monthly budget for project management tools?",
+      "required": false,
+      "options": [
+        { "value": "0", "label": "$0 (Free only)" },
+        { "value": "1-10", "label": "$1-10 per user" },
+        { "value": "11-25", "label": "$11-25 per user" },
+        { "value": "26-50", "label": "$26-50 per user" },
+        { "value": "51-100", "label": "$51-100 per user" },
+        { "value": "100+", "label": "$100+ per user" }
+      ]
+    },
+    {
+      "id": "interest_level",
+      "type": "star_rating",
+      "title": "How interested are you in trying our new product?",
+      "required": true,
+      "maxStars": 5,
+      "labels": {
+        "1": "Not interested",
+        "2": "Slightly interested",
+        "3": "Moderately interested",
+        "4": "Very interested",
+        "5": "Extremely interested"
+      }
+    },
+    {
+      "id": "beta_participation",
+      "type": "single_select",
+      "title": "Would you be interested in participating in our beta program?",
+      "required": false,
+      "options": [
+        { "value": "yes_definitely", "label": "Yes, definitely!" },
+        { "value": "yes_maybe", "label": "Yes, but I need more details" },
+        { "value": "no_time", "label": "No, I don't have time" },
+        { "value": "no_interest", "label": "No, not interested" }
+      ]
+    },
+    {
+      "id": "additional_feedback",
+      "type": "long_text",
+      "title": "Any additional feedback or feature requests?",
+      "placeholder": "Share any other thoughts, suggestions, or features you'd like to see...",
+      "required": false,
+      "validation": {
+        "maxLength": 1000
+      }
+    }
+  ]
+}

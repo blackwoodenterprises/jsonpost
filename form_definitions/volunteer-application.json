@@ -1,0 +1,277 @@
+{
+  "title": "Volunteer Application",
+  "description": "Join our mission to make a positive impact in the community",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Thank You for Your Interest in Volunteering",
+      "content": "Your willingness to give back to the community is truly appreciated. This application will help us match you with volunteer opportunities that align with your interests, skills, and availability.",
+      "required": false
+    },
+    {
+      "id": "full_name",
+      "type": "short_text",
+      "title": "Full Name",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": true
+    },
+    {
+      "id": "age_group",
+      "type": "dropdown",
+      "title": "Age Group",
+      "required": true,
+      "options": [
+        { "value": "under_18", "label": "Under 18" },
+        { "value": "18_24", "label": "18-24" },
+        { "value": "25_34", "label": "25-34" },
+        { "value": "35_44", "label": "35-44" },
+        { "value": "45_54", "label": "45-54" },
+        { "value": "55_64", "label": "55-64" },
+        { "value": "65_plus", "label": "65+" }
+      ]
+    },
+    {
+      "id": "address",
+      "type": "address",
+      "title": "Home Address",
+      "required": true,
+      "fields": {
+        "street": { "label": "Street Address", "required": true },
+        "city": { "label": "City", "required": true },
+        "state": { "label": "State", "required": true },
+        "zip": { "label": "ZIP Code", "required": true },
+        "country": { "label": "Country", "required": true }
+      }
+    },
+    {
+      "id": "volunteer_areas",
+      "type": "multiple_select",
+      "title": "Which volunteer areas interest you most?",
+      "required": true,
+      "options": [
+        { "value": "education", "label": "Education & Tutoring" },
+        { "value": "elderly_care", "label": "Elderly Care & Support" },
+        { "value": "children_youth", "label": "Children & Youth Programs" },
+        { "value": "homeless_services", "label": "Homeless Services" },
+        { "value": "food_assistance", "label": "Food Banks & Meal Programs" },
+        { "value": "environmental", "label": "Environmental Conservation" },
+        { "value": "animal_welfare", "label": "Animal Welfare" },
+        { "value": "healthcare", "label": "Healthcare Support" },
+        { "value": "disaster_relief", "label": "Disaster Relief" },
+        { "value": "fundraising", "label": "Fundraising & Events" },
+        { "value": "administrative", "label": "Administrative Support" },
+        { "value": "technology", "label": "Technology & Digital Support" }
+      ]
+    },
+    {
+      "id": "skills_talents",
+      "type": "multiple_select",
+      "title": "What skills or talents can you contribute?",
+      "required": false,
+      "options": [
+        { "value": "teaching", "label": "Teaching/Training" },
+        { "value": "counseling", "label": "Counseling/Mentoring" },
+        { "value": "writing", "label": "Writing/Communications" },
+        { "value": "graphic_design", "label": "Graphic Design" },
+        { "value": "web_development", "label": "Web Development" },
+        { "value": "photography", "label": "Photography/Videography" },
+        { "value": "accounting", "label": "Accounting/Finance" },
+        { "value": "legal", "label": "Legal Services" },
+        { "value": "medical", "label": "Medical/Healthcare" },
+        { "value": "construction", "label": "Construction/Handyman" },
+        { "value": "cooking", "label": "Cooking/Food Preparation" },
+        { "value": "languages", "label": "Foreign Languages" },
+        { "value": "music_arts", "label": "Music/Arts" },
+        { "value": "sports", "label": "Sports/Recreation" }
+      ]
+    },
+    {
+      "id": "availability_days",
+      "type": "multiple_select",
+      "title": "Which days are you available to volunteer?",
+      "required": true,
+      "options": [
+        { "value": "monday", "label": "Monday" },
+        { "value": "tuesday", "label": "Tuesday" },
+        { "value": "wednesday", "label": "Wednesday" },
+        { "value": "thursday", "label": "Thursday" },
+        { "value": "friday", "label": "Friday" },
+        { "value": "saturday", "label": "Saturday" },
+        { "value": "sunday", "label": "Sunday" }
+      ]
+    },
+    {
+      "id": "availability_times",
+      "type": "multiple_select",
+      "title": "What times work best for you?",
+      "required": true,
+      "options": [
+        { "value": "early_morning", "label": "Early morning (6-9 AM)" },
+        { "value": "morning", "label": "Morning (9 AM-12 PM)" },
+        { "value": "afternoon", "label": "Afternoon (12-5 PM)" },
+        { "value": "evening", "label": "Evening (5-8 PM)" },
+        { "value": "night", "label": "Night (8-11 PM)" },
+        { "value": "flexible", "label": "Flexible/Varies" }
+      ]
+    },
+    {
+      "id": "time_commitment",
+      "type": "single_select",
+      "title": "How much time can you commit per week?",
+      "required": true,
+      "options": [
+        { "value": "1_2_hours", "label": "1-2 hours" },
+        { "value": "3_5_hours", "label": "3-5 hours" },
+        { "value": "6_10_hours", "label": "6-10 hours" },
+        { "value": "11_20_hours", "label": "11-20 hours" },
+        { "value": "20_plus_hours", "label": "20+ hours" },
+        { "value": "varies", "label": "Varies by project" }
+      ]
+    },
+    {
+      "id": "duration_commitment",
+      "type": "single_select",
+      "title": "How long would you like to volunteer?",
+      "required": true,
+      "options": [
+        { "value": "one_time", "label": "One-time event" },
+        { "value": "few_months", "label": "A few months" },
+        { "value": "6_months", "label": "6 months" },
+        { "value": "1_year", "label": "1 year" },
+        { "value": "long_term", "label": "Long-term (1+ years)" },
+        { "value": "ongoing", "label": "Ongoing/Indefinite" }
+      ]
+    },
+    {
+      "id": "transportation",
+      "type": "single_select",
+      "title": "Do you have reliable transportation?",
+      "required": true,
+      "options": [
+        { "value": "own_vehicle", "label": "Yes, I have my own vehicle" },
+        { "value": "public_transport", "label": "Yes, I use public transportation" },
+        { "value": "need_rides", "label": "Sometimes, but may need rides" },
+        { "value": "no_transport", "label": "No, I need transportation assistance" },
+        { "value": "remote_only", "label": "I prefer remote/virtual volunteering" }
+      ]
+    },
+    {
+      "id": "background_check",
+      "type": "single_select",
+      "title": "Are you willing to undergo a background check if required?",
+      "required": true,
+      "options": [
+        { "value": "yes", "label": "Yes" },
+        { "value": "no", "label": "No" },
+        { "value": "depends", "label": "Depends on the role" }
+      ]
+    },
+    {
+      "id": "previous_volunteer",
+      "type": "single_select",
+      "title": "Have you volunteered before?",
+      "required": false,
+      "options": [
+        { "value": "never", "label": "No, this is my first time" },
+        { "value": "little", "label": "A little bit" },
+        { "value": "some", "label": "Some experience" },
+        { "value": "extensive", "label": "Extensive experience" }
+      ]
+    },
+    {
+      "id": "motivation_level",
+      "type": "opinion_scale",
+      "title": "How passionate are you about volunteering and helping others?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Somewhat interested",
+        "maxLabel": "Extremely passionate"
+      }
+    },
+    {
+      "id": "team_preference",
+      "type": "single_select",
+      "title": "Do you prefer working alone or with a team?",
+      "required": false,
+      "options": [
+        { "value": "alone", "label": "I prefer working alone" },
+        { "value": "small_team", "label": "Small team (2-5 people)" },
+        { "value": "large_team", "label": "Large team (6+ people)" },
+        { "value": "no_preference", "label": "No preference" },
+        { "value": "leadership", "label": "I enjoy leading teams" }
+      ]
+    },
+    {
+      "id": "physical_limitations",
+      "type": "long_text",
+      "title": "Do you have any physical limitations or health conditions we should consider?",
+      "placeholder": "Please describe any physical limitations, allergies, or health conditions that might affect your volunteer activities...",
+      "required": false,
+      "validation": {
+        "maxLength": 300
+      }
+    },
+    {
+      "id": "emergency_contact",
+      "type": "contact_info",
+      "title": "Emergency Contact",
+      "required": true,
+      "fields": {
+        "firstName": { "label": "First Name", "required": true },
+        "lastName": { "label": "Last Name", "required": true },
+        "email": { "label": "Email", "required": false },
+        "phone": { "label": "Phone Number", "required": true },
+        "address": { "label": "Relationship", "required": true }
+      }
+    },
+    {
+      "id": "expectations",
+      "type": "star_rating",
+      "title": "How would you rate your expectations for this volunteer experience?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Low expectations",
+        "2": "Modest expectations",
+        "3": "Moderate expectations",
+        "4": "High expectations",
+        "5": "Very high expectations"
+      }
+    },
+    {
+      "id": "additional_info",
+      "type": "long_text",
+      "title": "Tell us more about yourself and why you want to volunteer",
+      "placeholder": "Share your motivations, goals, or any other information that would help us match you with the right volunteer opportunity...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    }
+  ]
+}

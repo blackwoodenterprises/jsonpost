@@ -53,7 +53,17 @@ import themesData from "@/lib/themes.json";
 import customerFeedbackForm from "@/../form_definitions/customer-feedback-form.json";
 import demoForm from "@/../form_definitions/demo-form.json";
 import eventRegistrationForm from "@/../form_definitions/event-registration-form.json";
+import fitnessMemership from "@/../form_definitions/fitness-membership.json";
+import healthcareAppointment from "@/../form_definitions/healthcare-appointment.json";
 import jobApplicationForm from "@/../form_definitions/job-application-form.json";
+import onlineCourseEnrollment from "@/../form_definitions/online-course-enrollment.json";
+import petAdoption from "@/../form_definitions/pet-adoption.json";
+import productLaunchSurvey from "@/../form_definitions/product-launch-survey.json";
+import realEstateInquiry from "@/../form_definitions/real-estate-inquiry.json";
+import restaurantReservation from "@/../form_definitions/restaurant-reservation.json";
+import travelBooking from "@/../form_definitions/travel-booking.json";
+import volunteerApplication from "@/../form_definitions/volunteer-application.json";
+import weddingPlanning from "@/../form_definitions/wedding-planning.json";
 
 const themes = themesData as Array<{
   id: string;
@@ -115,6 +125,114 @@ interface FormSchema {
   submitEndpoint: string;
   steps: FormStep[];
 }
+
+const TEMPLATE_GALLERY = [
+  {
+    id: "blank",
+    name: "Create a Blank Form",
+    description: "Start with a simple welcome statement",
+    icon: "📝",
+    action: "blank",
+  },
+  {
+    id: "demo-form",
+    name: "Demo Form Wizard",
+    description: "A comprehensive demo showcasing various field types",
+    icon: "🎯",
+    action: "template",
+  },
+  {
+    id: "customer-feedback-form",
+    name: "Customer Feedback",
+    description: "Collect customer feedback and ratings",
+    icon: "💬",
+    action: "template",
+  },
+  {
+    id: "event-registration-form",
+    name: "Event Registration",
+    description: "Register attendees for events",
+    icon: "🎟️",
+    action: "template",
+  },
+  {
+    id: "fitness-membership",
+    name: "Fitness Membership",
+    description: "Gym and fitness membership application",
+    icon: "💪",
+    action: "template",
+  },
+  {
+    id: "healthcare-appointment",
+    name: "Healthcare Appointment",
+    description: "Schedule medical appointments",
+    icon: "🏥",
+    action: "template",
+  },
+  {
+    id: "job-application-form",
+    name: "Job Application",
+    description: "Employment application form",
+    icon: "💼",
+    action: "template",
+  },
+  {
+    id: "online-course-enrollment",
+    name: "Online Course Enrollment",
+    description: "Enroll students in online courses",
+    icon: "📚",
+    action: "template",
+  },
+  {
+    id: "pet-adoption",
+    name: "Pet Adoption",
+    description: "Pet adoption application form",
+    icon: "🐕",
+    action: "template",
+  },
+  {
+    id: "product-launch-survey",
+    name: "Product Launch Survey",
+    description: "Gather feedback for product launches",
+    icon: "🚀",
+    action: "template",
+  },
+  {
+    id: "real-estate-inquiry",
+    name: "Real Estate Inquiry",
+    description: "Property inquiry and contact form",
+    icon: "🏠",
+    action: "template",
+  },
+  {
+    id: "restaurant-reservation",
+    name: "Restaurant Reservation",
+    description: "Make restaurant reservations",
+    icon: "🍽️",
+    action: "template",
+  },
+  {
+    id: "travel-booking",
+    name: "Travel Booking",
+    description: "Book travel and accommodations",
+    icon: "✈️",
+    action: "template",
+  },
+  {
+    id: "volunteer-application",
+    name: "Volunteer Application",
+    description: "Apply for volunteer opportunities",
+    icon: "🤝",
+    action: "template",
+  },
+  {
+    id: "wedding-planning",
+    name: "Wedding Planning",
+    description: "Plan your perfect wedding",
+    icon: "💒",
+    action: "template",
+  },
+];
 
 const FIELD_TYPES = [
   { value: "statement", label: "Statement", description: "Display text only" },
@@ -179,6 +297,35 @@ const FIELD_TYPES = [
   },
 ];
 
+// Utility function to generate slug from title
+const generateSlug = (title: string): string => {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+};
+
+// Utility function to ensure unique slug
+const ensureUniqueSlug = (
+  baseSlug: string,
+  existingSteps: FormStep[],
+  excludeId?: string
+): string => {
+  let slug = baseSlug || "untitled";
+  let counter = 1;
+
+  while (
+    existingSteps.some((step) => step.id === slug && step.id !== excludeId)
+  ) {
+    slug = `${baseSlug || "untitled"}-${counter}`;
+    counter++;
+  }
+
+  return slug;
+};
+
 export default function FormBuilderPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -195,6 +342,7 @@ export default function FormBuilderPage() {
   });
   const [selectedTheme, setSelectedTheme] = useState<string>("default");
   const [editingStep, setEditingStep] = useState<FormStep | null>(null);
+  const [selectedStepType, setSelectedStepType] = useState<string>("");
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -233,7 +381,8 @@ export default function FormBuilderPage() {
         endpointData.form_json &&
         typeof endpointData.form_json === "object"
       ) {
-        const existingFormSchema = endpointData.form_json as unknown as FormSchema;
+        const existingFormSchema =
+          endpointData.form_json as unknown as FormSchema;
         // Ensure submitEndpoint is always set, even if it was stored in the database
         setFormSchema({
           ...existingFormSchema,
@@ -262,11 +411,58 @@ export default function FormBuilderPage() {
     }
   }, [user, fetchData]);
 
-  const addStep = (type: string) => {
+  const handleTemplateAction = (template: { id: string; action: string }) => {
+    if (template.action === "blank") {
+      createBlankForm();
+    } else {
+      loadTemplate(template.id);
+    }
+  };
+
+  const getPreviewUrl = (formSlug: string, type: "single" | "multi") => {
+    const currentTheme = selectedTheme || "default";
+    return `https://forms.jsonpost.com/${type}-page/${formSlug}/${currentTheme}`;
+  };
+
+  const createBlankForm = () => {
     const newStep: FormStep = {
-      id: `step_${Date.now()}`,
+      id: generateSlug("Welcome"),
+      type: "statement",
+      title: "Welcome",
+      content: "Welcome to our form! Please provide the requested information.",
+      required: false,
+    };
+
+    setFormSchema((prev) => ({
+      ...prev,
+      steps: [newStep],
+    }));
+  };
+
+  const handleAddStep = () => {
+    if (!selectedStepType) {
+      toast({
+        title: "No step type selected",
+        description: "Please select a step type from the dropdown first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    addStep(selectedStepType);
+    setSelectedStepType(""); // Reset selection after adding
+  };
+
+  const addStep = (type: string) => {
+    const fieldLabel = FIELD_TYPES.find((t) => t.value === type)?.label || type;
+    const title = `New ${fieldLabel}`;
+    const baseSlug = generateSlug(title);
+    const uniqueSlug = ensureUniqueSlug(baseSlug, formSchema.steps);
+
+    const newStep: FormStep = {
+      id: uniqueSlug,
       type,
-      title: `New ${FIELD_TYPES.find((t) => t.value === type)?.label || type}`,
+      title,
       required: false,
     };
 
@@ -376,8 +572,38 @@ export default function FormBuilderPage() {
         case "event-registration-form":
           templateData = eventRegistrationForm;
           break;
+        case "fitness-membership":
+          templateData = fitnessMemership;
+          break;
+        case "healthcare-appointment":
+          templateData = healthcareAppointment;
+          break;
         case "job-application-form":
           templateData = jobApplicationForm;
+          break;
+        case "online-course-enrollment":
+          templateData = onlineCourseEnrollment;
+          break;
+        case "pet-adoption":
+          templateData = petAdoption;
+          break;
+        case "product-launch-survey":
+          templateData = productLaunchSurvey;
+          break;
+        case "real-estate-inquiry":
+          templateData = realEstateInquiry;
+          break;
+        case "restaurant-reservation":
+          templateData = restaurantReservation;
+          break;
+        case "travel-booking":
+          templateData = travelBooking;
+          break;
+        case "volunteer-application":
+          templateData = volunteerApplication;
+          break;
+        case "wedding-planning":
+          templateData = weddingPlanning;
           break;
         default:
           console.error("Unknown template:", templateName);
@@ -385,7 +611,7 @@ export default function FormBuilderPage() {
       }
 
       // Update the submit endpoint to match current endpoint
-      const submitUrl = `${window.location.origin}/api/submit/${endpointId}/${endpoint?.path || ''}`;
+      const submitUrl = `${window.location.origin}/api/submit/${endpointId}/${endpoint?.path || ""}`;
 
       setFormSchema({
         ...templateData,
@@ -399,11 +625,38 @@ export default function FormBuilderPage() {
   const saveForm = async () => {
     if (!endpoint) return;
 
+    // Validate that all step IDs are unique
+    const stepIds = formSchema.steps.map((step) => step.id);
+    const duplicateIds = stepIds.filter(
+      (id, index) => stepIds.indexOf(id) !== index
+    );
+
+    if (duplicateIds.length > 0) {
+      toast({
+        title: "Duplicate Step IDs Found",
+        description: `The following step IDs are duplicated: ${duplicateIds.join(", ")}. Please ensure all step IDs are unique.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate that all step IDs are valid slugs (lowercase, alphanumeric, hyphens only)
+    const invalidIds = stepIds.filter((id) => !/^[a-z0-9-]+$/.test(id));
+
+    if (invalidIds.length > 0) {
+      toast({
+        title: "Invalid Step IDs Found",
+        description: `The following step IDs contain invalid characters: ${invalidIds.join(", ")}. Please use only lowercase letters, numbers, and hyphens.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       // Remove submitEndpoint from form schema before saving to database
       const { submitEndpoint, ...formSchemaWithoutSubmitEndpoint } = formSchema;
-      
+
       const { error } = await supabase
         .from("endpoints")
         .update({
@@ -436,6 +689,18 @@ export default function FormBuilderPage() {
     return `https://forms.jsonpost.com/form/${endpoint.id}/${themeId}`;
   };
 
+  const generateSinglePageUrl = () => {
+    if (!endpoint) return "";
+    const themeId = selectedTheme || "default";
+    return `https://forms.jsonpost.com/single-page/${endpoint.id}/${themeId}`;
+  };
+
+  const generateMultiStepUrl = () => {
+    if (!endpoint) return "";
+    const themeId = selectedTheme || "default";
+    return `https://forms.jsonpost.com/multi-page/${endpoint.id}/${themeId}`;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -462,14 +727,6 @@ export default function FormBuilderPage() {
                 Back to Endpoint
               </Button>
             </Link>
-            <Button
-              onClick={() => window.open(generatePreviewUrl(), "_blank")}
-              variant="outline"
-              size="sm"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview Form
-            </Button>
             <Button onClick={saveForm} disabled={isSaving} size="sm">
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Form"}
@@ -504,27 +761,6 @@ export default function FormBuilderPage() {
                   <ExternalLink className="h-4 w-4 mr-2" />
                   View Gallery
                 </Button>
-                {formSchema.steps.length === 0 && (
-                  <Select onValueChange={loadTemplate}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder="Load Template" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="demo-form">
-                        Demo Form Wizard
-                      </SelectItem>
-                      <SelectItem value="customer-feedback-form">
-                        Customer Feedback
-                      </SelectItem>
-                      <SelectItem value="event-registration-form">
-                        Event Registration
-                      </SelectItem>
-                      <SelectItem value="job-application-form">
-                        Job Application
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
               </div>
             </div>
           </CardContent>
@@ -583,29 +819,133 @@ export default function FormBuilderPage() {
                     Each step represents one question in your form
                   </CardDescription>
                 </div>
-                <Select onValueChange={addStep}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Add Step" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FIELD_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>
-                        <div>
-                          <div className="font-medium">{type.label}</div>
-                          <div className="text-xs text-gray-500">
-                            {type.description}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  {formSchema.steps.length > 0 && (
+                    <>
+                      <Button onClick={saveForm} disabled={isSaving} size="sm">
+                        <Save className="h-4 w-4 mr-2" />
+                        {isSaving ? "Saving..." : "Save Form"}
+                      </Button>
+                      <Select
+                        value={selectedStepType}
+                        onValueChange={setSelectedStepType}
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Select Step Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {FIELD_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              <div>
+                                <div className="font-medium">{type.label}</div>
+                                <div className="text-xs text-gray-500">
+                                  {type.description}
+                                </div>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        onClick={handleAddStep}
+                        disabled={!selectedStepType}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add
+                      </Button>
+                    </>
+                  )}
+                </div>
               </CardHeader>
               <CardContent>
                 {formSchema.steps.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No steps added yet. Add your first step using the dropdown
-                    above.
+                  <div className="py-8">
+                    <div className="text-center mb-8">
+                      <h3 className="text-xl font-semibold mb-2">
+                        Choose a Template or Create a Blank Form
+                      </h3>
+                      <p className="text-gray-600">
+                        Get started by selecting a pre-built template or create your own form from scratch
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      {TEMPLATE_GALLERY.map((template) => (
+                        <div
+                          key={template.id}
+                          className="group relative border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
+                        >
+                          <div className="flex items-start gap-4 mb-3">
+                            <div className="text-2xl flex-shrink-0">{template.icon}</div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-base mb-1">
+                                {template.name}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {template.description}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {/* Separator line */}
+                          <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
+                            <div className="flex items-center gap-2">
+                              {template.action === "template" && (
+                                <>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(
+                                        getPreviewUrl(template.id, "single"),
+                                        "_blank"
+                                      );
+                                    }}
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                    Preview Single
+                                  </Button>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      window.open(
+                                        getPreviewUrl(template.id, "multi"),
+                                        "_blank"
+                                      );
+                                    }}
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                  >
+                                    <Eye className="h-3 w-3" />
+                                    Preview Multi-Step
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                onClick={() => handleTemplateAction(template)}
+                                size="sm"
+                                className="flex items-center gap-2"
+                              >
+                                {template.action === "blank" ? (
+                                  <>
+                                    <Plus className="h-4 w-4" />
+                                    Create Blank Form
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="h-4 w-4" />
+                                    Use This Template
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -660,6 +1000,12 @@ export default function FormBuilderPage() {
                                       (t) => t.value === step.type
                                     )?.label
                                   }
+                                </Badge>
+                                <Badge
+                                  variant="outline"
+                                  className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-400 font-mono text-xs"
+                                >
+                                  ID: {step.id}
                                 </Badge>
                                 {step.required && (
                                   <Badge
@@ -775,15 +1121,15 @@ export default function FormBuilderPage() {
               <CardHeader>
                 <CardTitle>Form Production</CardTitle>
                 <CardDescription>
-                  Your live form URL with selected theme
+                  Your live form URLs with selected theme
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div>
-                  <Label>Production URL</Label>
+                  <Label>Single Page Form URL</Label>
                   <div className="flex items-center space-x-2 mt-1">
                     <Input
-                      value={generatePreviewUrl()}
+                      value={generateSinglePageUrl()}
                       readOnly
                       className="text-sm"
                     />
@@ -791,21 +1137,50 @@ export default function FormBuilderPage() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        navigator.clipboard.writeText(generatePreviewUrl())
+                        navigator.clipboard.writeText(generateSinglePageUrl())
                       }
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <Button
-                  onClick={() => window.open(generatePreviewUrl(), "_blank")}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Form
-                </Button>
+                <div>
+                  <Label>Multi-Step Form URL</Label>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <Input
+                      value={generateMultiStepUrl()}
+                      readOnly
+                      className="text-sm"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        navigator.clipboard.writeText(generateMultiStepUrl())
+                      }
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => window.open(generateSinglePageUrl(), "_blank")}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Single Page
+                  </Button>
+                  <Button
+                    onClick={() => window.open(generateMultiStepUrl(), "_blank")}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Open Multi-Step
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -930,16 +1305,33 @@ function StepEditorDialog({
 
         <div className="space-y-4">
           {/* Basic Properties */}
-          <div>
-            <Label htmlFor="step-title">Title</Label>
-            <Input
-              id="step-title"
-              value={editedStep.title}
-              onChange={(e) =>
-                setEditedStep((prev) => ({ ...prev, title: e.target.value }))
-              }
-              placeholder="Enter step title"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="step-title">Title</Label>
+              <Input
+                id="step-title"
+                value={editedStep.title}
+                onChange={(e) =>
+                  setEditedStep((prev) => ({ ...prev, title: e.target.value }))
+                }
+                placeholder="Enter step title"
+              />
+            </div>
+            <div>
+              <Label htmlFor="step-id">Step ID</Label>
+              <Input
+                id="step-id"
+                value={editedStep.id}
+                onChange={(e) =>
+                  setEditedStep((prev) => ({ ...prev, id: e.target.value }))
+                }
+                placeholder="Enter step ID (slug format)"
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Use lowercase letters, numbers, and hyphens only
+              </p>
+            </div>
           </div>
 
           {/* Statement Content */}

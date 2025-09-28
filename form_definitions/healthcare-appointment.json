@@ -1,0 +1,199 @@
+{
+  "title": "Healthcare Appointment Booking",
+  "description": "Schedule your appointment with our medical professionals",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Welcome to MediCare Clinic",
+      "content": "We're here to provide you with the best healthcare services. Please complete this form to schedule your appointment.",
+      "required": false
+    },
+    {
+      "id": "patient_name",
+      "type": "short_text",
+      "title": "Patient's Full Name",
+      "placeholder": "Enter patient's full legal name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "date_of_birth",
+      "type": "date",
+      "title": "Date of Birth",
+      "required": true,
+      "validation": {
+        "maxDate": "today"
+      }
+    },
+    {
+      "id": "contact_info",
+      "type": "contact_info",
+      "title": "Contact Information",
+      "required": true,
+      "fields": {
+        "firstName": { "label": "First Name", "required": true },
+        "lastName": { "label": "Last Name", "required": true },
+        "email": { "label": "Email Address", "required": true },
+        "phone": { "label": "Phone Number", "required": true },
+        "address": { "label": "Home Address", "required": true }
+      }
+    },
+    {
+      "id": "insurance_provider",
+      "type": "dropdown",
+      "title": "Insurance Provider",
+      "required": false,
+      "options": [
+        { "value": "aetna", "label": "Aetna" },
+        { "value": "blue_cross", "label": "Blue Cross Blue Shield" },
+        { "value": "cigna", "label": "Cigna" },
+        { "value": "humana", "label": "Humana" },
+        { "value": "kaiser", "label": "Kaiser Permanente" },
+        { "value": "medicare", "label": "Medicare" },
+        { "value": "medicaid", "label": "Medicaid" },
+        { "value": "uninsured", "label": "Uninsured/Self-pay" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "appointment_type",
+      "type": "single_select",
+      "title": "Type of appointment needed",
+      "required": true,
+      "options": [
+        { "value": "general_checkup", "label": "General checkup/Physical exam" },
+        { "value": "follow_up", "label": "Follow-up appointment" },
+        { "value": "urgent_care", "label": "Urgent care" },
+        { "value": "specialist", "label": "Specialist consultation" },
+        { "value": "preventive", "label": "Preventive care/Screening" },
+        { "value": "vaccination", "label": "Vaccination" },
+        { "value": "lab_work", "label": "Lab work/Blood test" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "preferred_doctor",
+      "type": "dropdown",
+      "title": "Preferred Doctor",
+      "required": false,
+      "options": [
+        { "value": "dr_smith", "label": "Dr. Sarah Smith (Family Medicine)" },
+        { "value": "dr_johnson", "label": "Dr. Michael Johnson (Internal Medicine)" },
+        { "value": "dr_williams", "label": "Dr. Emily Williams (Pediatrics)" },
+        { "value": "dr_brown", "label": "Dr. David Brown (Cardiology)" },
+        { "value": "dr_davis", "label": "Dr. Lisa Davis (Dermatology)" },
+        { "value": "no_preference", "label": "No preference" }
+      ]
+    },
+    {
+      "id": "preferred_date",
+      "type": "date",
+      "title": "Preferred Appointment Date",
+      "required": true,
+      "validation": {
+        "minDate": "today"
+      }
+    },
+    {
+      "id": "preferred_time",
+      "type": "single_select",
+      "title": "Preferred Time",
+      "required": true,
+      "options": [
+        { "value": "morning", "label": "Morning (8 AM - 12 PM)" },
+        { "value": "afternoon", "label": "Afternoon (12 PM - 5 PM)" },
+        { "value": "evening", "label": "Evening (5 PM - 8 PM)" },
+        { "value": "flexible", "label": "Flexible/Any time" }
+      ]
+    },
+    {
+      "id": "visit_reason",
+      "type": "long_text",
+      "title": "Reason for visit",
+      "placeholder": "Please describe your symptoms or reason for the appointment...",
+      "required": true,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "current_medications",
+      "type": "long_text",
+      "title": "Current medications",
+      "placeholder": "List all medications you're currently taking (include dosage if known)...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "allergies",
+      "type": "multiple_select",
+      "title": "Known allergies",
+      "required": false,
+      "options": [
+        { "value": "penicillin", "label": "Penicillin" },
+        { "value": "sulfa", "label": "Sulfa drugs" },
+        { "value": "aspirin", "label": "Aspirin" },
+        { "value": "latex", "label": "Latex" },
+        { "value": "peanuts", "label": "Peanuts" },
+        { "value": "shellfish", "label": "Shellfish" },
+        { "value": "pollen", "label": "Pollen" },
+        { "value": "dust", "label": "Dust mites" },
+        { "value": "none", "label": "No known allergies" },
+        { "value": "other", "label": "Other (please specify in notes)" }
+      ]
+    },
+    {
+      "id": "pain_level",
+      "type": "opinion_scale",
+      "title": "Current pain level (if applicable)",
+      "required": false,
+      "scale": {
+        "min": 0,
+        "max": 10,
+        "minLabel": "No pain",
+        "maxLabel": "Severe pain"
+      }
+    },
+    {
+      "id": "urgency",
+      "type": "single_select",
+      "title": "How urgent is this appointment?",
+      "required": true,
+      "options": [
+        { "value": "routine", "label": "Routine - can wait 2-4 weeks" },
+        { "value": "soon", "label": "Soon - within 1-2 weeks" },
+        { "value": "urgent", "label": "Urgent - within a few days" },
+        { "value": "emergency", "label": "Emergency - same day" }
+      ]
+    },
+    {
+      "id": "transportation",
+      "type": "single_select",
+      "title": "Do you need assistance with transportation?",
+      "required": false,
+      "options": [
+        { "value": "no", "label": "No, I have my own transportation" },
+        { "value": "public", "label": "I use public transportation" },
+        { "value": "need_help", "label": "Yes, I need assistance" },
+        { "value": "wheelchair", "label": "I need wheelchair accessible transport" }
+      ]
+    },
+    {
+      "id": "additional_notes",
+      "type": "long_text",
+      "title": "Additional notes or special requests",
+      "placeholder": "Any other information we should know about your visit...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    }
+  ]
+}

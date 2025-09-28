@@ -1,0 +1,245 @@
+{
+  "title": "Fitness Membership Registration",
+  "description": "Join our fitness community and start your wellness journey",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Welcome to FitLife Gym",
+      "content": "Ready to transform your life? Join our community of fitness enthusiasts and achieve your health goals with our state-of-the-art facilities and expert trainers.",
+      "required": false
+    },
+    {
+      "id": "member_name",
+      "type": "short_text",
+      "title": "Full Name",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": true
+    },
+    {
+      "id": "birth_date",
+      "type": "date",
+      "title": "Date of Birth",
+      "required": true,
+      "validation": {
+        "maxDate": "today"
+      }
+    },
+    {
+      "id": "address",
+      "type": "address",
+      "title": "Home Address",
+      "required": true,
+      "fields": {
+        "street": { "label": "Street Address", "required": true },
+        "city": { "label": "City", "required": true },
+        "state": { "label": "State", "required": true },
+        "zip": { "label": "ZIP Code", "required": true },
+        "country": { "label": "Country", "required": true }
+      }
+    },
+    {
+      "id": "emergency_contact",
+      "type": "contact_info",
+      "title": "Emergency Contact",
+      "required": true,
+      "fields": {
+        "firstName": { "label": "First Name", "required": true },
+        "lastName": { "label": "Last Name", "required": true },
+        "email": { "label": "Email", "required": false },
+        "phone": { "label": "Phone Number", "required": true },
+        "address": { "label": "Relationship", "required": true }
+      }
+    },
+    {
+      "id": "membership_type",
+      "type": "single_select",
+      "title": "Choose your membership plan",
+      "required": true,
+      "options": [
+        { "value": "basic", "label": "Basic - $29/month (Gym access only)" },
+        { "value": "standard", "label": "Standard - $49/month (Gym + Group classes)" },
+        { "value": "premium", "label": "Premium - $79/month (All access + Personal training)" },
+        { "value": "vip", "label": "VIP - $129/month (Premium + Spa + Nutrition)" },
+        { "value": "student", "label": "Student - $19/month (Basic with student ID)" },
+        { "value": "senior", "label": "Senior - $24/month (Basic for 65+)" }
+      ]
+    },
+    {
+      "id": "fitness_goals",
+      "type": "multiple_select",
+      "title": "What are your fitness goals?",
+      "required": true,
+      "options": [
+        { "value": "weight_loss", "label": "Weight loss" },
+        { "value": "muscle_gain", "label": "Muscle gain/Strength building" },
+        { "value": "cardio_fitness", "label": "Cardiovascular fitness" },
+        { "value": "flexibility", "label": "Flexibility/Mobility" },
+        { "value": "sports_training", "label": "Sports-specific training" },
+        { "value": "stress_relief", "label": "Stress relief/Mental health" },
+        { "value": "general_fitness", "label": "General fitness/Health maintenance" },
+        { "value": "rehabilitation", "label": "Injury rehabilitation" }
+      ]
+    },
+    {
+      "id": "experience_level",
+      "type": "single_select",
+      "title": "What's your fitness experience level?",
+      "required": true,
+      "options": [
+        { "value": "beginner", "label": "Beginner (New to fitness)" },
+        { "value": "some_experience", "label": "Some experience (1-2 years)" },
+        { "value": "intermediate", "label": "Intermediate (3-5 years)" },
+        { "value": "advanced", "label": "Advanced (5+ years)" },
+        { "value": "athlete", "label": "Competitive athlete" }
+      ]
+    },
+    {
+      "id": "preferred_workout_times",
+      "type": "multiple_select",
+      "title": "When do you prefer to work out?",
+      "required": false,
+      "options": [
+        { "value": "early_morning", "label": "Early morning (5-7 AM)" },
+        { "value": "morning", "label": "Morning (7-10 AM)" },
+        { "value": "midday", "label": "Midday (10 AM-2 PM)" },
+        { "value": "afternoon", "label": "Afternoon (2-6 PM)" },
+        { "value": "evening", "label": "Evening (6-9 PM)" },
+        { "value": "late_evening", "label": "Late evening (9-11 PM)" },
+        { "value": "weekends", "label": "Weekends only" }
+      ]
+    },
+    {
+      "id": "workout_frequency",
+      "type": "dropdown",
+      "title": "How often do you plan to work out?",
+      "required": true,
+      "options": [
+        { "value": "1-2_times", "label": "1-2 times per week" },
+        { "value": "3-4_times", "label": "3-4 times per week" },
+        { "value": "5-6_times", "label": "5-6 times per week" },
+        { "value": "daily", "label": "Daily" },
+        { "value": "varies", "label": "Varies/Flexible" }
+      ]
+    },
+    {
+      "id": "health_conditions",
+      "type": "multiple_select",
+      "title": "Do you have any health conditions we should know about?",
+      "required": false,
+      "options": [
+        { "value": "heart_condition", "label": "Heart condition" },
+        { "value": "high_blood_pressure", "label": "High blood pressure" },
+        { "value": "diabetes", "label": "Diabetes" },
+        { "value": "asthma", "label": "Asthma" },
+        { "value": "back_problems", "label": "Back problems" },
+        { "value": "joint_issues", "label": "Joint issues" },
+        { "value": "pregnancy", "label": "Pregnancy" },
+        { "value": "recent_surgery", "label": "Recent surgery" },
+        { "value": "none", "label": "No health conditions" }
+      ]
+    },
+    {
+      "id": "motivation_level",
+      "type": "opinion_scale",
+      "title": "How motivated are you to achieve your fitness goals?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Not very motivated",
+        "maxLabel": "Extremely motivated"
+      }
+    },
+    {
+      "id": "personal_training",
+      "type": "single_select",
+      "title": "Are you interested in personal training sessions?",
+      "required": false,
+      "options": [
+        { "value": "yes_immediately", "label": "Yes, I want to start immediately" },
+        { "value": "yes_later", "label": "Yes, but maybe later" },
+        { "value": "maybe", "label": "Maybe, tell me more" },
+        { "value": "no", "label": "No, I prefer to work out alone" }
+      ]
+    },
+    {
+      "id": "group_classes",
+      "type": "multiple_select",
+      "title": "Which group classes interest you?",
+      "required": false,
+      "options": [
+        { "value": "yoga", "label": "Yoga" },
+        { "value": "pilates", "label": "Pilates" },
+        { "value": "zumba", "label": "Zumba/Dance fitness" },
+        { "value": "spinning", "label": "Spinning/Cycling" },
+        { "value": "hiit", "label": "HIIT (High-Intensity Interval Training)" },
+        { "value": "strength_training", "label": "Group strength training" },
+        { "value": "aqua_fitness", "label": "Aqua fitness" },
+        { "value": "martial_arts", "label": "Martial arts" },
+        { "value": "none", "label": "Not interested in group classes" }
+      ]
+    },
+    {
+      "id": "referral_source",
+      "type": "dropdown",
+      "title": "How did you hear about us?",
+      "required": false,
+      "options": [
+        { "value": "friend_family", "label": "Friend or family member" },
+        { "value": "social_media", "label": "Social media" },
+        { "value": "google_search", "label": "Google search" },
+        { "value": "advertisement", "label": "Advertisement" },
+        { "value": "walked_by", "label": "Walked by the gym" },
+        { "value": "corporate_program", "label": "Corporate wellness program" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "satisfaction_expectation",
+      "type": "star_rating",
+      "title": "What level of service do you expect from us?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Basic",
+        "2": "Good",
+        "3": "Very Good",
+        "4": "Excellent",
+        "5": "Exceptional"
+      }
+    },
+    {
+      "id": "additional_info",
+      "type": "long_text",
+      "title": "Additional information or special requests",
+      "placeholder": "Tell us about any specific needs, concerns, or questions you have...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    }
+  ]
+}

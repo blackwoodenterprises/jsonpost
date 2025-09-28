@@ -1,0 +1,335 @@
+{
+  "title": "Pet Adoption Application",
+  "description": "Find your perfect furry companion and give a loving animal a forever home",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Thank You for Choosing Adoption",
+      "content": "By choosing to adopt, you're giving a deserving animal a second chance at happiness. This application helps us ensure the best match between you and your future pet.",
+      "required": false
+    },
+    {
+      "id": "full_name",
+      "type": "short_text",
+      "title": "Full Name",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": true
+    },
+    {
+      "id": "age",
+      "type": "number",
+      "title": "Your Age",
+      "placeholder": "Enter your age",
+      "required": true,
+      "validation": {
+        "min": 18,
+        "max": 100
+      }
+    },
+    {
+      "id": "address",
+      "type": "address",
+      "title": "Home Address",
+      "required": true,
+      "fields": {
+        "street": { "label": "Street Address", "required": true },
+        "city": { "label": "City", "required": true },
+        "state": { "label": "State", "required": true },
+        "zip": { "label": "ZIP Code", "required": true },
+        "country": { "label": "Country", "required": true }
+      }
+    },
+    {
+      "id": "pet_interest",
+      "type": "single_select",
+      "title": "What type of pet are you interested in adopting?",
+      "required": true,
+      "options": [
+        { "value": "dog", "label": "Dog" },
+        { "value": "cat", "label": "Cat" },
+        { "value": "rabbit", "label": "Rabbit" },
+        { "value": "bird", "label": "Bird" },
+        { "value": "small_animal", "label": "Small animal (hamster, guinea pig, etc.)" },
+        { "value": "reptile", "label": "Reptile" },
+        { "value": "other", "label": "Other" },
+        { "value": "open", "label": "Open to different types" }
+      ]
+    },
+    {
+      "id": "specific_pet",
+      "type": "short_text",
+      "title": "Are you interested in a specific pet? (Optional)",
+      "placeholder": "Enter pet's name or ID if you have one in mind",
+      "required": false,
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "pet_age_preference",
+      "type": "multiple_select",
+      "title": "What age range are you interested in?",
+      "required": true,
+      "options": [
+        { "value": "baby", "label": "Baby/Puppy/Kitten (0-6 months)" },
+        { "value": "young", "label": "Young (6 months - 2 years)" },
+        { "value": "adult", "label": "Adult (2-7 years)" },
+        { "value": "senior", "label": "Senior (7+ years)" },
+        { "value": "no_preference", "label": "No preference" }
+      ]
+    },
+    {
+      "id": "pet_size_preference",
+      "type": "multiple_select",
+      "title": "What size pet are you looking for? (for dogs mainly)",
+      "required": false,
+      "options": [
+        { "value": "small", "label": "Small (under 25 lbs)" },
+        { "value": "medium", "label": "Medium (25-60 lbs)" },
+        { "value": "large", "label": "Large (60-100 lbs)" },
+        { "value": "extra_large", "label": "Extra Large (100+ lbs)" },
+        { "value": "no_preference", "label": "No preference" }
+      ]
+    },
+    {
+      "id": "housing_type",
+      "type": "single_select",
+      "title": "What type of home do you live in?",
+      "required": true,
+      "options": [
+        { "value": "house_yard", "label": "House with yard" },
+        { "value": "house_no_yard", "label": "House without yard" },
+        { "value": "apartment", "label": "Apartment" },
+        { "value": "condo", "label": "Condominium" },
+        { "value": "townhouse", "label": "Townhouse" },
+        { "value": "mobile_home", "label": "Mobile home" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "housing_status",
+      "type": "single_select",
+      "title": "Do you own or rent your home?",
+      "required": true,
+      "options": [
+        { "value": "own", "label": "Own" },
+        { "value": "rent", "label": "Rent" },
+        { "value": "live_with_family", "label": "Live with family/relatives" },
+        { "value": "other", "label": "Other arrangement" }
+      ]
+    },
+    {
+      "id": "landlord_permission",
+      "type": "single_select",
+      "title": "If you rent, do you have permission to have pets?",
+      "required": false,
+      "options": [
+        { "value": "yes_written", "label": "Yes, written permission" },
+        { "value": "yes_verbal", "label": "Yes, verbal permission" },
+        { "value": "no_permission", "label": "No permission yet" },
+        { "value": "not_applicable", "label": "Not applicable (I own my home)" }
+      ]
+    },
+    {
+      "id": "household_members",
+      "type": "number",
+      "title": "How many people live in your household?",
+      "placeholder": "Enter number of household members",
+      "required": true,
+      "validation": {
+        "min": 1,
+        "max": 20
+      }
+    },
+    {
+      "id": "children_ages",
+      "type": "short_text",
+      "title": "Ages of children in the home (if any)",
+      "placeholder": "e.g., 5, 8, 12 or 'None'",
+      "required": false,
+      "validation": {
+        "maxLength": 50
+      }
+    },
+    {
+      "id": "current_pets",
+      "type": "multiple_select",
+      "title": "Do you currently have any pets?",
+      "required": true,
+      "options": [
+        { "value": "no_pets", "label": "No current pets" },
+        { "value": "dogs", "label": "Dogs" },
+        { "value": "cats", "label": "Cats" },
+        { "value": "birds", "label": "Birds" },
+        { "value": "fish", "label": "Fish" },
+        { "value": "rabbits", "label": "Rabbits" },
+        { "value": "reptiles", "label": "Reptiles" },
+        { "value": "small_animals", "label": "Small animals (hamsters, etc.)" },
+        { "value": "other", "label": "Other pets" }
+      ]
+    },
+    {
+      "id": "pet_experience",
+      "type": "single_select",
+      "title": "How would you describe your experience with pets?",
+      "required": true,
+      "options": [
+        { "value": "first_time", "label": "First-time pet owner" },
+        { "value": "some_experience", "label": "Some experience" },
+        { "value": "experienced", "label": "Very experienced" },
+        { "value": "professional", "label": "Professional experience (vet, trainer, etc.)" }
+      ]
+    },
+    {
+      "id": "daily_schedule",
+      "type": "single_select",
+      "title": "How many hours per day will the pet be alone?",
+      "required": true,
+      "options": [
+        { "value": "0_2_hours", "label": "0-2 hours" },
+        { "value": "3_4_hours", "label": "3-4 hours" },
+        { "value": "5_6_hours", "label": "5-6 hours" },
+        { "value": "7_8_hours", "label": "7-8 hours" },
+        { "value": "9_plus_hours", "label": "9+ hours" },
+        { "value": "varies", "label": "Varies significantly" }
+      ]
+    },
+    {
+      "id": "activity_level",
+      "type": "single_select",
+      "title": "What activity level are you looking for in a pet?",
+      "required": true,
+      "options": [
+        { "value": "low", "label": "Low - Calm, likes to relax" },
+        { "value": "moderate", "label": "Moderate - Some exercise and play" },
+        { "value": "high", "label": "High - Very active, needs lots of exercise" },
+        { "value": "no_preference", "label": "No preference" }
+      ]
+    },
+    {
+      "id": "training_commitment",
+      "type": "opinion_scale",
+      "title": "How committed are you to training and socializing your pet?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Minimal commitment",
+        "maxLabel": "Fully committed"
+      }
+    },
+    {
+      "id": "budget_monthly",
+      "type": "dropdown",
+      "title": "What's your estimated monthly budget for pet care?",
+      "required": true,
+      "options": [
+        { "value": "under_50", "label": "Under $50" },
+        { "value": "50_100", "label": "$50-$100" },
+        { "value": "100_200", "label": "$100-$200" },
+        { "value": "200_300", "label": "$200-$300" },
+        { "value": "over_300", "label": "Over $300" },
+        { "value": "whatever_needed", "label": "Whatever is needed" }
+      ]
+    },
+    {
+      "id": "veterinary_care",
+      "type": "single_select",
+      "title": "Do you have a veterinarian or plan to find one?",
+      "required": true,
+      "options": [
+        { "value": "have_vet", "label": "Yes, I have a current veterinarian" },
+        { "value": "will_find", "label": "I will find one before adoption" },
+        { "value": "need_help", "label": "I need help finding one" },
+        { "value": "unsure", "label": "I'm not sure" }
+      ]
+    },
+    {
+      "id": "allergies",
+      "type": "multiple_select",
+      "title": "Does anyone in your household have pet allergies?",
+      "required": true,
+      "options": [
+        { "value": "no_allergies", "label": "No allergies" },
+        { "value": "dog_allergies", "label": "Dog allergies" },
+        { "value": "cat_allergies", "label": "Cat allergies" },
+        { "value": "bird_allergies", "label": "Bird allergies" },
+        { "value": "other_allergies", "label": "Other pet allergies" },
+        { "value": "mild_manageable", "label": "Mild allergies (manageable)" }
+      ]
+    },
+    {
+      "id": "surrender_reasons",
+      "type": "multiple_select",
+      "title": "Under what circumstances might you need to give up a pet?",
+      "required": true,
+      "options": [
+        { "value": "never", "label": "Never - lifetime commitment" },
+        { "value": "severe_illness", "label": "Severe illness/death in family" },
+        { "value": "financial_hardship", "label": "Extreme financial hardship" },
+        { "value": "housing_issues", "label": "Housing restrictions" },
+        { "value": "behavioral_issues", "label": "Severe behavioral issues" },
+        { "value": "new_baby", "label": "New baby" },
+        { "value": "other", "label": "Other circumstances" }
+      ]
+    },
+    {
+      "id": "expectations",
+      "type": "star_rating",
+      "title": "How realistic are your expectations about pet ownership?",
+      "required": true,
+      "maxStars": 5,
+      "labels": {
+        "1": "Very unrealistic",
+        "2": "Somewhat unrealistic",
+        "3": "Moderately realistic",
+        "4": "Very realistic",
+        "5": "Extremely realistic"
+      }
+    },
+    {
+      "id": "motivation",
+      "type": "long_text",
+      "title": "Why do you want to adopt a pet?",
+      "placeholder": "Tell us about your motivation for pet adoption and what you hope to provide for your future pet...",
+      "required": true,
+      "validation": {
+        "minLength": 50,
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "additional_info",
+      "type": "long_text",
+      "title": "Additional information or questions",
+      "placeholder": "Share any additional information about your lifestyle, preferences, or questions you have about adoption...",
+      "required": false,
+      "validation": {
+        "maxLength": 400
+      }
+    }
+  ]
+}

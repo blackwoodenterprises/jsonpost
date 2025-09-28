@@ -1,0 +1,305 @@
+{
+  "title": "Wedding Planning Consultation",
+  "description": "Let's create the perfect wedding day that reflects your unique love story",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Congratulations on Your Engagement!",
+      "content": "We're thrilled to help you plan your dream wedding. This consultation form will help us understand your vision, preferences, and requirements to create a personalized wedding experience.",
+      "required": false
+    },
+    {
+      "id": "bride_name",
+      "type": "short_text",
+      "title": "Bride's Full Name",
+      "placeholder": "Enter bride's full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "groom_name",
+      "type": "short_text",
+      "title": "Groom's Full Name",
+      "placeholder": "Enter groom's full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "contact_person",
+      "type": "single_select",
+      "title": "Who is the primary contact for planning?",
+      "required": true,
+      "options": [
+        { "value": "bride", "label": "Bride" },
+        { "value": "groom", "label": "Groom" },
+        { "value": "both", "label": "Both bride and groom" },
+        { "value": "parent_bride", "label": "Bride's parent/family" },
+        { "value": "parent_groom", "label": "Groom's parent/family" },
+        { "value": "wedding_planner", "label": "Wedding planner" }
+      ]
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Primary Contact Email",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Primary Contact Phone",
+      "placeholder": "+1 (555) 123-4567",
+      "required": true
+    },
+    {
+      "id": "wedding_date",
+      "type": "date",
+      "title": "Preferred Wedding Date",
+      "required": true,
+      "validation": {
+        "minDate": "today"
+      }
+    },
+    {
+      "id": "date_flexibility",
+      "type": "single_select",
+      "title": "How flexible are you with the date?",
+      "required": true,
+      "options": [
+        { "value": "fixed", "label": "Date is fixed - cannot change" },
+        { "value": "week_flexible", "label": "Flexible within the same week" },
+        { "value": "month_flexible", "label": "Flexible within the same month" },
+        { "value": "season_flexible", "label": "Flexible within the same season" },
+        { "value": "very_flexible", "label": "Very flexible - open to suggestions" }
+      ]
+    },
+    {
+      "id": "guest_count",
+      "type": "number",
+      "title": "Expected number of guests",
+      "placeholder": "Enter approximate guest count",
+      "required": true,
+      "validation": {
+        "min": 1,
+        "max": 1000
+      }
+    },
+    {
+      "id": "budget_range",
+      "type": "dropdown",
+      "title": "What's your total wedding budget?",
+      "required": true,
+      "options": [
+        { "value": "under_10k", "label": "Under $10,000" },
+        { "value": "10k_25k", "label": "$10,000 - $25,000" },
+        { "value": "25k_50k", "label": "$25,000 - $50,000" },
+        { "value": "50k_75k", "label": "$50,000 - $75,000" },
+        { "value": "75k_100k", "label": "$75,000 - $100,000" },
+        { "value": "100k_150k", "label": "$100,000 - $150,000" },
+        { "value": "over_150k", "label": "Over $150,000" },
+        { "value": "prefer_not_say", "label": "Prefer not to say" }
+      ]
+    },
+    {
+      "id": "venue_type",
+      "type": "multiple_select",
+      "title": "What type of venue are you considering?",
+      "required": true,
+      "options": [
+        { "value": "outdoor_garden", "label": "Outdoor garden/Park" },
+        { "value": "beach", "label": "Beach/Waterfront" },
+        { "value": "church", "label": "Church/Religious venue" },
+        { "value": "hotel_ballroom", "label": "Hotel ballroom" },
+        { "value": "banquet_hall", "label": "Banquet hall" },
+        { "value": "winery_vineyard", "label": "Winery/Vineyard" },
+        { "value": "barn_rustic", "label": "Barn/Rustic venue" },
+        { "value": "museum_gallery", "label": "Museum/Art gallery" },
+        { "value": "rooftop", "label": "Rooftop venue" },
+        { "value": "destination", "label": "Destination wedding" },
+        { "value": "home_backyard", "label": "Home/Backyard" },
+        { "value": "undecided", "label": "Still undecided" }
+      ]
+    },
+    {
+      "id": "wedding_style",
+      "type": "multiple_select",
+      "title": "What wedding style appeals to you?",
+      "required": false,
+      "options": [
+        { "value": "traditional", "label": "Traditional/Classic" },
+        { "value": "modern", "label": "Modern/Contemporary" },
+        { "value": "rustic", "label": "Rustic/Country" },
+        { "value": "bohemian", "label": "Bohemian/Boho" },
+        { "value": "vintage", "label": "Vintage/Retro" },
+        { "value": "elegant", "label": "Elegant/Formal" },
+        { "value": "casual", "label": "Casual/Relaxed" },
+        { "value": "destination", "label": "Destination/Travel" },
+        { "value": "cultural", "label": "Cultural/Ethnic" },
+        { "value": "themed", "label": "Themed wedding" }
+      ]
+    },
+    {
+      "id": "color_scheme",
+      "type": "short_text",
+      "title": "Preferred color scheme or theme colors",
+      "placeholder": "e.g., Blush pink and gold, Navy and white, etc.",
+      "required": false,
+      "validation": {
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "ceremony_reception",
+      "type": "single_select",
+      "title": "Will the ceremony and reception be at the same location?",
+      "required": true,
+      "options": [
+        { "value": "same_location", "label": "Yes, same location" },
+        { "value": "different_locations", "label": "No, different locations" },
+        { "value": "ceremony_only", "label": "Ceremony only (no reception)" },
+        { "value": "reception_only", "label": "Reception only (ceremony elsewhere)" },
+        { "value": "undecided", "label": "Still deciding" }
+      ]
+    },
+    {
+      "id": "services_needed",
+      "type": "multiple_select",
+      "title": "Which services do you need help with?",
+      "required": true,
+      "options": [
+        { "value": "full_planning", "label": "Full wedding planning" },
+        { "value": "partial_planning", "label": "Partial planning" },
+        { "value": "day_coordination", "label": "Day-of coordination" },
+        { "value": "venue_selection", "label": "Venue selection" },
+        { "value": "catering", "label": "Catering" },
+        { "value": "photography", "label": "Photography" },
+        { "value": "videography", "label": "Videography" },
+        { "value": "flowers", "label": "Flowers/Decorations" },
+        { "value": "music_dj", "label": "Music/DJ" },
+        { "value": "transportation", "label": "Transportation" },
+        { "value": "accommodations", "label": "Guest accommodations" },
+        { "value": "invitations", "label": "Invitations/Stationery" }
+      ]
+    },
+    {
+      "id": "dietary_restrictions",
+      "type": "multiple_select",
+      "title": "Are there any dietary restrictions or preferences for catering?",
+      "required": false,
+      "options": [
+        { "value": "vegetarian", "label": "Vegetarian options needed" },
+        { "value": "vegan", "label": "Vegan options needed" },
+        { "value": "gluten_free", "label": "Gluten-free options needed" },
+        { "value": "kosher", "label": "Kosher requirements" },
+        { "value": "halal", "label": "Halal requirements" },
+        { "value": "nut_allergies", "label": "Nut allergies" },
+        { "value": "dairy_free", "label": "Dairy-free options" },
+        { "value": "cultural_cuisine", "label": "Specific cultural cuisine" },
+        { "value": "none", "label": "No special requirements" }
+      ]
+    },
+    {
+      "id": "music_preferences",
+      "type": "multiple_select",
+      "title": "What type of music do you prefer for your wedding?",
+      "required": false,
+      "options": [
+        { "value": "live_band", "label": "Live band" },
+        { "value": "dj", "label": "DJ" },
+        { "value": "acoustic", "label": "Acoustic/Solo musician" },
+        { "value": "classical", "label": "Classical music" },
+        { "value": "jazz", "label": "Jazz" },
+        { "value": "pop_contemporary", "label": "Pop/Contemporary" },
+        { "value": "rock", "label": "Rock" },
+        { "value": "country", "label": "Country" },
+        { "value": "cultural_traditional", "label": "Cultural/Traditional" },
+        { "value": "mixed", "label": "Mix of different styles" }
+      ]
+    },
+    {
+      "id": "photography_style",
+      "type": "single_select",
+      "title": "What photography style do you prefer?",
+      "required": false,
+      "options": [
+        { "value": "traditional", "label": "Traditional/Classic poses" },
+        { "value": "photojournalistic", "label": "Photojournalistic/Candid" },
+        { "value": "artistic", "label": "Artistic/Creative" },
+        { "value": "vintage", "label": "Vintage style" },
+        { "value": "modern", "label": "Modern/Contemporary" },
+        { "value": "mix", "label": "Mix of styles" },
+        { "value": "undecided", "label": "Not sure yet" }
+      ]
+    },
+    {
+      "id": "timeline_urgency",
+      "type": "opinion_scale",
+      "title": "How urgent is your planning timeline?",
+      "required": true,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Very relaxed timeline",
+        "maxLabel": "Very urgent/tight timeline"
+      }
+    },
+    {
+      "id": "stress_level",
+      "type": "opinion_scale",
+      "title": "How stressed are you feeling about wedding planning?",
+      "required": false,
+      "scale": {
+        "min": 1,
+        "max": 10,
+        "minLabel": "Very calm and relaxed",
+        "maxLabel": "Very stressed and overwhelmed"
+      }
+    },
+    {
+      "id": "planning_experience",
+      "type": "star_rating",
+      "title": "How would you rate your event planning experience?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Complete beginner",
+        "2": "Some experience",
+        "3": "Moderate experience",
+        "4": "Experienced",
+        "5": "Very experienced"
+      }
+    },
+    {
+      "id": "special_requests",
+      "type": "long_text",
+      "title": "Special requests, traditions, or unique elements you want to include",
+      "placeholder": "Tell us about any special traditions, cultural elements, unique ideas, or specific requests you have for your wedding...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    },
+    {
+      "id": "inspiration",
+      "type": "long_text",
+      "title": "What inspires your wedding vision?",
+      "placeholder": "Share any inspiration sources, Pinterest boards, celebrity weddings, or specific elements that capture your dream wedding...",
+      "required": false,
+      "validation": {
+        "maxLength": 400
+      }
+    }
+  ]
+}

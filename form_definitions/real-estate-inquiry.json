@@ -1,0 +1,224 @@
+{
+  "title": "Real Estate Inquiry",
+  "description": "Find your dream home with our expert real estate services",
+  "submitEndpoint": "https://jsonpost.com/api/submit/63c61c56-f128-4096-a818-771ee0bafd0c/studyhop-wizard-form",
+  "steps": [
+    {
+      "id": "welcome",
+      "type": "statement",
+      "title": "Welcome to Premier Real Estate",
+      "content": "Let us help you find the perfect property! Complete this form and one of our experienced agents will contact you within 24 hours.",
+      "required": false
+    },
+    {
+      "id": "client_name",
+      "type": "short_text",
+      "title": "Your Full Name",
+      "placeholder": "Enter your full name",
+      "required": true,
+      "validation": {
+        "minLength": 2,
+        "maxLength": 100
+      }
+    },
+    {
+      "id": "email",
+      "type": "email",
+      "title": "Email Address",
+      "placeholder": "your.email@example.com",
+      "required": true,
+      "validation": {
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "phone",
+      "title": "Phone Number",
+      "placeholder": "+1 (555) 123-4567",
+      "required": true
+    },
+    {
+      "id": "inquiry_type",
+      "type": "single_select",
+      "title": "What are you looking for?",
+      "required": true,
+      "options": [
+        { "value": "buying", "label": "Buying a home" },
+        { "value": "selling", "label": "Selling my home" },
+        { "value": "renting", "label": "Renting a property" },
+        { "value": "investing", "label": "Investment properties" },
+        { "value": "commercial", "label": "Commercial real estate" },
+        { "value": "consultation", "label": "General consultation" }
+      ]
+    },
+    {
+      "id": "property_type",
+      "type": "multiple_select",
+      "title": "What type of property interests you?",
+      "required": true,
+      "options": [
+        { "value": "single_family", "label": "Single-family home" },
+        { "value": "condo", "label": "Condominium" },
+        { "value": "townhouse", "label": "Townhouse" },
+        { "value": "apartment", "label": "Apartment" },
+        { "value": "duplex", "label": "Duplex/Multi-family" },
+        { "value": "land", "label": "Land/Lot" },
+        { "value": "commercial", "label": "Commercial property" },
+        { "value": "luxury", "label": "Luxury home" }
+      ]
+    },
+    {
+      "id": "preferred_locations",
+      "type": "long_text",
+      "title": "Preferred locations or neighborhoods",
+      "placeholder": "List the areas, cities, or neighborhoods you're interested in...",
+      "required": true,
+      "validation": {
+        "maxLength": 300
+      }
+    },
+    {
+      "id": "budget_range",
+      "type": "dropdown",
+      "title": "Budget range",
+      "required": true,
+      "options": [
+        { "value": "under_200k", "label": "Under $200,000" },
+        { "value": "200k_300k", "label": "$200,000 - $300,000" },
+        { "value": "300k_500k", "label": "$300,000 - $500,000" },
+        { "value": "500k_750k", "label": "$500,000 - $750,000" },
+        { "value": "750k_1m", "label": "$750,000 - $1,000,000" },
+        { "value": "1m_1.5m", "label": "$1,000,000 - $1,500,000" },
+        { "value": "1.5m_2m", "label": "$1,500,000 - $2,000,000" },
+        { "value": "over_2m", "label": "Over $2,000,000" }
+      ]
+    },
+    {
+      "id": "bedrooms",
+      "type": "dropdown",
+      "title": "Number of bedrooms",
+      "required": false,
+      "options": [
+        { "value": "1", "label": "1 bedroom" },
+        { "value": "2", "label": "2 bedrooms" },
+        { "value": "3", "label": "3 bedrooms" },
+        { "value": "4", "label": "4 bedrooms" },
+        { "value": "5", "label": "5 bedrooms" },
+        { "value": "6+", "label": "6+ bedrooms" },
+        { "value": "flexible", "label": "Flexible" }
+      ]
+    },
+    {
+      "id": "bathrooms",
+      "type": "dropdown",
+      "title": "Number of bathrooms",
+      "required": false,
+      "options": [
+        { "value": "1", "label": "1 bathroom" },
+        { "value": "1.5", "label": "1.5 bathrooms" },
+        { "value": "2", "label": "2 bathrooms" },
+        { "value": "2.5", "label": "2.5 bathrooms" },
+        { "value": "3", "label": "3 bathrooms" },
+        { "value": "3.5", "label": "3.5 bathrooms" },
+        { "value": "4+", "label": "4+ bathrooms" },
+        { "value": "flexible", "label": "Flexible" }
+      ]
+    },
+    {
+      "id": "must_have_features",
+      "type": "multiple_select",
+      "title": "Must-have features",
+      "required": false,
+      "options": [
+        { "value": "garage", "label": "Garage/Parking" },
+        { "value": "yard", "label": "Yard/Garden" },
+        { "value": "pool", "label": "Swimming pool" },
+        { "value": "fireplace", "label": "Fireplace" },
+        { "value": "updated_kitchen", "label": "Updated kitchen" },
+        { "value": "hardwood_floors", "label": "Hardwood floors" },
+        { "value": "basement", "label": "Basement" },
+        { "value": "home_office", "label": "Home office" },
+        { "value": "walk_in_closet", "label": "Walk-in closet" },
+        { "value": "laundry_room", "label": "Laundry room" }
+      ]
+    },
+    {
+      "id": "timeline",
+      "type": "single_select",
+      "title": "When are you looking to buy/sell?",
+      "required": true,
+      "options": [
+        { "value": "immediately", "label": "Immediately" },
+        { "value": "1_3_months", "label": "Within 1-3 months" },
+        { "value": "3_6_months", "label": "Within 3-6 months" },
+        { "value": "6_12_months", "label": "Within 6-12 months" },
+        { "value": "over_year", "label": "Over a year" },
+        { "value": "just_browsing", "label": "Just browsing/researching" }
+      ]
+    },
+    {
+      "id": "financing_status",
+      "type": "single_select",
+      "title": "Financing status",
+      "required": false,
+      "options": [
+        { "value": "pre_approved", "label": "Pre-approved for mortgage" },
+        { "value": "need_pre_approval", "label": "Need mortgage pre-approval" },
+        { "value": "cash_buyer", "label": "Cash buyer" },
+        { "value": "first_time_buyer", "label": "First-time home buyer" },
+        { "value": "unsure", "label": "Unsure about financing" }
+      ]
+    },
+    {
+      "id": "current_situation",
+      "type": "single_select",
+      "title": "Current housing situation",
+      "required": false,
+      "options": [
+        { "value": "renting", "label": "Currently renting" },
+        { "value": "own_selling", "label": "Own home, need to sell" },
+        { "value": "own_keeping", "label": "Own home, keeping as investment" },
+        { "value": "living_family", "label": "Living with family" },
+        { "value": "relocating", "label": "Relocating for work" },
+        { "value": "other", "label": "Other" }
+      ]
+    },
+    {
+      "id": "importance_rating",
+      "type": "star_rating",
+      "title": "How important is location vs. property features?",
+      "required": false,
+      "maxStars": 5,
+      "labels": {
+        "1": "Features matter most",
+        "2": "Features important",
+        "3": "Both equally important",
+        "4": "Location important",
+        "5": "Location matters most"
+      }
+    },
+    {
+      "id": "agent_preference",
+      "type": "single_select",
+      "title": "Do you currently work with a real estate agent?",
+      "required": false,
+      "options": [
+        { "value": "no_agent", "label": "No, I need an agent" },
+        { "value": "have_agent", "label": "Yes, I have an agent" },
+        { "value": "considering", "label": "Considering different agents" },
+        { "value": "unsure", "label": "Unsure if I need one" }
+      ]
+    },
+    {
+      "id": "additional_info",
+      "type": "long_text",
+      "title": "Additional information or specific requests",
+      "placeholder": "Tell us more about your ideal property, special requirements, or any questions you have...",
+      "required": false,
+      "validation": {
+        "maxLength": 500
+      }
+    }
+  ]
+}
