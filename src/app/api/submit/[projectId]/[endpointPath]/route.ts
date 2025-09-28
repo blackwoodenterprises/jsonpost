@@ -128,6 +128,76 @@ function flattenFormDataForZapier(data: Record<string, unknown>, prefix = ''): R
   return flattened
 }
 
+// Helper function to unflatten form data from multipart/form-data submissions
+function unflattenFormData(flatData: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {}
+  
+  // Sort keys to ensure proper nesting order
+  const sortedKeys = Object.keys(flatData).sort()
+  
+  for (const key of sortedKeys) {
+    const value = flatData[key]
+    
+    // Handle array notation like "skills[0]", "skills[1]"
+    if (key.includes('[') && key.includes(']')) {
+      const arrayMatch = key.match(/^([^[]+)\[(\d+)\]$/)
+      if (arrayMatch) {
+        const [, arrayName, indexStr] = arrayMatch
+        const index = parseInt(indexStr, 10)
+        
+        if (!result[arrayName]) {
+          result[arrayName] = []
+        }
+        
+        if (Array.isArray(result[arrayName])) {
+          (result[arrayName] as unknown[])[index] = value
+        }
+        continue
+      }
+      
+      // Handle nested object notation like "address[city]", "contact_info[email]"
+      const nestedMatch = key.match(/^([^[]+)\[([^\]]+)\]$/)
+      if (nestedMatch) {
+        const [, objectName, propertyName] = nestedMatch
+        
+        if (!result[objectName]) {
+          result[objectName] = {}
+        }
+        
+        if (typeof result[objectName] === 'object' && result[objectName] !== null && !Array.isArray(result[objectName])) {
+          (result[objectName] as Record<string, unknown>)[propertyName] = value
+        }
+        continue
+      }
+    }
+    
+    // Handle dot notation like "user.name", "user.email" (if any)
+    if (key.includes('.')) {
+      const parts = key.split('.')
+      let current = result
+      
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i]
+        if (!current[part]) {
+          current[part] = {}
+        }
+        if (typeof current[part] === 'object' && current[part] !== null && !Array.isArray(current[part])) {
+          current = current[part] as Record<string, unknown>
+        }
+      }
+      
+      const lastPart = parts[parts.length - 1]
+      current[lastPart] = value
+      continue
+    }
+    
+    // Regular field
+    result[key] = value
+  }
+  
+  return result
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; endpointPath: string }> }
@@ -297,6 +367,9 @@ export async function POST(
             fileNames: uploadedFiles.map(f => f.name)
           })
           
+          // Unflatten the form data to convert array-like keys and nested object keys to proper JSON structure
+          submissionData = unflattenFormData(submissionData)
+          
         } catch (formDataError) {
           console.error('FormData parsing failed:', formDataError)
           console.error('FormData error details:', {
@@ -440,6 +513,9 @@ export async function POST(
                 fileCount: uploadedFiles.length,
                 fileNames: uploadedFiles.map(f => f.name)
               })
+              
+              // Unflatten the form data to convert array-like keys and nested object keys to proper JSON structure
+              submissionData = unflattenFormData(submissionData)
               
             } catch (manualParseError) {
               console.error('Manual multipart parsing also failed:', manualParseError)
