@@ -409,7 +409,7 @@ export default function FormBuilderPage() {
     if (user) {
       fetchData();
     }
-  }, [user, fetchData]);
+  }, [user]);
 
   const handleTemplateAction = (template: { id: string; action: string }) => {
     if (template.action === "blank") {

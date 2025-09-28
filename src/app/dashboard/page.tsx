@@ -80,7 +80,7 @@ export default function DashboardPage() {
       fetchProjects();
       fetchUsageData();
     }
-  }, [user, fetchUsageData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchProjects = async () => {
     if (!user?.id) return; // Early return if user or user.id is not available
