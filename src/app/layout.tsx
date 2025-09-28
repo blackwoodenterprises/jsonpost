@@ -5,11 +5,9 @@ import { AuthProvider } from "@/components/auth/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "@/components/ui/toaster";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 
-const CrispWithNoSSR = dynamic(
-  () => import('../components/crisp')
-);
+const CrispWithNoSSR = dynamic(() => import("../components/crisp"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,24 +23,26 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   ),
-  title: "JSONPost - Headless Form Backend Service",
+  title:
+    "JSONPost - Full Stack Form Platform With Advanced Features and Integrations",
   description:
-    "A lightweight form backend + automation trigger service for developers, freelancers and entrepreneurs",
+    "JSONPost is a full stack form builder. Build conversational, static and embeddable forms that bring conversions",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
   openGraph: {
-    title: "JSONPost - Headless Form Backend Service",
+    title:
+      "JSONPost - Full Stack Form Platform With Advanced Features and Integrations",
     description:
-      "A lightweight form backend + automation trigger service for developers, freelancers and entrepreneurs",
+      "JSONPost is a full stack form builder. Build conversational, static and embeddable forms that bring conversions",
     images: [
       {
         url: "/ogimage.png",
         width: 1700,
         height: 1022,
-        alt: "JSONPost - Headless Form Backend Service",
+        alt: "JSONPost - Full Stack Form Platform With Advanced Features and Integrations",
       },
     ],
     type: "website",
@@ -50,9 +50,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "JSONPost - Headless Form Backend Service",
+    title:
+      "JSONPost - Full Stack Form Platform With Advanced Features and Integrations",
     description:
-      "A lightweight form backend + automation trigger service for developers, freelancers and entrepreneurs",
+      "JSONPost is a full stack form builder. Build conversational, static and embeddable forms that bring conversions",
     images: ["/ogimage.png"],
   },
 };
