@@ -1,207 +1,217 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
-import { useAuth } from '@/components/auth/auth-provider'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { AppPortal } from 'svix-react'
-import 'svix-react/style.css'
-import { ArrowLeft, Loader2, Webhook } from 'lucide-react'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import { DashboardHeader } from '@/components/dashboard/header'
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-provider";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { AppPortal } from "svix-react";
+import "svix-react/style.css";
+import { ArrowLeft, Loader2, Webhook } from "lucide-react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { DashboardHeader } from "@/components/dashboard/header";
 
 interface Endpoint {
-  id: string
-  name: string
-  webhooks_enabled: boolean | null
-  svix_app_id: string | null
+  id: string;
+  name: string;
+  webhooks_enabled: boolean | null;
+  svix_app_id: string | null;
 }
 
 interface Project {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface AppPortalResponse {
-  url: string
+  url: string;
 }
 
 export default function WebhookSetupPage() {
-  const { user, loading: authLoading } = useAuth()
-  const router = useRouter()
-  const params = useParams()
-  const projectId = params.id as string
-  const endpointId = params.endpointId as string
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.id as string;
+  const endpointId = params.endpointId as string;
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [endpoint, setEndpoint] = useState<Endpoint | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [enabling, setEnabling] = useState(false)
-  const [appPortalUrl, setAppPortalUrl] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [project, setProject] = useState<Project | null>(null);
+  const [endpoint, setEndpoint] = useState<Endpoint | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [enabling, setEnabling] = useState(false);
+  const [appPortalUrl, setAppPortalUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/auth/login?redirectTo=' + encodeURIComponent(window.location.pathname))
-      return
+      router.push(
+        "/auth/login?redirectTo=" + encodeURIComponent(window.location.pathname)
+      );
+      return;
     }
 
     if (user && projectId && endpointId) {
-      fetchData()
+      fetchData();
     }
-  }, [user, authLoading, router, projectId, endpointId])
+  }, [user, authLoading, router, projectId, endpointId]);
 
   const fetchData = async () => {
     try {
       // Fetch project data
       const { data: projectData, error: projectError } = await supabase
-        .from('projects')
-        .select('id, name')
-        .eq('id', projectId)
-        .single()
+        .from("projects")
+        .select("id, name")
+        .eq("id", projectId)
+        .single();
 
-      if (projectError) throw projectError
-      setProject(projectData)
+      if (projectError) throw projectError;
+      setProject(projectData);
 
       // Fetch endpoint data
       const { data: endpointData, error: endpointError } = await supabase
-        .from('endpoints')
-        .select('id, name, webhooks_enabled, svix_app_id')
-        .eq('id', endpointId)
-        .single()
+        .from("endpoints")
+        .select("id, name, webhooks_enabled, svix_app_id")
+        .eq("id", endpointId)
+        .single();
 
-      if (endpointError) throw endpointError
-      setEndpoint(endpointData)
+      if (endpointError) throw endpointError;
+      setEndpoint(endpointData);
 
       // If webhooks are enabled and we have a svix_app_id, fetch the app portal URL
       if (endpointData.webhooks_enabled && endpointData.svix_app_id) {
-        await fetchAppPortalUrl(endpointData.svix_app_id)
+        await fetchAppPortalUrl(endpointData.svix_app_id);
       }
     } catch (error) {
-      console.error('Error fetching data:', error)
-      setError('Failed to load data')
+      console.error("Error fetching data:", error);
+      setError("Failed to load data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const fetchAppPortalUrl = async (appId: string) => {
     try {
       // Detect system dark mode preference
-      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+      const isDarkMode =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
 
       const response = await fetch(`/api/svix/app-portal`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           appId,
           darkMode: isDarkMode,
           // You can customize these colors to match your brand
-          primaryColorLight: '3b82f6', // blue-500
-          primaryColorDark: '60a5fa'   // blue-400
+          primaryColorLight: "3b82f6", // blue-500
+          primaryColorDark: "60a5fa", // blue-400
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch app portal URL')
+        throw new Error("Failed to fetch app portal URL");
       }
 
-      const data: AppPortalResponse = await response.json()
-      setAppPortalUrl(data.url)
+      const data: AppPortalResponse = await response.json();
+      setAppPortalUrl(data.url);
     } catch (error) {
-      console.error('Error fetching app portal URL:', error)
-      setError('Failed to load webhook portal')
+      console.error("Error fetching app portal URL:", error);
+      setError("Failed to load webhook portal");
     }
-  }
+  };
 
   const handleWebhooksToggle = async (enabled: boolean) => {
-    if (!endpoint) return
+    if (!endpoint) return;
 
-    setEnabling(true)
-    setError(null)
+    setEnabling(true);
+    setError(null);
 
     try {
       if (enabled && !endpoint.svix_app_id) {
         // Create Svix application for the first time
         const response = await fetch(`/api/svix/create-app`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             endpointId: endpoint.id,
             endpointName: endpoint.name,
           }),
-        })
+        });
 
         if (!response.ok) {
-          throw new Error('Failed to create webhook application')
+          throw new Error("Failed to create webhook application");
         }
 
-        const { appId } = await response.json()
+        const { appId } = await response.json();
 
         // Update endpoint with svix_app_id and enable webhooks
         const { error: updateError } = await supabase
-          .from('endpoints')
+          .from("endpoints")
           .update({
             webhooks_enabled: true,
             svix_app_id: appId,
           })
-          .eq('id', endpoint.id)
+          .eq("id", endpoint.id);
 
-        if (updateError) throw updateError
+        if (updateError) throw updateError;
 
         setEndpoint({
           ...endpoint,
           webhooks_enabled: true,
           svix_app_id: appId,
-        })
+        });
 
         // Fetch app portal URL for the new application
-        await fetchAppPortalUrl(appId)
+        await fetchAppPortalUrl(appId);
       } else {
         // Just toggle the webhooks_enabled flag
         const { error: updateError } = await supabase
-          .from('endpoints')
+          .from("endpoints")
           .update({ webhooks_enabled: enabled })
-          .eq('id', endpoint.id)
+          .eq("id", endpoint.id);
 
-        if (updateError) throw updateError
+        if (updateError) throw updateError;
 
         setEndpoint({
           ...endpoint,
           webhooks_enabled: enabled,
-        })
+        });
 
         if (enabled && endpoint.svix_app_id) {
-          await fetchAppPortalUrl(endpoint.svix_app_id)
+          await fetchAppPortalUrl(endpoint.svix_app_id);
         } else {
-          setAppPortalUrl(null)
+          setAppPortalUrl(null);
         }
       }
     } catch (error) {
-      console.error('Error toggling webhooks:', error)
-      setError('Failed to update webhook settings')
+      console.error("Error toggling webhooks:", error);
+      setError("Failed to update webhook settings");
     } finally {
-      setEnabling(false)
+      setEnabling(false);
     }
-  }
+  };
 
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
-    )
+    );
   }
 
-  if (!user || !endpoint || !project) return null
+  if (!user || !endpoint || !project) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -216,7 +226,9 @@ export default function WebhookSetupPage() {
                 Back to {project.name}
               </Button>
             </Link>
-            <Link href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}>
+            <Link
+              href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}
+            >
               <Button variant="outline" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Endpoint
@@ -225,7 +237,7 @@ export default function WebhookSetupPage() {
           </div>
         }
       />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {/* Error Message */}
@@ -245,7 +257,8 @@ export default function WebhookSetupPage() {
                 Webhook Configuration
               </CardTitle>
               <CardDescription>
-                Enable webhooks to receive real-time notifications when form submissions are received.
+                Enable webhooks to receive real-time notifications when form
+                submissions are received.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -257,12 +270,13 @@ export default function WebhookSetupPage() {
                   disabled={enabling}
                 />
                 <Label htmlFor="webhooks-enabled">
-                  {enabling ? 'Updating...' : 'Enable Webhooks'}
+                  {enabling ? "Updating..." : "Enable Webhooks"}
                 </Label>
               </div>
               {endpoint.webhooks_enabled && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Webhooks are enabled. Use the portal below to manage your webhook endpoints.
+                  Webhooks are enabled. Use the portal below to manage your
+                  webhook endpoints.
                 </p>
               )}
             </CardContent>
@@ -274,7 +288,8 @@ export default function WebhookSetupPage() {
               <CardHeader>
                 <CardTitle>Webhook Management Portal</CardTitle>
                 <CardDescription>
-                  Add webhook endpoints, view delivery logs, and manage your webhook configuration.
+                  Add webhook endpoints, view delivery logs, and manage your
+                  webhook configuration.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
@@ -295,15 +310,19 @@ export default function WebhookSetupPage() {
                 <div>
                   <h4 className="font-medium mb-2">What are webhooks?</h4>
                   <p className="text-sm text-muted-foreground">
-                    Webhooks allow your application to receive real-time notifications when form submissions are received. 
-                    Instead of polling for new data, your server will be notified immediately.
+                    Webhooks allow your application to receive real-time
+                    notifications when form submissions are received. Instead of
+                    polling for new data, your server will be notified
+                    immediately.
                   </p>
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">How it works</h4>
                   <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                     <li>Enable webhooks using the toggle above</li>
-                    <li>Add your webhook endpoint URLs in the management portal</li>
+                    <li>
+                      Add your webhook endpoint URLs in the management portal
+                    </li>
                     <li>Receive POST requests with form submission data</li>
                     <li>Monitor delivery status and retry failed deliveries</li>
                   </ol>
@@ -311,8 +330,9 @@ export default function WebhookSetupPage() {
                 <div>
                   <h4 className="font-medium mb-2">Payload format</h4>
                   <p className="text-sm text-muted-foreground">
-                    Each webhook will receive a JSON payload containing the form submission data, 
-                    file upload information, and metadata about the submission.
+                    Each webhook will receive a JSON payload containing the form
+                    submission data, file upload information, and metadata about
+                    the submission.
                   </p>
                 </div>
               </CardContent>
@@ -321,5 +341,5 @@ export default function WebhookSetupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
