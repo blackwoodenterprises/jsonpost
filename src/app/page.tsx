@@ -35,7 +35,6 @@ import {
   AlertTriangle,
   Bell,
   Users,
-  Play,
 } from "lucide-react";
 
 export default function Home() {
@@ -44,58 +43,33 @@ export default function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <section className="py-12 px-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            {/* Problem-driven narrative */}
-            <div className="mb-8">
+          <div className="text-center mb-8">
+            {/* Badge and heading combined */}
+            <div className="mb-6">
               <Badge
                 variant="secondary"
-                className="mb-4 bg-red-50 text-red-700 border-red-200"
+                className="mb-6 bg-blue-50 text-blue-700 border-blue-200"
               >
-                <AlertTriangle className="w-4 h-4 mr-1" />
-                Stop Losing Leads
+                <Sparkles className="w-4 h-4 mr-1" />
+                Complete Form Platform
               </Badge>
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
-                Tired of messy email inboxes, spam-filled contact forms, and
-                losing potential customers because your forms don&apos;t work?
-              </p>
+
+              {/* Main heading directly after badge */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent text-center leading-tight">
+                Build Beautiful Forms. <br className="hidden sm:block" />
+                Handle Submissions.
+              </h1>
             </div>
 
-            {/* Clear value proposition */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent text-center leading-tight">
-              Handle Form Submissions
-              <br className="hidden sm:block" />
-              Without Backend Code
-            </h1>
-
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto text-center">
-              Point your form to JSONPost and get instant storage, email
-              notifications, and integrations.
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto text-center">
+              Create forms with our builder and gallery. Single page forms or
+              conversational-style multi-step forms. JSONPost takes care of
+              storage, notifications, and integrations.
             </p>
 
-            {/* Social proof teaser */}
-            <div className="mb-8">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                Trusted by 500+ developers and agencies worldwide
-              </p>
-              <div className="flex items-center justify-center space-x-6 text-gray-400">
-                <div className="flex items-center space-x-1">
-                  <Trophy className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <Trophy className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <Trophy className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <Trophy className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <Trophy className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm ml-1">5.0</span>
-                </div>
-                <span className="text-sm">•</span>
-                <span className="text-sm">99.9% Uptime</span>
-                <span className="text-sm">•</span>
-                <span className="text-sm">5-min Setup</span>
-              </div>
-            </div>
-
-            {/* Compelling CTAs */}
+            {/* New CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button
                 size="lg"
@@ -103,7 +77,7 @@ export default function Home() {
                 asChild
               >
                 <Link href="/auth/signup">
-                  Stop Losing Leads — Start Free{" "}
+                  Start Building Forms Free{" "}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
@@ -113,8 +87,12 @@ export default function Home() {
                 className="text-lg px-8 py-4 border-2"
                 asChild
               >
-                <Link href="/quick-start">
-                  See 5-Minute Setup <Play className="w-5 h-5 ml-2" />
+                <Link
+                  href="https://forms.jsonpost.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Browse Form Gallery <Globe className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
             </div>
@@ -126,215 +104,160 @@ export default function Home() {
                 submissions/month
               </p>
               <p>
-                ✓ Setup in 5 minutes • ✓ Works with any website • ✓ Cancel
-                anytime
+                ✓ Drag & drop builder • ✓ Beautiful themes • ✓ Works with any
+                website
               </p>
             </div>
           </div>
 
-          {/* Quick demo/preview */}
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 border">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-                <Badge variant="secondary" className="text-xs">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Live in 30 seconds
-                </Badge>
+          {/* Frontend Capabilities Showcase */}
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800/50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+              From Idea to Live Form in Minutes
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Whether you&apos;re building from scratch or using our templates,
+              getting started is simple
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">1</span>
               </div>
+              <h3 className="text-xl font-bold mb-2">Choose Your Method</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Use our drag & drop builder, browse the template gallery, or
+                code your own HTML form
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Customize & Style</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Apply themes, add your branding, and configure validation rules
+                and notifications
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Go Live</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Publish your form and start collecting submissions with
+                automatic storage and notifications
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <Tabs defaultValue="html" className="w-full">
-                <TabsList className="grid w-full grid-cols-5">
-                  <TabsTrigger value="html">HTML</TabsTrigger>
-                  <TabsTrigger value="ajax">AJAX</TabsTrigger>
-                  <TabsTrigger value="jquery">jQuery</TabsTrigger>
-                  <TabsTrigger value="react">React</TabsTrigger>
-                  <TabsTrigger value="server">Server</TabsTrigger>
-                </TabsList>
+      {/* Form Types Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
+              🎨 Form Variety
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-purple-800 to-indigo-800 dark:from-white dark:via-purple-200 dark:to-indigo-200 bg-clip-text text-transparent">
+              Every Form Type You Need
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Create the perfect form experience for your users with our
+              flexible form types
+            </p>
+          </div>
 
-                <TabsContent value="html" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-500 dark:text-gray-400 mb-2">
-                      {/* Just change your form action URL: */}
-                    </div>
-                    <div className="text-blue-600 dark:text-blue-400">
-                      &lt;form action=&quot;
-                      <span className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
-                        https://jsonpost.com/api/submit/your-project/contact
-                      </span>
-                      &quot; method=&quot;POST&quot;&gt;
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4 my-1">
-                      &lt;input type=&quot;email&quot; name=&quot;email&quot; required /&gt;
-                      <br />
-                      &lt;button type=&quot;submit&quot;&gt;Subscribe&lt;/button&gt;
-                    </div>
-                    <div className="text-blue-600 dark:text-blue-400">
-                      &lt;/form&gt;
-                    </div>
-                    <div className="text-green-600 dark:text-green-400 mt-2 text-xs">
-                      ✓ That&apos;s it! Your form now sends to your inbox + dashboard
-                    </div>
-                  </div>
-                </TabsContent>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Single Page Forms */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <FileText className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Single Page Forms</CardTitle>
+                <CardDescription>
+                  Classic forms with all fields on one page
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  Perfect for contact forms, feedback surveys, and simple data
+                  collection. Quick to fill out and familiar to users.
+                </p>
+                <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                  <li>• Fast completion</li>
+                  <li>• Mobile optimized</li>
+                  <li>• Real-time validation</li>
+                  <li>• Custom styling</li>
+                </ul>
+              </CardContent>
+            </Card>
 
-                <TabsContent value="ajax" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-500 dark:text-gray-400 mb-2">
-                      {/* Send form data with fetch API: */}
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400">
-                      fetch
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">(</div>
-                    <div className="text-green-600 dark:text-green-400 ml-2">
-                      &apos;
-                      <span className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
-                        https://jsonpost.com/api/submit/your-project/contact
-                      </span>
-                      &apos;,
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">{`{`}</div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      method: &apos;POST&apos;,
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      body: formData
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">{`}`}</div>
-                    <div className="text-gray-600 dark:text-gray-300">)</div>
-                    <div className="text-green-600 dark:text-green-400 mt-2 text-xs">
-                      ✓ Works with FormData, JSON, or URLSearchParams
-                    </div>
-                  </div>
-                </TabsContent>
+            {/* Multi-Step Forms */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <ArrowRight className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Multi-Step Forms</CardTitle>
+                <CardDescription>
+                  Break complex forms into manageable steps
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  Ideal for detailed applications, surveys, and onboarding
+                  flows. Reduce abandonment with progressive disclosure.
+                </p>
+                <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                  <li>• Progress indicators</li>
+                  <li>• Step validation</li>
+                  <li>• Save & resume</li>
+                  <li>• Conditional logic</li>
+                </ul>
+              </CardContent>
+            </Card>
 
-                <TabsContent value="jquery" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-500 dark:text-gray-400 mb-2">
-                      {/* jQuery AJAX submission: */}
-                    </div>
-                    <div className="text-blue-600 dark:text-blue-400">
-                      $.post
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">(</div>
-                    <div className="text-green-600 dark:text-green-400 ml-2">
-                      &apos;
-                      <span className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
-                        https://jsonpost.com/api/submit/your-project/contact
-                      </span>
-                      &apos;,
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">{`{`}</div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      email: $(&apos;#email&apos;).val(),
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      message: $(&apos;#message&apos;).val()
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">{`}`}</div>
-                    <div className="text-gray-600 dark:text-gray-300">)</div>
-                    <div className="text-green-600 dark:text-green-400 mt-2 text-xs">
-                      ✓ Perfect for existing jQuery projects
-                    </div>
-                  </div>
-                </TabsContent>
+            {/* Conversational Forms */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+              <CardHeader>
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <MessageSquare className="w-6 h-6 text-white" />
+                </div>
+                <CardTitle className="text-xl">Conversational Forms</CardTitle>
+                <CardDescription>
+                  Chat-like forms that feel natural
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  Engage users with a conversation-style interface. Higher
+                  completion rates and better user experience.
+                </p>
+                <ul className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                  <li>• Chat interface</li>
+                  <li>• Dynamic responses</li>
+                  <li>• Personality & tone</li>
+                  <li>• Smart branching</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
 
-                <TabsContent value="react" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-500 dark:text-gray-400 mb-2">
-                      {/* React form submission: */}
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400">
-                      const
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">
-                      {" "}
-                      handleSubmit ={" "}
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400">
-                      async
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">
-                      {" "}
-                      (e) =&gt; {`{`}
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">
-                      e.preventDefault();
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400 ml-2">
-                      await
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">
-                      {" "}
-                      fetch(
-                    </div>
-                    <div className="text-green-600 dark:text-green-400 ml-4">
-                      &apos;
-                      <span className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
-                        https://jsonpost.com/api/submit/your-project/contact
-                      </span>
-                      &apos;,
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">{`{ method: &apos;POST&apos;, body: new FormData(e.target) }`}</div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">
-                      );
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">{`};`}</div>
-                    <div className="text-green-600 dark:text-green-400 mt-2 text-xs">
-                      ✓ Works with Next.js, Vite, Create React App
-                    </div>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="server" className="mt-4">
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded p-4 font-mono text-sm">
-                    <div className="text-gray-500 dark:text-gray-400 mb-2">
-                      {/* Server-side submission (Node.js): */}
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400">
-                      const
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">
-                      {" "}
-                      response ={" "}
-                    </div>
-                    <div className="text-purple-600 dark:text-purple-400">
-                      await
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300">
-                      {" "}
-                      fetch(
-                    </div>
-                    <div className="text-green-600 dark:text-green-400 ml-2">
-                      &apos;
-                      <span className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
-                        https://jsonpost.com/api/submit/your-project/contact
-                      </span>
-                      &apos;,
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">{`{`}</div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      method: &apos;POST&apos;,
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      headers: {`{ 'Content-Type': &apos;application/json&apos; }`},
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-4">
-                      body: JSON.stringify(formData)
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-300 ml-2">{`}`}</div>
-                    <div className="text-gray-600 dark:text-gray-300">);</div>
-                    <div className="text-green-600 dark:text-green-400 mt-2 text-xs">
-                      ✓ Perfect for API integrations and webhooks
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+          <div className="text-center mt-12">
+            <div className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 text-lg font-semibold">
+              🚀 All form types work seamlessly with our backend
             </div>
           </div>
         </div>
@@ -344,15 +267,15 @@ export default function Home() {
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm font-medium mb-4">
-              ⚡ No More Backend
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+              ⚡ Complete Form Platform
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-red-800 to-orange-800 dark:from-white dark:via-red-200 dark:to-orange-200 bg-clip-text text-transparent">
-              Stop Wasting Time on Form Backend
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+              Everything You Need for Forms
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Focus on building your product, not wrestling with form
-              infrastructure
+              From beautiful form creation to powerful submission handling -
+              we&apos;ve got you covered
             </p>
           </div>
 
@@ -360,19 +283,17 @@ export default function Home() {
             <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
               <CardHeader>
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  <Zap className="w-6 h-6 text-white" />
+                  <Sparkles className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">
-                  Skip the Backend Setup
-                </CardTitle>
+                <CardTitle className="text-xl">Visual Form Builder</CardTitle>
                 <CardDescription>
-                  Get your form endpoint in 30 seconds, not 3 hours
+                  Drag & drop interface for creating beautiful forms
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">
-                  No servers to configure, no databases to manage. Get your form
-                  endpoint in 30 seconds, not 3 hours.
+                  Build forms visually with our intuitive drag & drop builder.
+                  No coding required.
                 </p>
               </CardContent>
             </Card>
@@ -382,17 +303,15 @@ export default function Home() {
                 <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Mail className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">
-                  Never Miss a Lead Again
-                </CardTitle>
+                <CardTitle className="text-xl">Instant Notifications</CardTitle>
                 <CardDescription>
-                  Instant email notifications with custom templates
+                  Get notified the moment someone submits
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Instant email notifications with custom templates. Your leads
-                  hit your inbox the moment they submit.
+                  Instant email notifications with custom templates. Never miss
+                  a submission again.
                 </p>
               </CardContent>
             </Card>
@@ -462,15 +381,17 @@ export default function Home() {
                 <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Code className="w-6 h-6 text-white" />
                 </div>
-                <CardTitle className="text-xl">Built for Developers</CardTitle>
+                <CardTitle className="text-xl">
+                  Developer-Friendly API
+                </CardTitle>
                 <CardDescription>
                   Clean REST API and documentation that doesn&apos;t suck
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Clean REST API, JSON/form-data support, and docs that don&apos;t
-                  suck. Integrate in minutes, not days.
+                  Clean REST API, JSON/form-data support, and docs that
+                  don&apos;t suck. Integrate in minutes, not days.
                 </p>
               </CardContent>
             </Card>
@@ -607,8 +528,8 @@ export default function Home() {
                   Why not just roll your own forms?
                 </h2>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  Sure, you could build your own form handling. But here&apos;s what
-                  you&apos;re really signing up for...
+                  Sure, you could build your own form handling. But here&apos;s
+                  what you&apos;re really signing up for...
                 </p>
               </div>
 
@@ -792,7 +713,7 @@ export default function Home() {
 
               <div className="text-center mt-12">
                 <div className="inline-flex items-center px-6 py-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-lg font-semibold">
-                  💡 Smart developers choose the path of least resistance
+                  💡 Smart builders choose the path of least resistance
                 </div>
               </div>
             </div>
@@ -809,8 +730,8 @@ export default function Home() {
                   Built for Builders of All Kinds
                 </h2>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  Whether you&apos;re coding your first app or scaling your agency,
-                  JSONPost adapts to your workflow
+                  Whether you&apos;re coding your first app or scaling your
+                  agency, JSONPost adapts to your workflow
                 </p>
               </div>
 
@@ -922,7 +843,8 @@ export default function Home() {
                     </div>
                     <CardTitle className="text-xl">Website Owners</CardTitle>
                     <CardDescription>
-                      Add a reliable &quot;Contact Us&quot; form without touching code
+                      Add a reliable &quot;Contact Us&quot; form without
+                      touching code
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -942,13 +864,13 @@ export default function Home() {
             <div className="container mx-auto max-w-6xl">
               <div className="text-center mb-16">
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-sm font-medium mb-4">
-                  ⭐ Loved by Developers
+                  ⭐ Loved by Users
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-yellow-800 to-orange-800 dark:from-white dark:via-yellow-200 dark:to-orange-200 bg-clip-text text-transparent">
-                  What Developers Are Saying
+                  What Our Users Are Saying
                 </h2>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                  Join hundreds of developers who&apos;ve simplified their form
+                  Join thousands of businesses who&apos;ve simplified their form
                   handling with JSONPost
                 </p>
               </div>
@@ -978,7 +900,8 @@ export default function Home() {
                     <p className="text-gray-600 dark:text-gray-300 italic">
                       &quot;JSONPost saved me hours of setup time. I went from
                       struggling with SMTP configs to having a working contact
-                      form in 5 minutes. The spam protection is fantastic too!&quot;
+                      form in 5 minutes. The spam protection is fantastic
+                      too!&quot;
                     </p>
                   </CardContent>
                 </Card>
@@ -1036,9 +959,9 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600 dark:text-gray-300 italic">
-                      &quot;Perfect for my Webflow sites. No more dealing with Zapier
-                      complexity or expensive form plugins. JSONPost just works,
-                      and the free tier is generous.&quot;
+                      &quot;Perfect for my Webflow sites. No more dealing with
+                      Zapier complexity or expensive form plugins. JSONPost just
+                      works, and the free tier is generous.&quot;
                     </p>
                   </CardContent>
                 </Card>
@@ -1058,15 +981,15 @@ export default function Home() {
                 <div className="grid md:grid-cols-4 gap-8 text-center">
                   <div>
                     <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                      500+
+                      100+
                     </div>
                     <div className="text-gray-600 dark:text-gray-400 text-sm">
-                      Active Developers
+                      Active Users
                     </div>
                   </div>
                   <div>
                     <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-                      50K+
+                      10000+
                     </div>
                     <div className="text-gray-600 dark:text-gray-400 text-sm">
                       Forms Processed
@@ -1094,7 +1017,7 @@ export default function Home() {
               {/* Community Mentions */}
               <div className="mt-16 text-center">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-8">
-                  Featured in Developer Communities
+                  Featured in Tech Communities
                 </h3>
                 <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
                   <div className="flex items-center space-x-2">
@@ -1588,6 +1511,259 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Code Examples Section */}
+      <section className="py-20 px-4 bg-white dark:bg-slate-900">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+              <Code className="w-4 h-4 mr-1" />
+              Developer Integration
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+              Simple Integration
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Whether you prefer our visual builder or custom code, JSONPost
+              works with any framework
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <Tabs defaultValue="html" className="w-full">
+              <TabsList className="grid w-full grid-cols-5 mb-8">
+                <TabsTrigger value="html">HTML</TabsTrigger>
+                <TabsTrigger value="ajax">AJAX</TabsTrigger>
+                <TabsTrigger value="jquery">jQuery</TabsTrigger>
+                <TabsTrigger value="react">React</TabsTrigger>
+                <TabsTrigger value="server">Server</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="html" className="space-y-4">
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
+                  <pre className="text-green-400 text-sm">
+                    <code>{`<form action="http://jsonpost.com/api/submit/project-id/contact-form" method="POST">
+  <input type="text" name="name" placeholder="Your Name" required>
+  <input type="email" name="email" placeholder="Your Email" required>
+  <textarea name="message" placeholder="Your Message"></textarea>
+  <button type="submit">Send Message</button>
+</form>`}</code>
+                  </pre>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  Pure HTML - works anywhere, no JavaScript required
+                </p>
+              </TabsContent>
+
+              <TabsContent value="ajax" className="space-y-4">
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
+                  <pre className="text-green-400 text-sm">
+                    <code>{`fetch('http://jsonpost.com/api/submit/project-id/contact-form', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'John Doe',
+    email: 'john@example.com',
+    message: 'Hello from my website!'
+  })
+}).then(response => response.json())
+  .then(data => console.log('Success:', data));`}</code>
+                  </pre>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  Modern JavaScript with fetch API
+                </p>
+              </TabsContent>
+
+              <TabsContent value="jquery" className="space-y-4">
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
+                  <pre className="text-green-400 text-sm">
+                    <code>{`$.ajax({
+  url: 'http://jsonpost.com/api/submit/project-id/contact-form',
+  method: 'POST',
+  contentType: 'application/json',
+  data: JSON.stringify({
+    name: $('#name').val(),
+    email: $('#email').val(),
+    message: $('#message').val()
+  }),
+  success: function(data) {
+    alert('Message sent successfully!');
+  }
+});`}</code>
+                  </pre>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  jQuery for legacy projects
+                </p>
+              </TabsContent>
+
+              <TabsContent value="react" className="space-y-4">
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
+                  <pre className="text-green-400 text-sm">
+                    <code>{`const handleSubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  
+  const response = await fetch('http://jsonpost.com/api/submit/project-id/contact-form', {
+    method: 'POST',
+    body: formData
+  });
+  
+  if (response.ok) {
+    setMessage('Thank you! Your message has been sent.');
+  }
+};
+
+<form onSubmit={handleSubmit}>
+  <input name="name" placeholder="Your Name" required />
+  <input name="email" type="email" placeholder="Your Email" required />
+  <textarea name="message" placeholder="Your Message"></textarea>
+  <button type="submit">Send Message</button>
+</form>`}</code>
+                  </pre>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  React component with hooks
+                </p>
+              </TabsContent>
+
+              <TabsContent value="server" className="space-y-4">
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
+                  <pre className="text-green-400 text-sm">
+                    <code>{`// Node.js / Express
+app.post('/contact', async (req, res) => {
+  const response = await fetch('http://jsonpost.com/api/submit/project-id/contact-form', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body)
+  });
+  
+  const result = await response.json();
+  res.json(result);
+});
+
+// Python / Flask
+@app.route('/contact', methods=['POST'])
+def contact():
+    response = requests.post(
+        'http://jsonpost.com/api/submit/project-id/contact-form',
+        json=request.json
+    )
+    return response.json()`}</code>
+                  </pre>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  Server-side integration examples
+                </p>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </section>
+
+      {/* Form Gallery Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/10 dark:via-pink-900/10 dark:to-orange-900/10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium mb-4">
+              <Sparkles className="w-4 h-4 mr-1" />
+              Form Templates
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-purple-800 to-pink-800 dark:from-white dark:via-purple-200 dark:to-pink-200 bg-clip-text text-transparent">
+              Beautiful Form Gallery
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Choose from our collection of professionally designed form
+              templates. Single-page forms, multi-step conversational forms, and
+              more.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {/* Contact Form Template */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm overflow-hidden">
+              <div className="h-48 bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/50 dark:to-cyan-900/50 flex items-center justify-center">
+                <div className="w-32 h-24 bg-white dark:bg-slate-700 rounded-lg shadow-lg flex items-center justify-center">
+                  <MessageSquare className="w-8 h-8 text-blue-600" />
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-lg">Contact Form</CardTitle>
+                <CardDescription>
+                  Clean, professional contact form with validation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="https://forms.jsonpost.com" target="_blank">
+                    Preview & Use <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Multi-Step Survey */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm overflow-hidden">
+              <div className="h-48 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 flex items-center justify-center">
+                <div className="w-32 h-24 bg-white dark:bg-slate-700 rounded-lg shadow-lg flex items-center justify-center">
+                  <BarChart3 className="w-8 h-8 text-purple-600" />
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-lg">Multi-Step Survey</CardTitle>
+                <CardDescription>
+                  Conversational-style forms with progress tracking
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="https://forms.jsonpost.com" target="_blank">
+                    Preview & Use <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Newsletter Signup */}
+            <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm overflow-hidden">
+              <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 flex items-center justify-center">
+                <div className="w-32 h-24 bg-white dark:bg-slate-700 rounded-lg shadow-lg flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-green-600" />
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-lg">Newsletter Signup</CardTitle>
+                <CardDescription>
+                  Beautiful email capture with double opt-in
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="https://forms.jsonpost.com" target="_blank">
+                    Preview & Use <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Button
+              size="lg"
+              asChild
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              <Link href="https://forms.jsonpost.com" target="_blank">
+                Explore All Templates <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </Button>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-4">
+              50+ professional templates to choose from
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Security & Reliability Section */}
       <section className="py-20 px-4 bg-white dark:bg-slate-900">
         <div className="container mx-auto max-w-6xl">
@@ -1599,8 +1775,8 @@ export default function Home() {
               Security & Reliability You Can Trust
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Built for developers and agencies who can&apos;t afford downtime or
-              security breaches
+              Built for developers and agencies who can&apos;t afford downtime
+              or security breaches
             </p>
           </div>
 
@@ -1945,11 +2121,11 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
-                  It&apos;s incredibly simple! Just point your form&apos;s action to your
-                  JSONPost endpoint and set the method to POST. Works with any
-                  HTML form - no JavaScript required. For frameworks like React
-                  or Vue, you can use fetch() or axios to submit form data to
-                  your endpoint.
+                  It&apos;s incredibly simple! Just point your form&apos;s
+                  action to your JSONPost endpoint and set the method to POST.
+                  Works with any HTML form - no JavaScript required. For
+                  frameworks like React or Vue, you can use fetch() or axios to
+                  submit form data to your endpoint.
                 </CardDescription>
                 <div className="mt-4 p-4 bg-gray-100 dark:bg-slate-600 rounded-lg">
                   <code className="text-sm text-gray-800 dark:text-gray-200">
@@ -2017,9 +2193,9 @@ export default function Home() {
                 <CardDescription className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
                   We store your form submissions securely for 30 days by
                   default, so you can access them in your dashboard. After that,
-                  they&apos;re automatically deleted unless you&apos;ve exported them. You
-                  can also configure immediate deletion if you prefer. All data
-                  is encrypted at rest and in transit.
+                  they&apos;re automatically deleted unless you&apos;ve exported
+                  them. You can also configure immediate deletion if you prefer.
+                  All data is encrypted at rest and in transit.
                 </CardDescription>
               </CardContent>
             </Card>

@@ -346,11 +346,108 @@ export default function FormBuilderPage() {
   const [themeModalOpen, setThemeModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Auto-save key for localStorage
+  const autoSaveKey = `form-builder-${endpointId}`;
+
+  // Auto-save to localStorage whenever form data changes
+  useEffect(() => {
+    if (formSchema.steps.length > 0 && !isLoading) {
+      const autoSaveData = {
+        formSchema,
+        selectedTheme,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
+      setHasUnsavedChanges(true);
+    }
+  }, [formSchema, selectedTheme, autoSaveKey, isLoading]);
+
+  // Load auto-saved data on component mount
+  useEffect(() => {
+    const loadAutoSavedData = () => {
+      try {
+        const autoSavedData = localStorage.getItem(autoSaveKey);
+        if (autoSavedData) {
+          const parsed = JSON.parse(autoSavedData);
+          const timeDiff = Date.now() - parsed.timestamp;
+          
+          // Only load if auto-save is less than 24 hours old
+          if (timeDiff < 24 * 60 * 60 * 1000) {
+            return parsed;
+          } else {
+            // Clean up old auto-save data
+            localStorage.removeItem(autoSaveKey);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading auto-saved data:", error);
+        localStorage.removeItem(autoSaveKey);
+      }
+      return null;
+    };
+
+    const autoSavedData = loadAutoSavedData();
+    if (autoSavedData && !isLoading) {
+      // Show toast to inform user about auto-saved data
+      toast({
+        title: "Auto-saved data found",
+        description: "We've restored your unsaved changes from your last session.",
+      });
+    }
+  }, [autoSaveKey, isLoading, toast]);
+
+  // Handle browser events to prevent data loss
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return e.returnValue;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden' && hasUnsavedChanges) {
+        // Auto-save when tab becomes hidden
+        const autoSaveData = {
+          formSchema,
+          selectedTheme,
+          timestamp: Date.now(),
+        };
+        localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [hasUnsavedChanges, formSchema, selectedTheme, autoSaveKey]);
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
 
     try {
+      // Check for auto-saved data first
+      const autoSavedData = localStorage.getItem(autoSaveKey);
+      let hasAutoSave = false;
+      
+      if (autoSavedData) {
+        try {
+          const parsed = JSON.parse(autoSavedData);
+          const timeDiff = Date.now() - parsed.timestamp;
+          hasAutoSave = timeDiff < 24 * 60 * 60 * 1000; // Less than 24 hours
+        } catch (error) {
+          console.error("Error parsing auto-saved data:", error);
+          localStorage.removeItem(autoSaveKey);
+        }
+      }
+
       // Fetch project
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
@@ -376,28 +473,47 @@ export default function FormBuilderPage() {
       // Set submit endpoint URL using project ID
       const submitUrl = `${window.location.origin}/api/submit/${params.id}/${endpointData.path}`;
 
-      // Load existing form or create default
-      if (
-        endpointData.form_json &&
-        typeof endpointData.form_json === "object"
-      ) {
-        const existingFormSchema =
-          endpointData.form_json as unknown as FormSchema;
-        // Ensure submitEndpoint is always set, even if it was stored in the database
+      // Load auto-saved data if available, otherwise load from database
+      if (hasAutoSave) {
+        const parsed = JSON.parse(autoSavedData!);
         setFormSchema({
-          ...existingFormSchema,
+          ...parsed.formSchema,
           submitEndpoint: submitUrl,
         });
+        setSelectedTheme(parsed.selectedTheme);
+        setHasUnsavedChanges(true);
+        
+        toast({
+          title: "Auto-saved data restored",
+          description: "Your unsaved changes have been restored. Don't forget to save!",
+          variant: "default",
+        });
       } else {
-        setFormSchema((prev) => ({
-          ...prev,
-          submitEndpoint: submitUrl,
-        }));
+        // Load existing form or create default
+        if (
+          endpointData.form_json &&
+          typeof endpointData.form_json === "object"
+        ) {
+          const existingFormSchema =
+            endpointData.form_json as unknown as FormSchema;
+          // Ensure submitEndpoint is always set, even if it was stored in the database
+          setFormSchema({
+            ...existingFormSchema,
+            submitEndpoint: submitUrl,
+          });
+        } else {
+          setFormSchema((prev) => ({
+            ...prev,
+            submitEndpoint: submitUrl,
+          }));
+        }
+
+        if (endpointData.theme_id) {
+          setSelectedTheme(endpointData.theme_id);
+        }
+        setHasUnsavedChanges(false);
       }
 
-      if (endpointData.theme_id) {
-        setSelectedTheme(endpointData.theme_id);
-      }
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -640,13 +756,13 @@ export default function FormBuilderPage() {
       return;
     }
 
-    // Validate that all step IDs are valid slugs (lowercase, alphanumeric, hyphens only)
-    const invalidIds = stepIds.filter((id) => !/^[a-z0-9-]+$/.test(id));
+    // Validate that all step IDs are valid slugs (lowercase, alphanumeric, hyphens, and underscores only)
+    const invalidIds = stepIds.filter((id) => !/^[a-z0-9_-]+$/.test(id));
 
     if (invalidIds.length > 0) {
       toast({
         title: "Invalid Step IDs Found",
-        description: `The following step IDs contain invalid characters: ${invalidIds.join(", ")}. Please use only lowercase letters, numbers, and hyphens.`,
+        description: `The following step IDs contain invalid characters: ${invalidIds.join(", ")}. Please use only lowercase letters, numbers, hyphens, and underscores.`,
         variant: "destructive",
       });
       return;
@@ -667,6 +783,10 @@ export default function FormBuilderPage() {
 
       if (error) throw error;
 
+      // Clear auto-saved data after successful save
+      localStorage.removeItem(autoSaveKey);
+      setHasUnsavedChanges(false);
+
       toast({
         title: "Form saved successfully!",
         description: "Your form has been saved and is ready to use.",
@@ -678,6 +798,7 @@ export default function FormBuilderPage() {
         description: "Failed to save the form. Please try again.",
         variant: "destructive",
       });
+
     } finally {
       setIsSaving(false);
     }

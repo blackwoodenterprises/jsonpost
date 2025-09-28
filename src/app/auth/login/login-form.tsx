@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ export default function LoginForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
+  const router = useRouter();
   const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -48,8 +49,9 @@ export default function LoginForm() {
         return;
       }
 
-      // Force a full page refresh to ensure server-side session sync
-      window.location.href = redirectTo;
+      // Use Next.js router for navigation instead of forcing page refresh
+      router.push(redirectTo);
+      router.refresh(); // Refresh the page data without full reload
     } catch {
       setError("An unexpected error occurred");
     } finally {

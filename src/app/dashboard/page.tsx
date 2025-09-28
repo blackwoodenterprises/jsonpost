@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/skeleton";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { TodaysSubmissions } from "@/components/dashboard/todays-submissions";
+import { SubmissionsChart } from "@/components/dashboard/submissions-chart";
 import { Plus, FolderOpen, Globe, Mail, ChevronRight, TrendingUp } from "lucide-react";
 
 interface Project {
@@ -69,6 +70,39 @@ export default function DashboardPage() {
     }
   }, [user]);
 
+  // Auto-save dashboard state to localStorage
+  const saveDashboardState = useCallback(() => {
+    if (user && usage && profile && projects.length > 0) {
+      const dashboardState = {
+        usage,
+        profile,
+        projects,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(`dashboard_state_${user.id}`, JSON.stringify(dashboardState));
+    }
+  }, [user, usage, profile, projects]);
+
+  // Load dashboard state from localStorage
+  const loadDashboardState = useCallback(() => {
+    if (!user) return null;
+    
+    try {
+      const saved = localStorage.getItem(`dashboard_state_${user.id}`);
+      if (saved) {
+        const state = JSON.parse(saved);
+        // Only use cached data if it's less than 30 seconds old for immediate loading
+        // But allow refresh if data is older than 30 seconds
+        if (Date.now() - state.timestamp < 30 * 1000) {
+          return state;
+        }
+      }
+    } catch (error) {
+      console.error("Error loading dashboard state:", error);
+    }
+    return null;
+  }, [user]);
+
   useEffect(() => {
     if (!loading && !user) {
       router.push("/auth/login");
@@ -77,10 +111,59 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
+      // Try to load cached state first
+      const cachedState = loadDashboardState();
+      if (cachedState) {
+        setUsage(cachedState.usage);
+        setProfile(cachedState.profile);
+        setProjects(cachedState.projects);
+        setUsageLoading(false);
+        setLoadingProjects(false);
+      }
+      
+      // Always fetch fresh data
       fetchProjects();
       fetchUsageData();
     }
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, loadDashboardState, fetchUsageData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-save state when data changes
+  useEffect(() => {
+    saveDashboardState();
+  }, [saveDashboardState]);
+
+  // Add browser event handlers
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Tab is being hidden, save current state
+        saveDashboardState();
+      } else {
+        // Tab is being shown, refresh data if it's been a while
+        const cachedState = loadDashboardState();
+        if (!cachedState || Date.now() - cachedState.timestamp > 30 * 1000) {
+          // Refresh if no cache or cache is older than 30 seconds
+          if (user) {
+            fetchProjects();
+            fetchUsageData();
+          }
+        }
+      }
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Save state before page unload
+      saveDashboardState();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [saveDashboardState, loadDashboardState, user, fetchUsageData]);
 
   const fetchProjects = async () => {
     if (!user?.id) return; // Early return if user or user.id is not available
@@ -353,6 +436,9 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+
+        {/* Submissions Chart Section */}
+        <SubmissionsChart userId={user.id} />
 
         {/* Today's Submissions Section */}
         <TodaysSubmissions userId={user.id} />

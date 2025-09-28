@@ -140,6 +140,54 @@ export default function EndpointDetailsPage() {
 
   const totalPages = Math.ceil(totalSubmissions / pageSize);
 
+  // Cache key for this endpoint's data
+  const cacheKey = `endpoint-detail-${endpointId}-${currentPage}-${pageSize}`;
+
+  // Save endpoint data to localStorage
+  const saveEndpointData = (data: {
+    project: Project;
+    endpoint: Endpoint;
+    submissions: Submission[];
+    totalSubmissions: number;
+    variablePaths: string[];
+  }) => {
+    try {
+      const cacheData = {
+        ...data,
+        timestamp: Date.now(),
+        currentPage,
+        pageSize,
+      };
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+    } catch (error) {
+      console.error("Error saving endpoint data to cache:", error);
+    }
+  };
+
+  // Load endpoint data from localStorage
+  const loadEndpointData = () => {
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const data = JSON.parse(cached);
+        const isExpired = Date.now() - data.timestamp > 30000; // 30 seconds cache
+        
+        if (!isExpired) {
+          setProject(data.project);
+          setEndpoint(data.endpoint);
+          setSubmissions(data.submissions);
+          setTotalSubmissions(data.totalSubmissions);
+          setVariablePaths(data.variablePaths);
+          setIsLoading(false);
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error("Error loading endpoint data from cache:", error);
+    }
+    return false;
+  };
+
   useEffect(() => {
     if (!loading && !user) {
       router.push(
@@ -149,9 +197,51 @@ export default function EndpointDetailsPage() {
     }
 
     if (user && projectId && endpointId) {
-      fetchData();
+      // Try to load from cache first
+      const loadedFromCache = loadEndpointData();
+      if (!loadedFromCache) {
+        fetchData();
+      }
     }
   }, [user, loading, router, projectId, endpointId, currentPage, pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Add browser event listeners
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Check if cached data is older than 30 seconds when tab becomes visible
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const data = JSON.parse(cached);
+          const isExpired = Date.now() - data.timestamp > 30000;
+          if (isExpired && user && projectId && endpointId) {
+            fetchData();
+          }
+        }
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      // Save current state before page unload
+      if (project && endpoint) {
+        saveEndpointData({
+          project,
+          endpoint,
+          submissions,
+          totalSubmissions,
+          variablePaths,
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [project, endpoint, submissions, totalSubmissions, variablePaths, user, projectId, endpointId, cacheKey]);
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
@@ -274,6 +364,15 @@ export default function EndpointDetailsPage() {
       ) as Submission[];
 
       setSubmissions(transformedSubmissions);
+
+      // Save fetched data to cache
+      saveEndpointData({
+        project: projectData,
+        endpoint: endpointWithExtras,
+        submissions: transformedSubmissions,
+        totalSubmissions: count || 0,
+        variablePaths: endpointData.variable_paths || [],
+      });
     } catch (error) {
       console.error("Error fetching data:", error);
       router.push("/dashboard");
