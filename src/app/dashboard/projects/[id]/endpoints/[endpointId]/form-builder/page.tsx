@@ -358,6 +358,7 @@ export default function FormBuilderPage() {
         formSchema,
         selectedTheme,
         timestamp: Date.now(),
+        lastSaveTimestamp: Date.now(), // Track when this auto-save was created
       };
       localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
       setHasUnsavedChanges(true);
@@ -415,6 +416,7 @@ export default function FormBuilderPage() {
           formSchema,
           selectedTheme,
           timestamp: Date.now(),
+          lastSaveTimestamp: parseInt(localStorage.getItem('last-save') || '0'),
         };
         localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
       }
@@ -435,13 +437,26 @@ export default function FormBuilderPage() {
     try {
       // Check for auto-saved data first
       const autoSavedData = localStorage.getItem(autoSaveKey);
+      const lastSaveTimestamp = localStorage.getItem(`${autoSaveKey}-last-save`);
       let hasAutoSave = false;
       
       if (autoSavedData) {
         try {
           const parsed = JSON.parse(autoSavedData);
           const timeDiff = Date.now() - parsed.timestamp;
-          hasAutoSave = timeDiff < 24 * 60 * 60 * 1000; // Less than 24 hours
+          const isRecentAutoSave = timeDiff < 24 * 60 * 60 * 1000; // Less than 24 hours
+          
+          // Check if auto-save is newer than the last database save
+          const autoSaveTime = parsed.timestamp || 0;
+          const lastSaveTime = lastSaveTimestamp ? parseInt(lastSaveTimestamp) : 0;
+          const isNewerThanLastSave = autoSaveTime > lastSaveTime;
+          
+          hasAutoSave = isRecentAutoSave && isNewerThanLastSave;
+          
+          if (!hasAutoSave && autoSavedData) {
+            // Clean up outdated auto-save data
+            localStorage.removeItem(autoSaveKey);
+          }
         } catch (error) {
           console.error("Error parsing auto-saved data:", error);
           localStorage.removeItem(autoSaveKey);
@@ -664,13 +679,18 @@ export default function FormBuilderPage() {
     });
   };
 
-  const updateStep = (updatedStep: FormStep) => {
-    setFormSchema((prev) => ({
-      ...prev,
-      steps: prev.steps.map((step) =>
-        step.id === updatedStep.id ? updatedStep : step
-      ),
-    }));
+  const updateStep = (updatedStep: FormStep & { originalId?: string }) => {
+    console.log('updateStep called with:', updatedStep);
+    setFormSchema((prev) => {
+      const newSchema = {
+        ...prev,
+        steps: prev.steps.map((step) =>
+          step.id === (updatedStep.originalId || updatedStep.id) ? updatedStep : step
+        ),
+      };
+      console.log('Updated formSchema:', newSchema);
+      return newSchema;
+    });
     setEditingStep(null);
   };
 
@@ -786,6 +806,10 @@ export default function FormBuilderPage() {
       // Clear auto-saved data after successful save
       localStorage.removeItem(autoSaveKey);
       setHasUnsavedChanges(false);
+
+      // Store the save timestamp to prevent localStorage from overriding recent saves
+      const saveTimestamp = Date.now();
+      localStorage.setItem(`${autoSaveKey}-last-save`, saveTimestamp.toString());
 
       toast({
         title: "Form saved successfully!",
@@ -1381,10 +1405,28 @@ function StepEditorDialog({
   onSave: (step: FormStep) => void;
   onCancel: () => void;
 }) {
-  const [editedStep, setEditedStep] = useState<FormStep>({ ...step });
+  // Deep copy the step to avoid shallow copy issues with nested objects
+  const deepCopyStep = (step: FormStep): FormStep => {
+    return {
+      ...step,
+      validation: step.validation ? { ...step.validation } : undefined,
+      options: step.options ? step.options.map(opt => ({ ...opt })) : undefined,
+      labels: step.labels ? { ...step.labels } : undefined,
+      scale: step.scale ? { ...step.scale } : undefined,
+      acceptedTypes: step.acceptedTypes ? [...step.acceptedTypes] : undefined,
+      fields: step.fields ? { ...step.fields } : undefined,
+    };
+  };
+
+  const [editedStep, setEditedStep] = useState<FormStep>(deepCopyStep(step));
+  // Keep track of the original ID for matching purposes
+  const originalId = step.id;
 
   const handleSave = () => {
-    onSave(editedStep);
+    console.log('StepEditorDialog handleSave called with editedStep:', editedStep);
+    // Create a step with the original ID for matching, but with all the new properties
+    const stepToSave = { ...editedStep, originalId };
+    onSave(stepToSave);
   };
 
   const addOption = () => {
@@ -1396,11 +1438,7 @@ function StepEditorDialog({
     setEditedStep((prev) => ({ ...prev, options: newOptions }));
   };
 
-  const updateOption = (
-    index: number,
-    field: "value" | "label",
-    value: string
-  ) => {
+  const updateOption = (index: number, field: "value" | "label", value: string) => {
     const newOptions = [...(editedStep.options || [])];
     newOptions[index] = { ...newOptions[index], [field]: value };
     setEditedStep((prev) => ({ ...prev, options: newOptions }));
@@ -1622,8 +1660,10 @@ function StepEditorDialog({
                       setEditedStep((prev) => ({
                         ...prev,
                         scale: {
-                          ...prev.scale!,
                           min: parseInt(e.target.value),
+                          max: prev.scale?.max || 10,
+                          minLabel: prev.scale?.minLabel || "",
+                          maxLabel: prev.scale?.maxLabel || "",
                         },
                       }))
                     }
@@ -1639,8 +1679,10 @@ function StepEditorDialog({
                       setEditedStep((prev) => ({
                         ...prev,
                         scale: {
-                          ...prev.scale!,
+                          min: prev.scale?.min || 1,
                           max: parseInt(e.target.value),
+                          minLabel: prev.scale?.minLabel || "",
+                          maxLabel: prev.scale?.maxLabel || "",
                         },
                       }))
                     }
@@ -1656,7 +1698,12 @@ function StepEditorDialog({
                     onChange={(e) =>
                       setEditedStep((prev) => ({
                         ...prev,
-                        scale: { ...prev.scale!, minLabel: e.target.value },
+                        scale: {
+                          min: prev.scale?.min || 1,
+                          max: prev.scale?.max || 10,
+                          minLabel: e.target.value,
+                          maxLabel: prev.scale?.maxLabel || "",
+                        },
                       }))
                     }
                     placeholder="e.g., Not satisfied"
@@ -1670,7 +1717,12 @@ function StepEditorDialog({
                     onChange={(e) =>
                       setEditedStep((prev) => ({
                         ...prev,
-                        scale: { ...prev.scale!, maxLabel: e.target.value },
+                        scale: {
+                          min: prev.scale?.min || 1,
+                          max: prev.scale?.max || 10,
+                          minLabel: prev.scale?.minLabel || "",
+                          maxLabel: e.target.value,
+                        },
                       }))
                     }
                     placeholder="e.g., Very satisfied"
