@@ -192,11 +192,12 @@ export async function middleware(request: NextRequest) {
     '/api/zapier/perform',
     '/api/zapier/endpoints',
     '/api/webhook/dodo-payments',
-    '/api/forms/form-schema'
+    '/api/forms/form-schema',
+    '/api/google-sheets'
   ]
   
   // If user is not signed in and the current path is not /auth/ or a public path, redirect the user to /auth/login
-  if (!user && !request.nextUrl.pathname.startsWith('/auth/') && !publicPaths.includes(request.nextUrl.pathname) && !request.nextUrl.pathname.startsWith('/blog/')) {
+  if (!user && !request.nextUrl.pathname.startsWith('/auth/') && !publicPaths.includes(request.nextUrl.pathname) && !request.nextUrl.pathname.startsWith('/blog/') && !request.nextUrl.pathname.startsWith('/api/google-sheets/') && !request.nextUrl.pathname.match(/^\/api\/endpoints\/[^\/]+\/google-sheets$/)) {
     return NextResponse.redirect(new URL('/auth/login?redirectTo=' + encodeURIComponent(request.nextUrl.pathname), request.url))
   }
 

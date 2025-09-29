@@ -159,6 +159,10 @@ export type Database = {
           error_message: string | null
           file_uploads_enabled: boolean | null
           form_json: Json | null
+          google_sheets_enabled: boolean | null
+          google_sheets_spreadsheet_id: string | null
+          google_sheets_sheet_name: string | null
+          google_sheets_column_mappings: Json | null
           id: string
           json_schema: Json | null
           json_validation_enabled: boolean | null
@@ -196,6 +200,10 @@ export type Database = {
           error_message?: string | null
           file_uploads_enabled?: boolean | null
           form_json?: Json | null
+          google_sheets_enabled?: boolean | null
+          google_sheets_spreadsheet_id?: string | null
+          google_sheets_sheet_name?: string | null
+          google_sheets_column_mappings?: Json | null
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
@@ -233,6 +241,10 @@ export type Database = {
           error_message?: string | null
           file_uploads_enabled?: boolean | null
           form_json?: Json | null
+          google_sheets_enabled?: boolean | null
+          google_sheets_spreadsheet_id?: string | null
+          google_sheets_sheet_name?: string | null
+          google_sheets_column_mappings?: Json | null
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
@@ -419,6 +431,11 @@ export type Database = {
           api_key: string
           created_at: string | null
           description: string | null
+          google_sheets_access_token: string | null
+          google_sheets_refresh_token: string | null
+          google_sheets_token_expires_at: string | null
+          google_sheets_connected_at: string | null
+          google_sheets_user_email: string | null
           id: string
           name: string
           updated_at: string | null
@@ -428,6 +445,11 @@ export type Database = {
           api_key?: string
           created_at?: string | null
           description?: string | null
+          google_sheets_access_token?: string | null
+          google_sheets_refresh_token?: string | null
+          google_sheets_token_expires_at?: string | null
+          google_sheets_connected_at?: string | null
+          google_sheets_user_email?: string | null
           id?: string
           name: string
           updated_at?: string | null
@@ -437,6 +459,11 @@ export type Database = {
           api_key?: string
           created_at?: string | null
           description?: string | null
+          google_sheets_access_token?: string | null
+          google_sheets_refresh_token?: string | null
+          google_sheets_token_expires_at?: string | null
+          google_sheets_connected_at?: string | null
+          google_sheets_user_email?: string | null
           id?: string
           name?: string
           updated_at?: string | null
@@ -457,6 +484,7 @@ export type Database = {
           created_at: string | null
           data: Json
           endpoint_id: string
+          google_sheets_status: string | null
           id: string
           ip_address: unknown | null
           user_agent: string | null
@@ -466,6 +494,7 @@ export type Database = {
           created_at?: string | null
           data: Json
           endpoint_id: string
+          google_sheets_status?: string | null
           id?: string
           ip_address?: unknown | null
           user_agent?: string | null
@@ -475,6 +504,7 @@ export type Database = {
           created_at?: string | null
           data?: Json
           endpoint_id?: string
+          google_sheets_status?: string | null
           id?: string
           ip_address?: unknown | null
           user_agent?: string | null

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,10 @@ import {
   RefreshCw,
   Eye,
   EyeOff,
+  FileSpreadsheet,
+  ExternalLink,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -32,15 +36,22 @@ interface Project {
   id: string;
   name: string;
   description: string | null;
-  created_at: string;
+  created_at: string | null;
   user_id: string;
   api_key?: string;
+  google_sheets_access_token?: string | null;
+  google_sheets_refresh_token?: string | null;
+  google_sheets_token_expires_at?: string | null;
+  google_sheets_connected_at?: string | null;
+  google_sheets_user_email?: string | null;
+  updated_at?: string | null;
 }
 
 export default function ProjectSettingsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const projectId = params.id as string;
 
   const [project, setProject] = useState<Project | null>(null);
@@ -49,6 +60,8 @@ export default function ProjectSettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRegeneratingKey, setIsRegeneratingKey] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
+  const [isConnectingGoogleSheets, setIsConnectingGoogleSheets] = useState(false);
+  const [isDisconnectingGoogleSheets, setIsDisconnectingGoogleSheets] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -60,12 +73,14 @@ export default function ProjectSettingsPage() {
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   const fetchProject = useCallback(async () => {
+    if (!user) return; // Add guard clause to prevent execution when user is null
+    
     try {
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
         .select("*")
         .eq("id", projectId)
-        .eq("user_id", user!.id)
+        .eq("user_id", user.id)
         .single();
 
       if (projectError) throw projectError;
@@ -96,7 +111,23 @@ export default function ProjectSettingsPage() {
     if (user) {
       fetchProject();
     }
-  }, [user, loading, router, fetchProject]);
+
+    // Handle OAuth callback parameters
+    const success = searchParams.get('success');
+    const error = searchParams.get('error');
+    
+    if (success === 'google_sheets_connected') {
+      // Refresh project data to show updated Google Sheets status
+      setTimeout(() => {
+        fetchProject();
+      }, 1000);
+    }
+    
+    if (error) {
+      console.error('OAuth error:', error);
+      // You could show a toast notification here
+    }
+  }, [user, loading, router, fetchProject, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +163,63 @@ export default function ProjectSettingsPage() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleConnectGoogleSheets = async () => {
+    setIsConnectingGoogleSheets(true);
+    try {
+      // Redirect to Google OAuth
+      const redirectUri = `${window.location.origin}/api/auth/google-sheets/callback`;
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      const scope = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email';
+      const state = projectId;
+      
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+        `client_id=${clientId}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+        `scope=${encodeURIComponent(scope)}&` +
+        `response_type=code&` +
+        `access_type=offline&` +
+        `prompt=consent&` +
+        `state=${state}`;
+      
+      window.location.href = authUrl;
+    } catch (error) {
+      console.error('Error connecting to Google Sheets:', error);
+      setIsConnectingGoogleSheets(false);
+    }
+  };
+
+  const handleDisconnectGoogleSheets = async () => {
+    setIsDisconnectingGoogleSheets(true);
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({
+          google_sheets_access_token: null,
+          google_sheets_refresh_token: null,
+          google_sheets_token_expires_at: null,
+        })
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      // Refresh project data
+      await fetchProject();
+    } catch (error) {
+      console.error('Error disconnecting Google Sheets:', error);
+    } finally {
+      setIsDisconnectingGoogleSheets(false);
+    }
+  };
+
+  const isGoogleSheetsConnected = () => {
+    return project?.google_sheets_access_token && project?.google_sheets_refresh_token;
+  };
+
+  const isGoogleSheetsTokenExpired = () => {
+    if (!project?.google_sheets_token_expires_at) return false;
+    return new Date(project.google_sheets_token_expires_at) < new Date();
   };
 
   const handleDelete = async () => {
@@ -285,6 +373,98 @@ export default function ProjectSettingsPage() {
                   </Button>
                 </div>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Google Sheets Integration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <FileSpreadsheet className="h-5 w-5 mr-2" />
+                Google Sheets Integration
+              </CardTitle>
+              <CardDescription>
+                Connect your project to Google Sheets to automatically send form submissions to spreadsheets
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center space-x-3">
+                  {isGoogleSheetsConnected() ? (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        {isGoogleSheetsTokenExpired() ? (
+                          <XCircle className="h-5 w-5 text-yellow-500" />
+                        ) : (
+                          <CheckCircle className="h-5 w-5 text-green-500" />
+                        )}
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            Google Sheets Connected
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {isGoogleSheetsTokenExpired() 
+                              ? "Token expired - reconnect to continue using Google Sheets"
+                              : "Your project can now write to Google Sheets"
+                            }
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          Google Sheets Not Connected
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Connect to enable Google Sheets integration for your endpoints
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="flex space-x-2">
+                  {isGoogleSheetsConnected() ? (
+                    <>
+                      {isGoogleSheetsTokenExpired() && (
+                        <Button
+                          onClick={handleConnectGoogleSheets}
+                          disabled={isConnectingGoogleSheets}
+                          variant="outline"
+                        >
+                          <RefreshCw className={`h-4 w-4 mr-2 ${isConnectingGoogleSheets ? "animate-spin" : ""}`} />
+                          {isConnectingGoogleSheets ? "Reconnecting..." : "Reconnect"}
+                        </Button>
+                      )}
+                      <Button
+                        onClick={handleDisconnectGoogleSheets}
+                        disabled={isDisconnectingGoogleSheets}
+                        variant="outline"
+                      >
+                        {isDisconnectingGoogleSheets ? "Disconnecting..." : "Disconnect"}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={handleConnectGoogleSheets}
+                      disabled={isConnectingGoogleSheets}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      {isConnectingGoogleSheets ? "Connecting..." : "Connect Google Sheets"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {isGoogleSheetsConnected() && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    <strong>Next steps:</strong> Go to your endpoint configuration pages and click &ldquo;Google Sheets Settings&rdquo; to connect specific endpoints to spreadsheets.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -51,6 +51,7 @@ import {
   X,
   Download,
   FormInput,
+  FileSpreadsheet,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -251,6 +252,7 @@ export default function EndpointDetailsPage() {
     projectId,
     endpointId,
     cacheKey,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   ]);
 
   const handlePageSizeChange = (newPageSize: number) => {
@@ -466,6 +468,11 @@ export default function EndpointDetailsPage() {
     }
   };
 
+  const deleteAllVariablePaths = () => {
+    setVariablePaths([]);
+    updateVariablePathsInDatabase([]);
+  };
+
   const deleteEndpoint = async () => {
     if (!endpoint) return;
 
@@ -561,38 +568,12 @@ export default function EndpointDetailsPage() {
           {/* Endpoint Configuration */}
           <div className="space-y-6">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader>
                 <div>
                   <CardTitle>Endpoint Configuration</CardTitle>
                   <CardDescription>
                     Configuration details for this endpoint
                   </CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" asChild>
-                    <Link
-                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/form-builder`}
-                    >
-                      <FormInput className="h-4 w-4 mr-2" />
-                      Form Builder
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link
-                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/webhooks`}
-                    >
-                      <Webhook className="h-4 w-4 mr-2" />
-                      Configure Webhooks
-                    </Link>
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link
-                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Configuration
-                    </Link>
-                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -852,6 +833,44 @@ export default function EndpointDetailsPage() {
                       )}
                   </div>
                 )}
+
+                {/* Separator line and action buttons */}
+                <div className="border-t pt-4">
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/form-builder`}
+                      >
+                        <FormInput className="h-4 w-4 mr-2" />
+                        Form Builder
+                      </Link>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/webhooks`}
+                      >
+                        <Webhook className="h-4 w-4 mr-2" />
+                        Configure Webhooks
+                      </Link>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/google-sheets`}
+                      >
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Google Sheets Settings
+                      </Link>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Configuration
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -886,18 +905,32 @@ export default function EndpointDetailsPage() {
                     </Button>
                   </div>
 
-                  {/* Extract from latest submission button */}
-                  <Button
-                    onClick={extractFromLatestSubmission}
-                    disabled={isExtractingPaths}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    {isExtractingPaths
-                      ? "Extracting..."
-                      : "Extract From Latest Submission"}
-                  </Button>
+                  {/* Action buttons row */}
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={extractFromLatestSubmission}
+                      disabled={isExtractingPaths}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {isExtractingPaths
+                        ? "Extracting..."
+                        : "Extract From Latest Submission"}
+                    </Button>
+
+                    {/* Delete All button - only show when there are paths */}
+                    {variablePaths.length > 0 && (
+                      <Button
+                        onClick={deleteAllVariablePaths}
+                        variant="destructive"
+                        className="flex-1"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete All Variable Paths
+                      </Button>
+                    )}
+                  </div>
 
                   {/* Display variable paths */}
                   {variablePaths.length > 0 ? (

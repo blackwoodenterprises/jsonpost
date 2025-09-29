@@ -5,6 +5,7 @@ import { Svix } from 'svix'
 import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
 import { SubmissionLogger } from '@/lib/submission-logger'
+import { Database } from '@/lib/database.types'
 
 // Create a service role client for server-side operations
 const supabase = createClient(
@@ -1505,6 +1506,104 @@ export async function POST(
         endpointId: endpoint.id,
         submissionId: submission.id
       });
+    }
+
+    // Send to Google Sheets if configured
+    logger.info('Checking for Google Sheets configuration', {
+      endpointId: endpoint.id,
+      submissionId: submission.id
+    });
+
+    try {
+      // Check if Google Sheets is configured for this endpoint
+      logger.debug('Checking Google Sheets configuration', {
+        endpointId: endpoint.id,
+        hasSpreadsheetId: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id,
+        hasSheetName: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name,
+        hasColumnMappings: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings,
+        spreadsheetId: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id,
+        sheetName: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name,
+        columnMappings: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings
+      });
+
+      const googleSheetsEnabled = (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id && 
+                                 (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name && 
+                                 (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings;
+
+      if (googleSheetsEnabled) {
+        logger.info('Google Sheets configuration found, sending data', {
+          endpointId: endpoint.id,
+          submissionId: submission.id,
+          spreadsheetId: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id,
+          sheetName: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name
+        });
+
+        const googleSheetsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/google-sheets/write`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            endpointId: endpoint.id,
+            submissionData: submissionData
+          })
+        });
+
+        if (googleSheetsResponse.ok) {
+          const googleSheetsResult = await googleSheetsResponse.json();
+          logger.success('Google Sheets data written successfully', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            updatedRange: googleSheetsResult.updatedRange,
+            updatedRows: googleSheetsResult.updatedRows
+          });
+
+          // Update submission with Google Sheets status
+          await supabase
+            .from('submissions')
+            .update({ google_sheets_status: 'success' })
+            .eq('id', submission.id);
+        } else {
+          const errorText = await googleSheetsResponse.text();
+          logger.error('Google Sheets write failed', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            status: googleSheetsResponse.status,
+            error: errorText
+          });
+
+          // Update submission with Google Sheets failure status
+          await supabase
+            .from('submissions')
+            .update({ google_sheets_status: 'failure' })
+            .eq('id', submission.id);
+        }
+      } else {
+        logger.debug('Google Sheets not configured for this endpoint', {
+          endpointId: endpoint.id,
+          submissionId: submission.id
+        });
+      }
+    } catch (googleSheetsError) {
+      logger.error('Google Sheets integration error', {
+        endpointId: endpoint.id,
+        submissionId: submission.id,
+        error: googleSheetsError,
+        errorMessage: googleSheetsError instanceof Error ? googleSheetsError.message : 'Unknown error'
+      });
+
+      // Update submission with Google Sheets failure status
+      try {
+        await supabase
+          .from('submissions')
+          .update({ google_sheets_status: 'failure' })
+          .eq('id', submission.id);
+      } catch (updateError) {
+        logger.error('Failed to update Google Sheets status', {
+          submissionId: submission.id,
+          error: updateError
+        });
+      }
     }
 
     // Return success response
