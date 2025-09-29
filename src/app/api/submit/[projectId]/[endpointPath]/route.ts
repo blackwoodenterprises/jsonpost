@@ -4,6 +4,7 @@ import { emailService } from '@/lib/email'
 import { Svix } from 'svix'
 import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
+import { SubmissionLogger } from '@/lib/submission-logger'
 
 // Create a service role client for server-side operations
 const supabase = createClient(
@@ -198,30 +199,79 @@ function unflattenFormData(flatData: Record<string, unknown>): Record<string, un
   return result
 }
 
+// Helper function to apply transformation template to data
+function applyTransformation(template: unknown, data: Record<string, unknown>): unknown {
+  if (typeof template !== 'object' || template === null) {
+    return template;
+  }
+
+  if (Array.isArray(template)) {
+    return template.map(item => applyTransformation(item, data));
+  }
+
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(template as Record<string, unknown>)) {
+    if (typeof value === 'string') {
+      // Replace variables in the format {{variable.path}}
+      const transformedValue = value.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+        const pathValue = getNestedValue(data, path.trim());
+        return pathValue !== undefined ? String(pathValue) : match;
+      });
+      result[key] = transformedValue;
+    } else if (typeof value === 'object' && value !== null) {
+      result[key] = applyTransformation(value, data);
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}
+
+// Helper function to get nested value from object using dot notation
+function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+  return path.split('.').reduce((current, key) => {
+    if (current && typeof current === 'object') {
+      // Handle array indices
+      if (key.includes('[') && key.includes(']')) {
+        const [arrayKey, indexStr] = key.split('[');
+        const index = parseInt(indexStr.replace(']', ''), 10);
+        const currentObj = current as Record<string, unknown>;
+        return currentObj[arrayKey] && Array.isArray(currentObj[arrayKey]) 
+          ? (currentObj[arrayKey] as unknown[])[index] 
+          : undefined;
+      }
+      return (current as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj as unknown);
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ projectId: string; endpointPath: string }> }
 ) {
   const { projectId, endpointPath } = await params;
   
+  // Initialize submission logger
+  const logger = new SubmissionLogger('temp-' + Date.now());
+  
   try {
+    logger.info('Form submission started', {
+      projectId,
+      endpointPath,
+      method: request.method,
+      headers: Object.fromEntries(request.headers.entries()),
+      timestamp: new Date().toISOString()
+    });
+
     // Get the endpoint configuration with project and user info
-    console.log('Looking for endpoint with:', { projectId, endpointPath })
-    
-    // First, let's check ALL endpoints with this path (regardless of project)
-    const { data: allEndpointsWithPath } = await supabase
-      .from('endpoints')
-      .select('id, name, path, project_id')
-      .eq('path', endpointPath)
-    
-    console.log('All endpoints with this path:', allEndpointsWithPath)
-    
-    // Check ALL endpoints in the database
-    const { data: allEndpoints } = await supabase
-      .from('endpoints')
-      .select('id, name, path, project_id')
-    
-    console.log('ALL endpoints in database:', allEndpoints)
+    logger.info('Looking up endpoint configuration', { 
+      projectId, 
+      endpointPath,
+      timestamp: new Date().toISOString()
+    });
     
     const { data: endpoint, error: endpointError } = await supabase
       .from('endpoints')
@@ -241,10 +291,29 @@ export async function POST(
       .eq('path', endpointPath)
       .single()
 
-    console.log('Endpoint query result:', { endpoint, endpointError })
+    if (endpoint) {
+      logger.info('Endpoint found successfully', { 
+        endpointId: endpoint.id,
+        endpointName: endpoint.name,
+        projectName: endpoint.project?.name,
+        userEmail: endpoint.project?.user?.email
+      });
+    } else {
+      logger.error('Endpoint lookup failed', { 
+        projectId, 
+        endpointPath, 
+        error: endpointError?.message || 'Unknown error'
+      });
+    }
 
     if (endpointError || !endpoint) {
-      console.log('Endpoint not found. Checking all endpoints for this project...')
+      logger.error('Endpoint not found', {
+        projectId,
+        endpointPath,
+        error: endpointError
+      });
+      
+      logger.debug('Endpoint not found. Checking all endpoints for this project...');
       
       // Debug: Check what endpoints exist for this project
       const { data: projectEndpoints } = await supabase
@@ -252,7 +321,7 @@ export async function POST(
         .select('id, name, path, project_id')
         .eq('project_id', projectId)
       
-      console.log('All endpoints for project:', projectEndpoints)
+      logger.debug('All endpoints for project', { projectEndpoints });
       
       return createCorsResponse(
         { error: 'Endpoint not found' },
@@ -260,13 +329,29 @@ export async function POST(
       )
     }
 
+    logger.success('Endpoint found', {
+      endpointId: endpoint.id,
+      endpointName: endpoint.name,
+      projectName: endpoint.project.name,
+      userId: endpoint.project.user.id
+    });
+
     // Validate CORS origins
     const requestOrigin = request.headers.get('origin');
     const allowedDomains = Array.isArray(endpoint.allowed_domains) 
       ? endpoint.allowed_domains 
       : (endpoint.allowed_domains ? endpoint.allowed_domains.split(',').map((d: string) => d.trim()) : null);
     
+    logger.info('CORS validation', {
+      requestOrigin,
+      allowedDomains
+    });
+    
     if (!validateCorsOrigin(requestOrigin, allowedDomains)) {
+      logger.error('CORS policy violation', {
+        requestOrigin,
+        allowedDomains
+      });
       return createCorsResponse(
         { error: 'CORS policy violation: Origin not allowed' },
         403,
@@ -274,12 +359,16 @@ export async function POST(
       );
     }
 
+    logger.success('CORS validation passed');
+
     // Validate API key if required
     if (endpoint.require_api_key) {
+      logger.info('API key validation required');
       const providedApiKey = request.headers.get('x-api-key');
       const projectApiKey = endpoint.project.api_key;
       
       if (!providedApiKey) {
+        logger.error('API key missing');
         const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
         return createCorsResponse(
           { error: 'API key required. Include X-API-Key header.' },
@@ -289,6 +378,7 @@ export async function POST(
       }
       
       if (providedApiKey !== projectApiKey) {
+        logger.error('Invalid API key provided');
         const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
         return createCorsResponse(
           { error: 'Invalid API key' },
@@ -296,10 +386,16 @@ export async function POST(
           corsOrigin
         );
       }
+      
+      logger.success('API key validation passed');
     }
 
     // Check if method matches
     if (endpoint.method !== request.method) {
+      logger.error('Method not allowed', {
+        requestMethod: request.method,
+        expectedMethod: endpoint.method
+      });
       const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       return createCorsResponse(
         { error: `Method ${request.method} not allowed. Expected ${endpoint.method}` },
@@ -308,46 +404,54 @@ export async function POST(
       )
     }
 
+    logger.success('Method validation passed');
+
     const contentType = request.headers.get('content-type') || ''
     let submissionData: Record<string, unknown> = {}
     const uploadedFiles: File[] = []
 
-    console.log('Content-Type header:', contentType)
-    console.log('Request method:', request.method)
-    console.log('Request headers:', Object.fromEntries(request.headers.entries()))
-    
-    // Check if request body is readable
-    console.log('Request body locked:', request.bodyUsed)
-    console.log('Request body readable:', request.body?.locked === false)
+    logger.info('Request parsing started', {
+      contentType,
+      method: request.method,
+      headers: Object.fromEntries(request.headers.entries()),
+      bodyUsed: request.bodyUsed,
+      bodyLocked: request.body?.locked
+    });
 
     // Handle different content types
     try {
       if (contentType.includes('application/json')) {
-        console.log('Parsing as JSON')
+        logger.info('Parsing as JSON');
         // Handle JSON data
         submissionData = await request.json()
+        logger.success('JSON parsing successful', { submissionData });
       } else {
         // For all other cases (including multipart/form-data, application/x-www-form-urlencoded, or no content-type)
         // try to parse as FormData first since file uploads require FormData
-        console.log('Attempting to parse as FormData')
-        console.log('Request body status before FormData parsing:', {
+        logger.info('Attempting to parse as FormData', {
           bodyUsed: request.bodyUsed,
           bodyLocked: request.body?.locked
-        })
+        });
         
         // Clone the request before attempting FormData parsing to preserve the body for fallback
         const clonedRequest = request.clone()
         
         try {
           const formData = await request.formData()
-          console.log('FormData parsed successfully, processing entries...')
+          logger.success('FormData parsed successfully, processing entries...');
           
           for (const [key, value] of formData.entries()) {
-            console.log(`Processing FormData entry: ${key}`, typeof value, value instanceof File ? `File: ${value.name}` : value)
+            logger.debug('Processing FormData entry', {
+              key,
+              type: typeof value,
+              isFile: value instanceof File,
+              fileName: value instanceof File ? value.name : undefined
+            });
             
             if (value instanceof File) {
               // Check if file uploads are enabled for this endpoint
               if (!endpoint.file_uploads_enabled) {
+                logger.error('File uploads not enabled for endpoint');
                 const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
                 return createCorsResponse(
                   { error: 'File uploads are not enabled for this endpoint' },
@@ -361,26 +465,26 @@ export async function POST(
             }
           }
           
-          console.log('FormData processing complete:', { 
+          logger.success('FormData processing complete', { 
             submissionData, 
             fileCount: uploadedFiles.length,
             fileNames: uploadedFiles.map(f => f.name)
-          })
+          });
           
           // Unflatten the form data to convert array-like keys and nested object keys to proper JSON structure
           submissionData = unflattenFormData(submissionData)
           
         } catch (formDataError) {
-          console.error('FormData parsing failed:', formDataError)
-          console.error('FormData error details:', {
-            name: (formDataError as Error).name,
-            message: (formDataError as Error).message,
-            stack: (formDataError as Error).stack
-          })
+          logger.error('FormData parsing failed', {
+            error: formDataError,
+            errorName: (formDataError as Error).name,
+            errorMessage: (formDataError as Error).message,
+            errorStack: (formDataError as Error).stack
+          });
           
           // If it's multipart/form-data, try manual parsing as fallback using the cloned request
           if (contentType.includes('multipart/form-data')) {
-            console.log('Attempting manual multipart parsing as fallback...')
+            logger.info('Attempting manual multipart parsing as fallback...')
             
             try {
               const boundary = contentType.split('boundary=')[1]
@@ -392,8 +496,8 @@ export async function POST(
               const rawBody = await clonedRequest.arrayBuffer()
               const bodyBytes = new Uint8Array(rawBody)
               
-              console.log('Manual parsing - Body length:', bodyBytes.length)
-              console.log('Manual parsing - Boundary:', boundary)
+              logger.debug('Manual parsing - Body length:', bodyBytes.length)
+              logger.debug('Manual parsing - Boundary:', boundary)
               
               // Add size limits to prevent memory issues
               const MAX_BODY_SIZE = 50 * 1024 * 1024 // 50MB
@@ -432,7 +536,7 @@ export async function POST(
                 }
               }
               
-              console.log('Manual parsing - Found parts:', parts.length)
+              logger.debug('Manual parsing - Found parts:', parts.length)
               
               let fileCount = 0
               
@@ -463,7 +567,7 @@ export async function POST(
                   }
                 }
                 
-                console.log(`Manual parsing - Processing field: ${name}`, { filename, contentType })
+                logger.debug(`Manual parsing - Processing field: ${name}`, { filename, contentType })
                 
                 if (filename) {
                   // It's a file - extract binary data
@@ -508,7 +612,7 @@ export async function POST(
                 }
               }
               
-              console.log('Manual parsing successful:', { 
+              logger.success('Manual parsing successful:', { 
                 submissionData, 
                 fileCount: uploadedFiles.length,
                 fileNames: uploadedFiles.map(f => f.name)
@@ -518,7 +622,7 @@ export async function POST(
               submissionData = unflattenFormData(submissionData)
               
             } catch (manualParseError) {
-              console.error('Manual multipart parsing also failed:', manualParseError)
+              logger.error('Manual multipart parsing also failed:', manualParseError)
               return createCorsResponse(
                 { error: 'Failed to parse form data. Please check your request format and ensure files are properly attached.' },
                 400,
@@ -528,10 +632,10 @@ export async function POST(
           } else {
             // For other content types, try JSON as fallback only if the request body hasn't been consumed
             try {
-              console.log('Attempting JSON fallback after FormData failure')
+              logger.info('Attempting JSON fallback after FormData failure')
               submissionData = await request.json()
             } catch (jsonError) {
-              console.error('JSON parsing also failed:', jsonError)
+              logger.error('JSON parsing also failed:', jsonError)
               return createCorsResponse(
                 { error: 'Invalid request format. Please send JSON or properly formatted form data.' },
                 400,
@@ -542,7 +646,7 @@ export async function POST(
         }
       }
     } catch (error) {
-      console.error('Outer parsing error:', error)
+      logger.error('Outer parsing error:', error)
       const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       return createCorsResponse(
         { error: 'Failed to parse request body. Please check your request format.' },
@@ -553,10 +657,24 @@ export async function POST(
 
     // Validate file uploads if any
     if (uploadedFiles.length > 0) {
+      logger.info('Starting file upload validation', {
+        fileCount: uploadedFiles.length,
+        fileNames: uploadedFiles.map(f => f.name),
+        fileSizes: uploadedFiles.map(f => f.size),
+        fileTypes: uploadedFiles.map(f => f.type),
+        uploadsEnabled: endpoint.file_uploads_enabled,
+        maxFiles: endpoint.max_files_per_submission || 5,
+        maxSizeMB: endpoint.max_file_size_mb || 10
+      });
+
       const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       
       // Check if file uploads are enabled
       if (!endpoint.file_uploads_enabled) {
+        logger.error('File uploads rejected - not enabled', {
+          endpointId: endpoint.id,
+          fileCount: uploadedFiles.length
+        });
         return createCorsResponse(
           { error: 'File uploads are not enabled for this endpoint' },
           400,
@@ -566,6 +684,10 @@ export async function POST(
 
       // Check file count limit
       if (uploadedFiles.length > (endpoint.max_files_per_submission || 5)) {
+        logger.error('File uploads rejected - too many files', {
+          fileCount: uploadedFiles.length,
+          maxAllowed: endpoint.max_files_per_submission || 5
+        });
         return createCorsResponse(
           { error: `Too many files. Maximum ${endpoint.max_files_per_submission || 5} files allowed per submission.` },
           400,
@@ -585,6 +707,12 @@ export async function POST(
       for (const file of uploadedFiles) {
         // Check file size
         if (file.size > maxFileSizeBytes) {
+          logger.error('File rejected - too large', {
+            fileName: file.name,
+            fileSize: file.size,
+            maxSizeBytes: maxFileSizeBytes,
+            maxSizeMB: endpoint.max_file_size_mb || 10
+          });
           return createCorsResponse(
             { error: `File "${file.name}" is too large. Maximum size is ${endpoint.max_file_size_mb || 10}MB.` },
             400,
@@ -594,6 +722,11 @@ export async function POST(
 
         // Check file type
         if (!allowedFileTypes.includes(file.type)) {
+          logger.error('File rejected - invalid type', {
+            fileName: file.name,
+            fileType: file.type,
+            allowedTypes: allowedFileTypes
+          });
           return createCorsResponse(
             { error: `File type "${file.type}" is not allowed for file "${file.name}".` },
             400,
@@ -601,10 +734,22 @@ export async function POST(
           )
         }
       }
+
+      logger.success('File validation completed successfully', {
+        validatedFiles: uploadedFiles.length,
+        totalSizeBytes: uploadedFiles.reduce((sum, f) => sum + f.size, 0)
+      });
     }
 
     // JSON Schema Validation (if enabled)
     if (endpoint.json_validation_enabled && endpoint.json_schema) {
+      logger.info('Starting JSON schema validation', {
+        validationEnabled: endpoint.json_validation_enabled,
+        hasSchema: !!endpoint.json_schema,
+        dataKeys: Object.keys(submissionData),
+        dataSize: JSON.stringify(submissionData).length
+      });
+
       const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       
       try {
@@ -625,6 +770,11 @@ export async function POST(
           schema = cleanSchema
         }
         
+        logger.debug('Schema prepared for validation', {
+          schemaType: typeof schema,
+          schemaKeys: schema && typeof schema === 'object' ? Object.keys(schema) : []
+        });
+        
         // Compile the schema
         const validate = ajv.compile(schema)
         
@@ -638,14 +788,29 @@ export async function POST(
             return `${field}: ${error.message}`
           }).join(', ') || 'Invalid data format'
           
+          logger.error('JSON schema validation failed', {
+            errors: validate.errors,
+            formattedErrors: errors,
+            submissionData: submissionData
+          });
+          
           return createCorsResponse(
             { error: `Validation failed: ${errors}` },
             400,
             corsOrigin
           )
         }
+
+        logger.success('JSON schema validation passed', {
+          validatedFields: Object.keys(submissionData).length
+        });
+
       } catch (schemaError) {
-        console.error('JSON schema validation error:', schemaError)
+        logger.error('JSON schema validation error:', {
+          error: schemaError,
+          schema: endpoint.json_schema,
+          submissionData: submissionData
+        });
         return createCorsResponse(
           { error: 'Invalid JSON schema configuration' },
           500,
@@ -655,6 +820,13 @@ export async function POST(
     }
 
     // Store the submission
+    logger.info('Storing submission in database', {
+      endpointId: endpoint.id,
+      dataKeys: Object.keys(submissionData),
+      clientIP: getClientIP(request),
+      userAgent: request.headers.get('user-agent') || 'unknown'
+    });
+
     const clientIP = getClientIP(request)
     const { data: submission, error: submissionError } = await supabase
       .from('submissions')
@@ -668,7 +840,11 @@ export async function POST(
       .single()
 
     if (submissionError) {
-      console.error('Error storing submission:', submissionError)
+      logger.error('Failed to store submission in database', {
+        error: submissionError,
+        endpointId: endpoint.id,
+        submissionData: submissionData
+      });
       return createCorsResponse(
         { error: endpoint.error_message || 'Failed to process submission' },
         500,
@@ -676,13 +852,35 @@ export async function POST(
       )
     }
 
+    // Update the logger with the actual submission ID now that we have it
+    logger.updateSubmissionId(submission.id)
+    logger.success('Submission stored successfully in database', { 
+      submissionId: submission.id, 
+      endpointId: endpoint.id,
+      dataSize: JSON.stringify(submissionData).length
+    });
+
     // Handle file uploads if any
     const fileUploadRecords = []
     if (uploadedFiles.length > 0) {
+      logger.info('Starting file upload to storage', {
+        fileCount: uploadedFiles.length,
+        submissionId: submission.id,
+        projectId: endpoint.project.id,
+        endpointId: endpoint.id
+      });
+
       const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
       
       try {
         for (const file of uploadedFiles) {
+          logger.info('Processing file upload', {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            submissionId: submission.id
+          });
+
           // Generate unique filename
           const timestamp = Date.now()
           const randomString = Math.random().toString(36).substring(2, 15)
@@ -693,6 +891,12 @@ export async function POST(
           // Convert File to ArrayBuffer for upload
           const fileBuffer = await file.arrayBuffer()
           
+          logger.debug('Uploading file to Supabase Storage', {
+            filePath,
+            bufferSize: fileBuffer.byteLength,
+            contentType: file.type
+          });
+          
           // Upload to Supabase Storage
           const { error: uploadError } = await supabase.storage
             .from('form-uploads')
@@ -702,7 +906,12 @@ export async function POST(
             })
 
           if (uploadError) {
-            console.error('Error uploading file:', uploadError)
+            logger.error('File upload to storage failed', {
+              fileName: file.name,
+              filePath,
+              error: uploadError,
+              submissionId: submission.id
+            });
             return createCorsResponse(
               { error: `Failed to upload file "${file.name}": ${uploadError.message}` },
               500,
@@ -710,7 +919,21 @@ export async function POST(
             )
           }
 
+          logger.success('File uploaded to storage successfully', { 
+            fileName: file.name,
+            filePath, 
+            fileSize: file.size,
+            submissionId: submission.id
+          });
+
           // Store file record in database
+          logger.debug('Creating file record in database', {
+            submissionId: submission.id,
+            originalFilename: file.name,
+            storedFilename,
+            filePath
+          });
+
           const { data: fileRecord, error: fileRecordError } = await supabase
             .from('file_uploads')
             .insert({
@@ -726,7 +949,11 @@ export async function POST(
             .single()
 
           if (fileRecordError) {
-            console.error('Error storing file record:', fileRecordError)
+            logger.error('Failed to create file record in database', {
+              error: fileRecordError,
+              fileName: file.name,
+              submissionId: submission.id
+            });
             // Try to clean up the uploaded file
             await supabase.storage.from('form-uploads').remove([filePath])
             return createCorsResponse(
@@ -736,10 +963,12 @@ export async function POST(
             )
           }
 
+          logger.success(`File record stored successfully: ${file.name}`, { fileRecordId: fileRecord.id })
+
           fileUploadRecords.push(fileRecord)
         }
       } catch (error) {
-        console.error('Error processing file uploads:', error)
+        logger.error('Error processing file uploads:', error)
         return createCorsResponse(
           { error: 'Failed to process file uploads' },
           500,
@@ -754,7 +983,7 @@ export async function POST(
     const year = now.getFullYear()
     const month = now.getMonth() + 1 // JavaScript months are 0-indexed
 
-    console.log('Updating monthly submission count for user:', userId, 'Year:', year, 'Month:', month)
+    logger.debug('Updating monthly submission count for user:', { userId, year, month })
 
     // Use the database function to handle the counting logic
     const { error: countError } = await supabase.rpc('increment_monthly_submission_count', {
@@ -764,19 +993,26 @@ export async function POST(
     })
     
     if (countError) {
-      console.error('Error updating monthly submission count:', countError)
+      logger.error('Error updating monthly submission count:', countError)
       // Don't fail the submission if count update fails, but log it for debugging
     } else {
-      console.log('Successfully updated monthly submission count')
+      logger.success('Successfully updated monthly submission count')
     }
 
     // Send webhooks via Svix if enabled
     if (endpoint.webhooks_enabled && endpoint.svix_app_id) {
+      logger.info('Starting Svix webhook delivery', {
+        svixAppId: endpoint.svix_app_id,
+        submissionId: submission.id,
+        hasFiles: fileUploadRecords.length > 0,
+        transformationEnabled: endpoint.webhook_json_transformation_enabled
+      });
+
       try {
         const svix = new Svix(process.env.SVIX_AUTH_TOKEN!)
         
         // Prepare webhook payload with file information
-        const webhookPayload = {
+        let webhookPayload = {
           ...submissionData,
           _files: fileUploadRecords.map(file => ({
             id: file.id,
@@ -794,15 +1030,68 @@ export async function POST(
           created_at: submission.created_at
         }
 
+        logger.debug('Webhook payload prepared', {
+          payloadKeys: Object.keys(webhookPayload),
+          fileCount: webhookPayload._files.length,
+          payloadSize: JSON.stringify(webhookPayload).length
+        });
+
+        // Apply webhook transformation if configured
+         if (endpoint.webhook_json_transformation_enabled && endpoint.webhook_json_transformation_template) {
+           logger.info('Applying webhook JSON transformation', {
+             hasTemplate: !!endpoint.webhook_json_transformation_template,
+             submissionId: submission.id
+           });
+
+           try {
+             let template = endpoint.webhook_json_transformation_template
+             if (typeof template === 'string') {
+               template = JSON.parse(template)
+             }
+             const originalPayload = { ...webhookPayload }
+             webhookPayload = applyTransformation(template, webhookPayload) as typeof webhookPayload
+             
+             logger.success('Webhook transformation applied successfully', {
+               originalKeys: Object.keys(originalPayload),
+               transformedKeys: Object.keys(webhookPayload),
+               submissionId: submission.id
+             });
+           } catch (transformError) {
+             logger.error('Webhook transformation failed', {
+               error: transformError,
+               template: endpoint.webhook_json_transformation_template,
+               submissionId: submission.id
+             });
+             // Continue with original payload if transformation fails
+           }
+         }
+
+        logger.info('Sending webhook event to Svix', {
+          svixAppId: endpoint.svix_app_id,
+          eventType: 'form.submitted',
+          payloadSize: JSON.stringify(webhookPayload).length,
+          submissionId: submission.id
+        });
+
         // Send event to Svix
-        await svix.message.create(endpoint.svix_app_id, {
+        const svixResponse = await svix.message.create(endpoint.svix_app_id, {
           eventType: 'form.submitted',
           payload: webhookPayload
         })
 
-        console.log('Successfully sent webhook event to Svix')
+        logger.success('Svix webhook delivered successfully', {
+          svixMessageId: svixResponse.id,
+          svixAppId: endpoint.svix_app_id,
+          submissionId: submission.id,
+          timestamp: svixResponse.timestamp
+        });
       } catch (svixError) {
-        console.error('Failed to send webhook event to Svix:', svixError)
+        logger.error('Svix webhook delivery failed', {
+          error: svixError,
+          svixAppId: endpoint.svix_app_id,
+          submissionId: submission.id,
+          errorMessage: svixError instanceof Error ? svixError.message : 'Unknown error'
+        });
         // Don't fail the submission if webhook fails
       }
     } else {
@@ -817,7 +1106,7 @@ export async function POST(
       // Send webhooks if configured
       if (webhookUrls && webhookUrls.length > 0) {
         // Prepare webhook payload with file information
-        const webhookPayload = {
+        let webhookPayload = {
           ...submissionData,
           _files: fileUploadRecords.map(file => ({
             id: file.id,
@@ -827,6 +1116,20 @@ export async function POST(
             download_url: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/form-uploads/${file.file_path}`
           }))
         }
+
+        // Apply webhook transformation if configured
+         if (endpoint.webhook_json_transformation_enabled && endpoint.webhook_json_transformation_template) {
+           try {
+             let template = endpoint.webhook_json_transformation_template
+             if (typeof template === 'string') {
+               template = JSON.parse(template)
+             }
+             webhookPayload = applyTransformation(template, webhookPayload) as typeof webhookPayload
+           } catch (transformError) {
+             logger.error('Webhook transformation error:', transformError)
+             // Continue with original payload if transformation fails
+           }
+         }
 
         const webhookPromises = webhookUrls.map(async (webhookConfig) => {
           try {
@@ -854,7 +1157,7 @@ export async function POST(
 
             return { success: true, url: webhookConfig.webhook_url }
           } catch (webhookError) {
-            console.error('Webhook delivery failed:', webhookError)
+            logger.error('Webhook delivery failed:', webhookError)
             
             // Log failed webhook delivery
             await supabase
@@ -886,6 +1189,13 @@ export async function POST(
 
     // Send email notifications if enabled
     if (endpoint.email_notifications && emailAddresses && emailAddresses.length > 0) {
+      logger.info('Starting email notifications', {
+        emailCount: emailAddresses.length,
+        recipients: emailAddresses.map(e => e.email_address),
+        submissionId: submission.id,
+        hasFileAttachments: fileUploadRecords.length > 0
+      });
+
       // Prepare file attachments data for email
       const fileAttachments = fileUploadRecords.map(fileRecord => {
         // Generate internal download URL instead of direct Supabase URL
@@ -899,7 +1209,23 @@ export async function POST(
         }
       })
 
+      logger.debug('Email attachments prepared', {
+        attachmentCount: fileAttachments.length,
+        attachmentDetails: fileAttachments.map(a => ({
+          filename: a.filename,
+          size: a.size,
+          type: a.type
+        }))
+      });
+
       const emailPromises = emailAddresses.map(async (emailConfig) => {
+        logger.info('Sending email notification', {
+          recipient: emailConfig.email_address,
+          submissionId: submission.id,
+          endpointName: endpoint.name,
+          projectName: endpoint.project.name
+        });
+
         try {
           await emailService.sendSubmissionNotification(
             emailConfig.email_address,
@@ -914,6 +1240,11 @@ export async function POST(
             }
           )
 
+          logger.success('Email notification sent successfully', {
+            recipient: emailConfig.email_address,
+            submissionId: submission.id
+          });
+
           // Log email delivery
           await supabase
             .from('email_logs')
@@ -927,7 +1258,12 @@ export async function POST(
 
           return { success: true, email: emailConfig.email_address }
         } catch (emailError) {
-          console.error('Email notification failed:', emailError)
+          logger.error('Email notification failed', {
+            recipient: emailConfig.email_address,
+            submissionId: submission.id,
+            error: emailError,
+            errorMessage: emailError instanceof Error ? emailError.message : 'Unknown error'
+          });
           
           // Log failed email delivery
           await supabase
@@ -945,11 +1281,25 @@ export async function POST(
         }
       })
 
-      await Promise.allSettled(emailPromises)
+      const emailResults = await Promise.allSettled(emailPromises)
+      const successfulEmails = emailResults.filter(result => 
+        result.status === 'fulfilled' && result.value.success
+      ).length
+      const failedEmails = emailResults.length - successfulEmails
+
+      logger.info('Email notifications completed', {
+        totalEmails: emailResults.length,
+        successful: successfulEmails,
+        failed: failedEmails,
+        submissionId: submission.id
+      });
     }
 
     // Send Zapier webhook notifications
-    console.log('🔍 [ZAPIER DEBUG] Checking for Zapier subscriptions for endpoint:', endpoint.id)
+    logger.info('Checking for Zapier subscriptions', {
+      endpointId: endpoint.id,
+      submissionId: submission.id
+    });
     
     const { data: zapierSubscriptions } = await supabase
       .from('zapier_subscriptions')
@@ -958,18 +1308,30 @@ export async function POST(
       .eq('event_type', 'new_submission')
       .eq('is_active', true)
 
-    console.log('🔍 [ZAPIER DEBUG] Found subscriptions:', zapierSubscriptions?.length || 0)
+    logger.info('Found Zapier subscriptions', { 
+      count: zapierSubscriptions?.length || 0,
+      submissionId: submission.id
+    });
+    
     if (zapierSubscriptions && zapierSubscriptions.length > 0) {
-      console.log('🔍 [ZAPIER DEBUG] Subscription details:', zapierSubscriptions.map(sub => ({
-        id: sub.id,
-        target_url: sub.target_url,
-        event_type: sub.event_type
-      })))
+      logger.debug('Zapier subscription details', {
+        subscriptions: zapierSubscriptions.map(sub => ({
+          id: sub.id,
+          target_url: sub.target_url,
+          event_type: sub.event_type
+        })),
+        submissionId: submission.id
+      });
     }
 
     if (zapierSubscriptions && zapierSubscriptions.length > 0) {
+      logger.info('Starting Zapier webhook delivery', {
+        subscriptionCount: zapierSubscriptions.length,
+        submissionId: submission.id
+      });
+
       // Prepare Zapier webhook payload
-      const zapierPayload = {
+      let zapierPayload = {
         id: submission.id,
         endpoint_id: endpoint.id,
         endpoint_name: endpoint.name,
@@ -990,7 +1352,48 @@ export async function POST(
         ...flattenFormDataForZapier(submissionData)
       }
 
-      console.log('🔍 [ZAPIER DEBUG] Prepared webhook payload:', {
+      logger.debug('Zapier payload prepared', {
+        submissionId: zapierPayload.id,
+        endpointId: zapierPayload.endpoint_id,
+        endpointName: zapierPayload.endpoint_name,
+        projectName: zapierPayload.project_name,
+        formDataKeys: Object.keys(zapierPayload.form_data || {}),
+        filesCount: zapierPayload.files.length,
+        payloadSize: JSON.stringify(zapierPayload).length,
+        flattenedFields: Object.keys(zapierPayload).filter(key => 
+          !['id', 'endpoint_id', 'endpoint_name', 'endpoint_path', 'project_name', 'form_data', 'ip_address', 'user_agent', 'submitted_at', 'files'].includes(key)
+        )
+      });
+
+      // Apply webhook transformation if configured
+       if (endpoint.webhook_json_transformation_enabled && endpoint.webhook_json_transformation_template) {
+         logger.info('Applying Zapier webhook transformation', {
+           submissionId: submission.id,
+           hasTemplate: !!endpoint.webhook_json_transformation_template
+         });
+
+         try {
+           let template = endpoint.webhook_json_transformation_template
+           if (typeof template === 'string') {
+             template = JSON.parse(template)
+           }
+           zapierPayload = applyTransformation(template, zapierPayload) as typeof zapierPayload
+           
+           logger.success('Zapier webhook transformation applied successfully', {
+             submissionId: submission.id,
+             transformedPayloadSize: JSON.stringify(zapierPayload).length
+           });
+         } catch (transformError) {
+           logger.error('Zapier webhook transformation failed', {
+             submissionId: submission.id,
+             error: transformError,
+             errorMessage: transformError instanceof Error ? transformError.message : 'Unknown error'
+           });
+           // Continue with original payload if transformation fails
+         }
+       }
+
+      logger.debug('Prepared Zapier webhook payload:', {
         submission_id: zapierPayload.id,
         endpoint_id: zapierPayload.endpoint_id,
         endpoint_name: zapierPayload.endpoint_name,
@@ -1003,8 +1406,12 @@ export async function POST(
       })
 
       const zapierPromises = zapierSubscriptions.map(async (subscription) => {
-        console.log(`🔍 [ZAPIER DEBUG] Sending webhook to: ${subscription.target_url}`)
-        console.log(`🔍 [ZAPIER DEBUG] Payload size: ${JSON.stringify(zapierPayload).length} characters`)
+        logger.info('Sending Zapier webhook', {
+          targetUrl: subscription.target_url,
+          subscriptionId: subscription.id,
+          submissionId: submission.id,
+          payloadSize: JSON.stringify(zapierPayload).length
+        });
         
         try {
           const startTime = Date.now()
@@ -1017,38 +1424,54 @@ export async function POST(
             body: JSON.stringify(zapierPayload)
           })
           const endTime = Date.now()
+          const responseTime = endTime - startTime
 
-          console.log(`✅ [ZAPIER DEBUG] Webhook delivered successfully:`, {
-            url: subscription.target_url,
-            status: zapierResponse.status,
-            response_time_ms: endTime - startTime,
-            subscription_id: subscription.id
-          })
-
-          // Log response body if it's not successful
-          if (!zapierResponse.ok) {
+          if (zapierResponse.ok) {
+            logger.success('Zapier webhook delivered successfully', {
+              targetUrl: subscription.target_url,
+              subscriptionId: subscription.id,
+              submissionId: submission.id,
+              status: zapierResponse.status,
+              responseTimeMs: responseTime
+            });
+          } else {
             const responseText = await zapierResponse.text()
-            console.log(`⚠️ [ZAPIER DEBUG] Non-200 response body:`, responseText)
+            logger.warning('Zapier webhook returned non-200 status', {
+              targetUrl: subscription.target_url,
+              subscriptionId: subscription.id,
+              submissionId: submission.id,
+              status: zapierResponse.status,
+              responseTimeMs: responseTime,
+              responseBody: responseText
+            });
           }
 
-          return { success: true, url: subscription.target_url, status: zapierResponse.status }
+          return { success: zapierResponse.ok, url: subscription.target_url, status: zapierResponse.status }
         } catch (zapierError) {
-          console.error('❌ [ZAPIER DEBUG] Webhook delivery failed:', {
-            url: subscription.target_url,
-            subscription_id: subscription.id,
-            error: zapierError instanceof Error ? zapierError.message : 'Unknown error',
-            error_stack: zapierError instanceof Error ? zapierError.stack : undefined
-          })
+          logger.error('Zapier webhook delivery failed', {
+            targetUrl: subscription.target_url,
+            subscriptionId: subscription.id,
+            submissionId: submission.id,
+            error: zapierError,
+            errorMessage: zapierError instanceof Error ? zapierError.message : 'Unknown error',
+            errorStack: zapierError instanceof Error ? zapierError.stack : undefined
+          });
           return { success: false, url: subscription.target_url, error: zapierError }
         }
       })
 
       const zapierResults = await Promise.allSettled(zapierPromises)
-      console.log('🔍 [ZAPIER DEBUG] All webhook deliveries completed:', {
-        total_webhooks: zapierResults.length,
-        successful: zapierResults.filter(result => result.status === 'fulfilled').length,
-        failed: zapierResults.filter(result => result.status === 'rejected').length
-      })
+      const successfulWebhooks = zapierResults.filter(result => 
+        result.status === 'fulfilled' && result.value.success
+      ).length
+      const failedWebhooks = zapierResults.length - successfulWebhooks
+
+      logger.info('Zapier webhook delivery completed', {
+        totalWebhooks: zapierResults.length,
+        successful: successfulWebhooks,
+        failed: failedWebhooks,
+        submissionId: submission.id
+      });
 
       // Determine overall Zapier status and update submission
       let zapierStatus: 'success' | 'failure' | null = null
@@ -1062,18 +1485,38 @@ export async function POST(
 
       // Update submission with Zapier status
       if (zapierStatus) {
+        logger.debug('Updating submission Zapier status', {
+          submissionId: submission.id,
+          zapierStatus: zapierStatus
+        });
+
         await supabase
           .from('submissions')
           .update({ zapier_status: zapierStatus })
           .eq('id', submission.id)
         
-        console.log('🔍 [ZAPIER DEBUG] Updated submission zapier_status:', zapierStatus)
+        logger.success('Submission Zapier status updated', {
+          submissionId: submission.id,
+          zapierStatus: zapierStatus
+        });
       }
     } else {
-      console.log('🔍 [ZAPIER DEBUG] No active Zapier subscriptions found for this endpoint')
+      logger.debug('No active Zapier subscriptions found', {
+        endpointId: endpoint.id,
+        submissionId: submission.id
+      });
     }
 
     // Return success response
+    logger.success('Form submission completed successfully', {
+      submissionId: submission.id,
+      endpointId: endpoint.id,
+      endpointName: endpoint.name,
+      filesUploaded: fileUploadRecords.length,
+      hasRedirect: !!endpoint.redirect_url,
+      clientIP: clientIP
+    });
+
     const response = {
       success: true,
       message: endpoint.success_message || 'Submission received successfully',
@@ -1089,13 +1532,54 @@ export async function POST(
 
     // Handle redirect if configured
     if (endpoint.redirect_url) {
+      logger.info('Processing redirect response', {
+        redirectUrl: endpoint.redirect_url,
+        submissionId: submission.id
+      });
+
+      // Upload logs before redirect
+      logger.debug('Uploading logs before redirect');
+      try {
+        const uploadResult = await logger.uploadToStorage()
+        if (uploadResult.success) {
+          logger.success('Logs uploaded successfully before redirect', {
+            filePath: uploadResult.filePath,
+            submissionId: submission.id
+          });
+        } else {
+          logger.error('Failed to upload logs before redirect', {
+            error: uploadResult.error,
+            submissionId: submission.id
+          });
+        }
+      } catch (uploadError) {
+        logger.error('Exception during log upload before redirect', {
+          error: uploadError,
+          submissionId: submission.id
+        });
+      }
+
       // Check if this is an AJAX request (has XMLHttpRequest header or Accept: application/json)
       const isAjaxRequest = request.headers.get('x-requested-with') === 'XMLHttpRequest' ||
                            request.headers.get('accept')?.includes('application/json')
       
+      logger.debug('Determining response type', {
+        isAjaxRequest: isAjaxRequest,
+        xRequestedWith: request.headers.get('x-requested-with'),
+        acceptHeader: request.headers.get('accept'),
+        submissionId: submission.id
+      });
+
       if (isAjaxRequest) {
         // For AJAX requests, return JSON response instead of redirect to avoid CORS issues
         const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
+        
+        logger.info('Returning AJAX response with redirect URL', {
+          corsOrigin: corsOrigin,
+          redirectUrl: endpoint.redirect_url,
+          submissionId: submission.id
+        });
+
         return createCorsResponse({
            success: true,
            message: 'Form submitted successfully',
@@ -1105,6 +1589,13 @@ export async function POST(
       } else {
         // For regular form submissions, use redirect with CORS headers
         const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
+        
+        logger.info('Returning redirect response', {
+          corsOrigin: corsOrigin,
+          redirectUrl: endpoint.redirect_url,
+          submissionId: submission.id
+        });
+
         return new NextResponse(null, {
           status: 302,
           headers: {
@@ -1117,16 +1608,70 @@ export async function POST(
       }
     }
 
+    // Upload logs to Supabase storage before returning response
+    logger.debug('Uploading logs to storage before final response');
+    try {
+      const uploadResult = await logger.uploadToStorage()
+      if (uploadResult.success) {
+        logger.success('Logs uploaded successfully', {
+          filePath: uploadResult.filePath,
+          submissionId: submission.id
+        });
+      } else {
+        logger.error('Failed to upload logs to storage', {
+          error: uploadResult.error,
+          submissionId: submission.id
+        });
+      }
+    } catch (uploadError) {
+      logger.error('Exception during log upload', {
+        error: uploadError,
+        submissionId: submission.id
+      });
+    }
+
     // Determine the correct CORS origin to return
     const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
     return createCorsResponse(response, 200, corsOrigin)
 
   } catch (error) {
-    console.error('API Error:', error)
+    logger.error('Critical API error occurred', {
+      error: error,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined,
+      requestMethod: request.method,
+      requestUrl: request.url,
+      userAgent: request.headers.get('user-agent'),
+      clientIP: getClientIP(request)
+    });
+    
+    // Upload logs even in error cases
+    logger.debug('Uploading error logs to storage');
+    try {
+      const uploadResult = await logger.uploadToStorage()
+      if (uploadResult.success) {
+        logger.success('Error logs uploaded successfully', {
+          filePath: uploadResult.filePath
+        });
+      } else {
+        logger.error('Failed to upload error logs', {
+          uploadError: uploadResult.error
+        });
+      }
+    } catch (uploadError) {
+      logger.error('Exception during error log upload', {
+        uploadError: uploadError
+      });
+    }
     
     // Get request origin for proper CORS handling even in error cases
     const requestOrigin = request.headers.get('origin');
     const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || '*')
+    
+    logger.info('Returning error response', {
+      corsOrigin: corsOrigin,
+      statusCode: 500
+    });
     
     return createCorsResponse(
       { error: 'Internal server error' },
@@ -1151,6 +1696,9 @@ export async function OPTIONS(
   { params }: { params: Promise<{ projectId: string; endpointPath: string }> }
 ) {
   const { projectId, endpointPath } = await params;
+  
+  // Initialize logger for OPTIONS method
+  const logger = new SubmissionLogger('temp-options-' + Date.now())
   
   try {
     // Get the endpoint configuration to check CORS settings
@@ -1188,7 +1736,7 @@ export async function OPTIONS(
       },
     })
   } catch (error) {
-    console.error('OPTIONS Error:', error)
+    logger.error('OPTIONS Error:', error)
     return new NextResponse(null, {
       status: 200,
       headers: {

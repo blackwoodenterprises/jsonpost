@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -15,16 +15,21 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { AppPortal } from "svix-react";
 import "svix-react/style.css";
-import { ArrowLeft, Loader2, Webhook } from "lucide-react";
+import { ArrowLeft, Webhook } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { Json } from "@/lib/database.types";
 import { DashboardHeader } from "@/components/dashboard/header";
+import JsonTransformer from "@/components/dashboard/json-transformer";
 
 interface Endpoint {
   id: string;
   name: string;
   webhooks_enabled: boolean | null;
   svix_app_id: string | null;
+  variable_paths: string[] | null;
+  webhook_json_transformation_enabled: boolean | null;
+  webhook_json_transformation_template: Json;
 }
 
 interface Project {
@@ -50,20 +55,7 @@ export default function WebhookSetupPage() {
   const [appPortalUrl, setAppPortalUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push(
-        "/auth/login?redirectTo=" + encodeURIComponent(window.location.pathname)
-      );
-      return;
-    }
-
-    if (user && projectId && endpointId) {
-      fetchData();
-    }
-  }, [user, authLoading, router, projectId, endpointId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       // Fetch project data
       const { data: projectData, error: projectError } = await supabase
@@ -78,14 +70,14 @@ export default function WebhookSetupPage() {
       // Fetch endpoint data
       const { data: endpointData, error: endpointError } = await supabase
         .from("endpoints")
-        .select("id, name, webhooks_enabled, svix_app_id")
+        .select("id, name, webhooks_enabled, svix_app_id, variable_paths, webhook_json_transformation_enabled, webhook_json_transformation_template")
         .eq("id", endpointId)
         .single();
 
       if (endpointError) throw endpointError;
       setEndpoint(endpointData);
 
-      // If webhooks are enabled and we have a svix_app_id, fetch the app portal URL
+      // If webhooks are enabled and we have an app ID, fetch the app portal URL
       if (endpointData.webhooks_enabled && endpointData.svix_app_id) {
         await fetchAppPortalUrl(endpointData.svix_app_id);
       }
@@ -95,7 +87,20 @@ export default function WebhookSetupPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, endpointId]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push(
+        "/auth/login?redirectTo=" + encodeURIComponent(window.location.pathname)
+      );
+      return;
+    }
+
+    if (user && projectId && endpointId) {
+      fetchData();
+    }
+  }, [user, authLoading, router, projectId, endpointId, fetchData]);
 
   const fetchAppPortalUrl = async (appId: string) => {
     try {
@@ -162,6 +167,8 @@ export default function WebhookSetupPage() {
           .update({
             webhooks_enabled: true,
             svix_app_id: appId,
+            webhook_json_transformation_enabled: false,
+            webhook_json_transformation_template: {},
           })
           .eq("id", endpoint.id);
 
@@ -171,6 +178,8 @@ export default function WebhookSetupPage() {
           ...endpoint,
           webhooks_enabled: true,
           svix_app_id: appId,
+          webhook_json_transformation_enabled: false,
+          webhook_json_transformation_template: {},
         });
 
         // Fetch app portal URL for the new application
@@ -179,7 +188,11 @@ export default function WebhookSetupPage() {
         // Just toggle the webhooks_enabled flag
         const { error: updateError } = await supabase
           .from("endpoints")
-          .update({ webhooks_enabled: enabled })
+          .update({ 
+            webhooks_enabled: enabled,
+            webhook_json_transformation_enabled: enabled ? false : null,
+            webhook_json_transformation_template: enabled ? {} : null,
+          })
           .eq("id", endpoint.id);
 
         if (updateError) throw updateError;
@@ -281,6 +294,17 @@ export default function WebhookSetupPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* JSON Transformer */}
+          {endpoint.webhooks_enabled && (
+            <JsonTransformer 
+              endpointId={endpoint.id}
+              webhooksEnabled={endpoint.webhooks_enabled}
+              variablePaths={endpoint.variable_paths || []}
+              initialEnabled={endpoint.webhook_json_transformation_enabled || false}
+              initialTemplate={endpoint.webhook_json_transformation_template || {}}
+            />
+          )}
 
           {/* Svix App Portal */}
           {endpoint.webhooks_enabled && appPortalUrl && (

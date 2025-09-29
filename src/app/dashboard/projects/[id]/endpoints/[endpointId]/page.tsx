@@ -170,8 +170,8 @@ export default function EndpointDetailsPage() {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const data = JSON.parse(cached);
-        const isExpired = Date.now() - data.timestamp > 30000; // 30 seconds cache
-        
+        const isExpired = Date.now() - data.timestamp > 5000; // 5 seconds cache
+
         if (!isExpired) {
           setProject(data.project);
           setEndpoint(data.endpoint);
@@ -208,12 +208,12 @@ export default function EndpointDetailsPage() {
   // Add browser event listeners
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        // Check if cached data is older than 30 seconds when tab becomes visible
+      if (document.visibilityState === "visible") {
+        // Check if cached data is older than 5 seconds when tab becomes visible
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
           const data = JSON.parse(cached);
-          const isExpired = Date.now() - data.timestamp > 30000;
+          const isExpired = Date.now() - data.timestamp > 5000;
           if (isExpired && user && projectId && endpointId) {
             fetchData();
           }
@@ -234,14 +234,24 @@ export default function EndpointDetailsPage() {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [project, endpoint, submissions, totalSubmissions, variablePaths, user, projectId, endpointId, cacheKey]);
+  }, [
+    project,
+    endpoint,
+    submissions,
+    totalSubmissions,
+    variablePaths,
+    user,
+    projectId,
+    endpointId,
+    cacheKey,
+  ]);
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
@@ -430,12 +440,10 @@ export default function EndpointDetailsPage() {
       // Extract variable paths from the submission data
       const extractedPaths = extractVariablePaths(latestSubmission.data);
 
-      // Merge with existing paths, avoiding duplicates
-      const uniquePaths = Array.from(
-        new Set([...variablePaths, ...extractedPaths])
-      );
-      setVariablePaths(uniquePaths);
-      updateVariablePathsInDatabase(uniquePaths);
+      // Replace existing paths with newly extracted paths (no merging)
+      const newPaths = Array.from(new Set(extractedPaths)); // Remove duplicates within extracted paths
+      setVariablePaths(newPaths);
+      updateVariablePathsInDatabase(newPaths);
     } catch (error) {
       console.error("Error extracting paths from latest submission:", error);
     } finally {

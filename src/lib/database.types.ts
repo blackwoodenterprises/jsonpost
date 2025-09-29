@@ -173,13 +173,15 @@ export type Database = {
           spam_protection: boolean | null
           store_submissions: boolean | null
           success_message: string | null
+          svix_app_id: string | null
           theme_id: string | null
           updated_at: string | null
           uses_multiple_emails: boolean | null
           uses_multiple_webhooks: boolean | null
           variable_paths: string[] | null
+          webhook_json_transformation_enabled: boolean | null
+          webhook_json_transformation_template: Json | null
           webhook_url: string | null
-          svix_app_id: string | null
           webhooks_enabled: boolean | null
         }
         Insert: {
@@ -208,13 +210,15 @@ export type Database = {
           spam_protection?: boolean | null
           store_submissions?: boolean | null
           success_message?: string | null
+          svix_app_id?: string | null
           theme_id?: string | null
           updated_at?: string | null
           uses_multiple_emails?: boolean | null
           uses_multiple_webhooks?: boolean | null
           variable_paths?: string[] | null
+          webhook_json_transformation_enabled?: boolean | null
+          webhook_json_transformation_template?: Json | null
           webhook_url?: string | null
-          svix_app_id?: string | null
           webhooks_enabled?: boolean | null
         }
         Update: {
@@ -243,13 +247,15 @@ export type Database = {
           spam_protection?: boolean | null
           store_submissions?: boolean | null
           success_message?: string | null
+          svix_app_id?: string | null
           theme_id?: string | null
           updated_at?: string | null
           uses_multiple_emails?: boolean | null
           uses_multiple_webhooks?: boolean | null
           variable_paths?: string[] | null
+          webhook_json_transformation_enabled?: boolean | null
+          webhook_json_transformation_template?: Json | null
           webhook_url?: string | null
-          svix_app_id?: string | null
           webhooks_enabled?: boolean | null
         }
         Relationships: [

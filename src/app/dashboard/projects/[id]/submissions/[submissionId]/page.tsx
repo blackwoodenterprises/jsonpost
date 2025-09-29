@@ -600,6 +600,34 @@ export default function SubmissionDetailPage() {
               </Card>
             )}
 
+            {/* Submission Logs Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Processing Logs
+                </CardTitle>
+                <CardDescription>
+                  Detailed logs from submission processing
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    View detailed logs of how this submission was processed, including validation, file uploads, and webhook deliveries.
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link
+                      href={`/dashboard/projects/${projectId}/submissions/${submissionId}/logs`}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Processing Logs
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* File Attachments */}
             {submission.file_uploads && submission.file_uploads.length > 0 && (
               <Card>
