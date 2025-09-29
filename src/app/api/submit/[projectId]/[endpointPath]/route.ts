@@ -6,6 +6,7 @@ import Ajv from 'ajv'
 import addFormats from 'ajv-formats'
 import { SubmissionLogger } from '@/lib/submission-logger'
 import { Database } from '@/lib/database.types'
+import { createAutoresponderService } from '@/lib/autoresponder'
 
 // Create a service role client for server-side operations
 const supabase = createClient(
@@ -1585,28 +1586,84 @@ export async function POST(
         });
       }
     } catch (googleSheetsError) {
-      logger.error('Google Sheets integration error', {
+        logger.error('Google Sheets integration error', {
+          endpointId: endpoint.id,
+          submissionId: submission.id,
+          error: googleSheetsError,
+          errorMessage: googleSheetsError instanceof Error ? googleSheetsError.message : 'Unknown error'
+        });
+
+        // Update submission with Google Sheets failure status
+        try {
+          await supabase
+            .from('submissions')
+            .update({ google_sheets_status: 'failure' })
+            .eq('id', submission.id);
+        } catch (updateError) {
+          logger.error('Failed to update Google Sheets failure status', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            error: updateError
+          });
+        }
+      }
+
+      // Send autoresponder email if configured
+      logger.info('Checking for autoresponder configuration', {
         endpointId: endpoint.id,
-        submissionId: submission.id,
-        error: googleSheetsError,
-        errorMessage: googleSheetsError instanceof Error ? googleSheetsError.message : 'Unknown error'
+        submissionId: submission.id
       });
 
-      // Update submission with Google Sheets failure status
       try {
-        await supabase
-          .from('submissions')
-          .update({ google_sheets_status: 'failure' })
-          .eq('id', submission.id);
-      } catch (updateError) {
-        logger.error('Failed to update Google Sheets status', {
+        const autoresponderService = createAutoresponderService(endpoint as Database['public']['Tables']['endpoints']['Row']);
+        
+        if (autoresponderService) {
+          logger.info('Autoresponder configuration found, sending email', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            provider: (endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_provider,
+            fromEmail: (endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_from_email,
+            recipientField: (endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_recipient_field
+          });
+
+          const autoresponderResult = await autoresponderService.sendAutoresponder(
+            submissionData,
+            submission.id,
+            endpoint.id
+          );
+
+          if (autoresponderResult.success) {
+            logger.success('Autoresponder email sent successfully', {
+              endpointId: endpoint.id,
+              submissionId: submission.id,
+              logId: autoresponderResult.logId
+            });
+          } else {
+            logger.error('Autoresponder email failed', {
+              endpointId: endpoint.id,
+              submissionId: submission.id,
+              error: autoresponderResult.error,
+              logId: autoresponderResult.logId
+            });
+          }
+        } else {
+          logger.debug('Autoresponder not configured for this endpoint', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            enabled: (endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_enabled,
+            hasFromEmail: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_from_email,
+            hasSubject: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_subject,
+            hasRecipientField: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).autoresponder_recipient_field
+          });
+        }
+      } catch (autoresponderError) {
+        logger.error('Autoresponder integration error', {
+          endpointId: endpoint.id,
           submissionId: submission.id,
-          error: updateError
+          error: autoresponderError,
+          errorMessage: autoresponderError instanceof Error ? autoresponderError.message : 'Unknown error'
         });
       }
-    }
-
-    // Return success response
     logger.success('Form submission completed successfully', {
       submissionId: submission.id,
       endpointId: endpoint.id,

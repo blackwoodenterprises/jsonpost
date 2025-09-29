@@ -863,6 +863,14 @@ export default function EndpointDetailsPage() {
                     </Button>
                     <Button size="sm" variant="outline" asChild>
                       <Link
+                        href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/autoresponder`}
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Autoresponder Settings
+                      </Link>
+                    </Button>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link
                         href={`/dashboard/projects/${projectId}/endpoints/${endpointId}/edit`}
                       >
                         <Edit className="h-4 w-4 mr-2" />

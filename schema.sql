@@ -1,6 +1,21 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.autoresponder_logs (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  submission_id uuid NOT NULL,
+  endpoint_id uuid NOT NULL,
+  recipient_email text NOT NULL,
+  provider text NOT NULL,
+  status text NOT NULL CHECK (status = ANY (ARRAY['sent'::text, 'failed'::text, 'pending'::text])),
+  provider_message_id text,
+  error_message text,
+  sent_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT autoresponder_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT autoresponder_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id),
+  CONSTRAINT autoresponder_logs_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id)
+);
 CREATE TABLE public.email_logs (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   submission_id uuid NOT NULL,
@@ -63,9 +78,27 @@ CREATE TABLE public.endpoints (
   max_files_per_submission integer DEFAULT 5,
   json_validation_enabled boolean DEFAULT false,
   json_schema jsonb,
-  variable_paths text[] DEFAULT ARRAY[]::text[],
+  variable_paths ARRAY DEFAULT ARRAY[]::text[],
+  svix_app_id text,
+  webhooks_enabled boolean DEFAULT false,
   form_json jsonb,
   theme_id text,
+  webhook_json_transformation_enabled boolean DEFAULT false,
+  webhook_json_transformation_template jsonb,
+  google_sheets_enabled boolean DEFAULT false,
+  google_sheets_spreadsheet_id text,
+  google_sheets_sheet_name text DEFAULT 'Sheet1'::text,
+  google_sheets_column_mappings jsonb,
+  autoresponder_enabled boolean DEFAULT false,
+  autoresponder_provider text CHECK (autoresponder_provider = ANY (ARRAY['jsonpost'::text, 'sendgrid'::text, 'resend'::text, 'postmark'::text])),
+  autoresponder_from_email text,
+  autoresponder_from_name text,
+  autoresponder_subject text,
+  autoresponder_html_template text,
+  autoresponder_text_template text,
+  autoresponder_recipient_field text,
+  autoresponder_api_key text,
+  autoresponder_domain text,
   CONSTRAINT endpoints_pkey PRIMARY KEY (id),
   CONSTRAINT endpoints_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
 );
@@ -121,6 +154,11 @@ CREATE TABLE public.projects (
   created_at timestamp with time zone DEFAULT now(),
   updated_at timestamp with time zone DEFAULT now(),
   api_key text NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'::text) UNIQUE,
+  google_sheets_access_token text,
+  google_sheets_refresh_token text,
+  google_sheets_token_expires_at timestamp with time zone,
+  google_sheets_connected_at timestamp with time zone,
+  google_sheets_user_email text,
   CONSTRAINT projects_pkey PRIMARY KEY (id),
   CONSTRAINT projects_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
 );

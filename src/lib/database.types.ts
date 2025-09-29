@@ -62,6 +62,60 @@ export type Database = {
           },
         ]
       }
+      autoresponder_logs: {
+        Row: {
+          created_at: string | null
+          endpoint_id: string
+          error_message: string | null
+          id: string
+          provider: string
+          provider_message_id: string | null
+          recipient_email: string
+          sent_at: string | null
+          status: string
+          submission_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_id: string
+          error_message?: string | null
+          id?: string
+          provider: string
+          provider_message_id?: string | null
+          recipient_email: string
+          sent_at?: string | null
+          status: string
+          submission_id: string
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_id?: string
+          error_message?: string | null
+          id?: string
+          provider?: string
+          provider_message_id?: string | null
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "autoresponder_logs_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "autoresponder_logs_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       endpoint_emails: {
         Row: {
           created_at: string | null
@@ -150,6 +204,16 @@ export type Database = {
         Row: {
           allowed_domains: string[] | null
           allowed_file_types: string[] | null
+          autoresponder_api_key: string | null
+          autoresponder_domain: string | null
+          autoresponder_enabled: boolean | null
+          autoresponder_from_email: string | null
+          autoresponder_from_name: string | null
+          autoresponder_html_template: string | null
+          autoresponder_provider: string | null
+          autoresponder_recipient_field: string | null
+          autoresponder_subject: string | null
+          autoresponder_text_template: string | null
           cors_enabled: boolean | null
           created_at: string | null
           description: string | null
@@ -191,6 +255,16 @@ export type Database = {
         Insert: {
           allowed_domains?: string[] | null
           allowed_file_types?: string[] | null
+          autoresponder_api_key?: string | null
+          autoresponder_domain?: string | null
+          autoresponder_enabled?: boolean | null
+          autoresponder_from_email?: string | null
+          autoresponder_from_name?: string | null
+          autoresponder_html_template?: string | null
+          autoresponder_provider?: string | null
+          autoresponder_recipient_field?: string | null
+          autoresponder_subject?: string | null
+          autoresponder_text_template?: string | null
           cors_enabled?: boolean | null
           created_at?: string | null
           description?: string | null
@@ -232,6 +306,16 @@ export type Database = {
         Update: {
           allowed_domains?: string[] | null
           allowed_file_types?: string[] | null
+          autoresponder_api_key?: string | null
+          autoresponder_domain?: string | null
+          autoresponder_enabled?: boolean | null
+          autoresponder_from_email?: string | null
+          autoresponder_from_name?: string | null
+          autoresponder_html_template?: string | null
+          autoresponder_provider?: string | null
+          autoresponder_recipient_field?: string | null
+          autoresponder_subject?: string | null
+          autoresponder_text_template?: string | null
           cors_enabled?: boolean | null
           created_at?: string | null
           description?: string | null

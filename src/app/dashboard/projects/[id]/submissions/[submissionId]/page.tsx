@@ -84,6 +84,19 @@ interface EmailLog {
   created_at: string;
 }
 
+interface AutoresponderLog {
+  id: string;
+  submission_id: string;
+  endpoint_id: string;
+  recipient_email: string;
+  provider: string;
+  status: "sent" | "failed" | "pending";
+  provider_message_id: string | null;
+  error_message: string | null;
+  sent_at: string | null;
+  created_at: string;
+}
+
 export default function SubmissionDetailPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -94,6 +107,7 @@ export default function SubmissionDetailPage() {
 
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [autoresponderLogs, setAutoresponderLogs] = useState<AutoresponderLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -181,6 +195,17 @@ export default function SubmissionDetailPage() {
           status: (log.status as "sent" | "failed") || "failed",
           created_at: log.created_at || ""
         })));
+      }
+
+      // Fetch autoresponder logs
+      try {
+        const response = await fetch(`/api/submissions/${submissionId}/autoresponder-logs`);
+        if (response.ok) {
+          const { logs } = await response.json();
+          setAutoresponderLogs(logs || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch autoresponder logs:", error);
       }
     } catch {
       setError("Failed to load submission data");
@@ -482,6 +507,73 @@ export default function SubmissionDetailPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Autoresponder Logs Section */}
+            {autoresponderLogs.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Autoresponder Logs
+                  </CardTitle>
+                  <CardDescription>
+                    Automated email responses sent for this submission
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {autoresponderLogs.map((log) => (
+                      <div key={log.id} className="border rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-medium">{log.recipient_email}</div>
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            log.status === 'sent' 
+                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              : log.status === 'failed'
+                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          }`}>
+                            {log.status === 'sent' ? (
+                              <>
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Sent
+                              </>
+                            ) : log.status === 'failed' ? (
+                              <>
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Failed
+                              </>
+                            ) : (
+                              <>
+                                <Calendar className="h-3 w-3 mr-1" />
+                                Pending
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 space-y-1">
+                          <div>Provider: {log.provider}</div>
+                          <div>
+                            {log.sent_at 
+                              ? `Sent: ${new Date(log.sent_at).toLocaleString()}`
+                              : `Created: ${new Date(log.created_at).toLocaleString()}`
+                            }
+                          </div>
+                          {log.provider_message_id && (
+                            <div>Message ID: {log.provider_message_id}</div>
+                          )}
+                          {log.error_message && (
+                            <div className="text-red-600 dark:text-red-400">
+                              Error: {log.error_message}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
