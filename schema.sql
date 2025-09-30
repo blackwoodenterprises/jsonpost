@@ -162,6 +162,17 @@ CREATE TABLE public.projects (
   CONSTRAINT projects_pkey PRIMARY KEY (id),
   CONSTRAINT projects_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
 );
+CREATE TABLE public.short_links (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  endpoint_id uuid NOT NULL,
+  short_code text NOT NULL UNIQUE,
+  form_type text NOT NULL CHECK (form_type = ANY (ARRAY['single-page'::text, 'multi-step'::text])),
+  theme text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT short_links_pkey PRIMARY KEY (id),
+  CONSTRAINT short_links_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id)
+);
 CREATE TABLE public.submissions (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   endpoint_id uuid NOT NULL,

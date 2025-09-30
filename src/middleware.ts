@@ -193,6 +193,7 @@ export async function middleware(request: NextRequest) {
     '/api/zapier/endpoints',
     '/api/webhook/dodo-payments',
     '/api/forms/form-schema',
+    '/api/forms/shortlink-schema',
     '/api/google-sheets'
   ]
   

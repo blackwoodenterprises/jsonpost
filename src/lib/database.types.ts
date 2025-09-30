@@ -14,54 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      email_logs: {
-        Row: {
-          created_at: string | null
-          endpoint_email_id: string | null
-          error_message: string | null
-          id: string
-          recipient_email: string
-          sent_at: string | null
-          status: string
-          submission_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          endpoint_email_id?: string | null
-          error_message?: string | null
-          id?: string
-          recipient_email: string
-          sent_at?: string | null
-          status: string
-          submission_id: string
-        }
-        Update: {
-          created_at?: string | null
-          endpoint_email_id?: string | null
-          error_message?: string | null
-          id?: string
-          recipient_email?: string
-          sent_at?: string | null
-          status?: string
-          submission_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_logs_endpoint_email_id_fkey"
-            columns: ["endpoint_email_id"]
-            isOneToOne: false
-            referencedRelation: "endpoint_emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_logs_submission_id_fkey"
-            columns: ["submission_id"]
-            isOneToOne: false
-            referencedRelation: "submissions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       autoresponder_logs: {
         Row: {
           created_at: string | null
@@ -104,11 +56,66 @@ export type Database = {
             foreignKeyName: "autoresponder_logs_endpoint_id_fkey"
             columns: ["endpoint_id"]
             isOneToOne: false
+            referencedRelation: "endpoint_security_view"
+            referencedColumns: ["endpoint_id"]
+          },
+          {
+            foreignKeyName: "autoresponder_logs_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
             referencedRelation: "endpoints"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "autoresponder_logs_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_logs: {
+        Row: {
+          created_at: string | null
+          endpoint_email_id: string | null
+          error_message: string | null
+          id: string
+          recipient_email: string
+          sent_at: string | null
+          status: string
+          submission_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_email_id?: string | null
+          error_message?: string | null
+          id?: string
+          recipient_email: string
+          sent_at?: string | null
+          status: string
+          submission_id: string
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_email_id?: string | null
+          error_message?: string | null
+          id?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_endpoint_email_id_fkey"
+            columns: ["endpoint_email_id"]
+            isOneToOne: false
+            referencedRelation: "endpoint_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_logs_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
             referencedRelation: "submissions"
@@ -223,10 +230,10 @@ export type Database = {
           error_message: string | null
           file_uploads_enabled: boolean | null
           form_json: Json | null
-          google_sheets_enabled: boolean | null
-          google_sheets_spreadsheet_id: string | null
-          google_sheets_sheet_name: string | null
           google_sheets_column_mappings: Json | null
+          google_sheets_enabled: boolean | null
+          google_sheets_sheet_name: string | null
+          google_sheets_spreadsheet_id: string | null
           id: string
           json_schema: Json | null
           json_validation_enabled: boolean | null
@@ -274,10 +281,10 @@ export type Database = {
           error_message?: string | null
           file_uploads_enabled?: boolean | null
           form_json?: Json | null
-          google_sheets_enabled?: boolean | null
-          google_sheets_spreadsheet_id?: string | null
-          google_sheets_sheet_name?: string | null
           google_sheets_column_mappings?: Json | null
+          google_sheets_enabled?: boolean | null
+          google_sheets_sheet_name?: string | null
+          google_sheets_spreadsheet_id?: string | null
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
@@ -325,10 +332,10 @@ export type Database = {
           error_message?: string | null
           file_uploads_enabled?: boolean | null
           form_json?: Json | null
-          google_sheets_enabled?: boolean | null
-          google_sheets_spreadsheet_id?: string | null
-          google_sheets_sheet_name?: string | null
           google_sheets_column_mappings?: Json | null
+          google_sheets_enabled?: boolean | null
+          google_sheets_sheet_name?: string | null
+          google_sheets_spreadsheet_id?: string | null
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
@@ -516,9 +523,9 @@ export type Database = {
           created_at: string | null
           description: string | null
           google_sheets_access_token: string | null
+          google_sheets_connected_at: string | null
           google_sheets_refresh_token: string | null
           google_sheets_token_expires_at: string | null
-          google_sheets_connected_at: string | null
           google_sheets_user_email: string | null
           id: string
           name: string
@@ -530,9 +537,9 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           google_sheets_access_token?: string | null
+          google_sheets_connected_at?: string | null
           google_sheets_refresh_token?: string | null
           google_sheets_token_expires_at?: string | null
-          google_sheets_connected_at?: string | null
           google_sheets_user_email?: string | null
           id?: string
           name: string
@@ -544,9 +551,9 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           google_sheets_access_token?: string | null
+          google_sheets_connected_at?: string | null
           google_sheets_refresh_token?: string | null
           google_sheets_token_expires_at?: string | null
-          google_sheets_connected_at?: string | null
           google_sheets_user_email?: string | null
           id?: string
           name?: string
@@ -563,12 +570,56 @@ export type Database = {
           },
         ]
       }
+      short_links: {
+        Row: {
+          created_at: string | null
+          endpoint_id: string
+          form_type: string
+          id: string
+          short_code: string
+          theme: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_id: string
+          form_type: string
+          id?: string
+          short_code: string
+          theme: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_id?: string
+          form_type?: string
+          id?: string
+          short_code?: string
+          theme?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "short_links_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoint_security_view"
+            referencedColumns: ["endpoint_id"]
+          },
+          {
+            foreignKeyName: "short_links_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submissions: {
         Row: {
           created_at: string | null
           data: Json
           endpoint_id: string
-          google_sheets_status: string | null
           id: string
           ip_address: unknown | null
           user_agent: string | null
@@ -578,7 +629,6 @@ export type Database = {
           created_at?: string | null
           data: Json
           endpoint_id: string
-          google_sheets_status?: string | null
           id?: string
           ip_address?: unknown | null
           user_agent?: string | null
@@ -588,7 +638,6 @@ export type Database = {
           created_at?: string | null
           data?: Json
           endpoint_id?: string
-          google_sheets_status?: string | null
           id?: string
           ip_address?: unknown | null
           user_agent?: string | null

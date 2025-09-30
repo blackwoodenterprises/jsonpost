@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
@@ -44,6 +44,7 @@ import {
   Settings,
   ChevronUp,
   ChevronDown,
+  Link as LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -71,11 +72,6 @@ const themes = themesData as Array<{
   description: string;
   colors: string[];
 }>;
-
-interface Project {
-  id: string;
-  name: string;
-}
 
 interface Endpoint {
   id: string;
@@ -347,6 +343,21 @@ export default function FormBuilderPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Short link state
+  const [shortLinkModalOpen, setShortLinkModalOpen] = useState(false);
+  const [shortLinkFormType, setShortLinkFormType] = useState<"single-page" | "multi-step">("single-page");
+  const [shortLinkTheme, setShortLinkTheme] = useState<string>("default");
+  const [isGeneratingShortLink, setIsGeneratingShortLink] = useState(false);
+  const [existingShortLinks, setExistingShortLinks] = useState<Array<{
+    id: string;
+    short_code: string;
+    endpoint_id: string;
+    form_type: string;
+    theme: string;
+    created_at: string | null;
+    updated_at: string | null;
+  }>>([]);
 
   // Auto-save key for localStorage
   const autoSaveKey = `form-builder-${endpointId}`;
@@ -373,7 +384,7 @@ export default function FormBuilderPage() {
         if (autoSavedData) {
           const parsed = JSON.parse(autoSavedData);
           const timeDiff = Date.now() - parsed.timestamp;
-          
+
           // Only load if auto-save is less than 24 hours old
           if (timeDiff < 24 * 60 * 60 * 1000) {
             return parsed;
@@ -394,7 +405,8 @@ export default function FormBuilderPage() {
       // Show toast to inform user about auto-saved data
       toast({
         title: "Auto-saved data found",
-        description: "We've restored your unsaved changes from your last session.",
+        description:
+          "We've restored your unsaved changes from your last session.",
       });
     }
   }, [autoSaveKey, isLoading, toast]);
@@ -404,30 +416,31 @@ export default function FormBuilderPage() {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
-        e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        e.returnValue =
+          "You have unsaved changes. Are you sure you want to leave?";
         return e.returnValue;
       }
     };
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden' && hasUnsavedChanges) {
+      if (document.visibilityState === "hidden" && hasUnsavedChanges) {
         // Auto-save when tab becomes hidden
         const autoSaveData = {
           formSchema,
           selectedTheme,
           timestamp: Date.now(),
-          lastSaveTimestamp: parseInt(localStorage.getItem('last-save') || '0'),
+          lastSaveTimestamp: parseInt(localStorage.getItem("last-save") || "0"),
         };
         localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [hasUnsavedChanges, formSchema, selectedTheme, autoSaveKey]);
 
@@ -437,22 +450,26 @@ export default function FormBuilderPage() {
     try {
       // Check for auto-saved data first
       const autoSavedData = localStorage.getItem(autoSaveKey);
-      const lastSaveTimestamp = localStorage.getItem(`${autoSaveKey}-last-save`);
+      const lastSaveTimestamp = localStorage.getItem(
+        `${autoSaveKey}-last-save`
+      );
       let hasAutoSave = false;
-      
+
       if (autoSavedData) {
         try {
           const parsed = JSON.parse(autoSavedData);
           const timeDiff = Date.now() - parsed.timestamp;
           const isRecentAutoSave = timeDiff < 24 * 60 * 60 * 1000; // Less than 24 hours
-          
+
           // Check if auto-save is newer than the last database save
           const autoSaveTime = parsed.timestamp || 0;
-          const lastSaveTime = lastSaveTimestamp ? parseInt(lastSaveTimestamp) : 0;
+          const lastSaveTime = lastSaveTimestamp
+            ? parseInt(lastSaveTimestamp)
+            : 0;
           const isNewerThanLastSave = autoSaveTime > lastSaveTime;
-          
+
           hasAutoSave = isRecentAutoSave && isNewerThanLastSave;
-          
+
           if (!hasAutoSave && autoSavedData) {
             // Clean up outdated auto-save data
             localStorage.removeItem(autoSaveKey);
@@ -497,10 +514,11 @@ export default function FormBuilderPage() {
         });
         setSelectedTheme(parsed.selectedTheme);
         setHasUnsavedChanges(true);
-        
+
         toast({
           title: "Auto-saved data restored",
-          description: "Your unsaved changes have been restored. Don't forget to save!",
+          description:
+            "Your unsaved changes have been restored. Don't forget to save!",
           variant: "default",
         });
       } else {
@@ -528,7 +546,6 @@ export default function FormBuilderPage() {
         }
         setHasUnsavedChanges(false);
       }
-
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -680,15 +697,17 @@ export default function FormBuilderPage() {
   };
 
   const updateStep = (updatedStep: FormStep & { originalId?: string }) => {
-    console.log('updateStep called with:', updatedStep);
+    console.log("updateStep called with:", updatedStep);
     setFormSchema((prev) => {
       const newSchema = {
         ...prev,
         steps: prev.steps.map((step) =>
-          step.id === (updatedStep.originalId || updatedStep.id) ? updatedStep : step
+          step.id === (updatedStep.originalId || updatedStep.id)
+            ? updatedStep
+            : step
         ),
       };
-      console.log('Updated formSchema:', newSchema);
+      console.log("Updated formSchema:", newSchema);
       return newSchema;
     });
     setEditingStep(null);
@@ -809,7 +828,10 @@ export default function FormBuilderPage() {
 
       // Store the save timestamp to prevent localStorage from overriding recent saves
       const saveTimestamp = Date.now();
-      localStorage.setItem(`${autoSaveKey}-last-save`, saveTimestamp.toString());
+      localStorage.setItem(
+        `${autoSaveKey}-last-save`,
+        saveTimestamp.toString()
+      );
 
       toast({
         title: "Form saved successfully!",
@@ -822,7 +844,6 @@ export default function FormBuilderPage() {
         description: "Failed to save the form. Please try again.",
         variant: "destructive",
       });
-
     } finally {
       setIsSaving(false);
     }
@@ -845,6 +866,104 @@ export default function FormBuilderPage() {
     const themeId = selectedTheme || "default";
     return `https://forms.jsonpost.com/multi-page/${endpoint.id}/${themeId}`;
   };
+
+  // Short link functions
+  const generateShortCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 10; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+
+  const fetchExistingShortLinks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('short_links')
+        .select('*')
+        .eq('endpoint_id', endpointId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setExistingShortLinks(data || []);
+    } catch (error) {
+      console.error('Error fetching short links:', error);
+    }
+  };
+
+  const createShortLink = async () => {
+    if (!endpoint) return;
+
+    setIsGeneratingShortLink(true);
+    try {
+      const shortCode = generateShortCode();
+      
+      const { data, error } = await supabase
+        .from('short_links')
+        .insert({
+          endpoint_id: endpointId,
+          short_code: shortCode,
+          form_type: shortLinkFormType,
+          theme: shortLinkTheme,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Short link created!",
+        description: `Short link ${shortCode} has been created successfully.`,
+      });
+
+      // Refresh the list
+      await fetchExistingShortLinks();
+      setShortLinkModalOpen(false);
+    } catch (error) {
+      console.error('Error creating short link:', error);
+      toast({
+        title: "Error creating short link",
+        description: "Failed to create the short link. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingShortLink(false);
+    }
+  };
+
+  const deleteShortLink = async (shortLinkId: string) => {
+    try {
+      const { error } = await supabase
+        .from('short_links')
+        .delete()
+        .eq('id', shortLinkId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Short link deleted",
+        description: "The short link has been deleted successfully.",
+      });
+
+      // Refresh the list
+      await fetchExistingShortLinks();
+    } catch (error) {
+      console.error('Error deleting short link:', error);
+      toast({
+        title: "Error deleting short link",
+        description: "Failed to delete the short link. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Load existing short links on component mount
+  useEffect(() => {
+    if (endpointId) {
+      fetchExistingShortLinks();
+    }
+  }, [endpointId]);
 
   if (isLoading) {
     return (
@@ -1011,7 +1130,8 @@ export default function FormBuilderPage() {
                         Choose a Template or Create a Blank Form
                       </h3>
                       <p className="text-gray-600">
-                        Get started by selecting a pre-built template or create your own form from scratch
+                        Get started by selecting a pre-built template or create
+                        your own form from scratch
                       </p>
                     </div>
                     <div className="space-y-3">
@@ -1021,7 +1141,9 @@ export default function FormBuilderPage() {
                           className="group relative border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition-all duration-200 bg-white dark:bg-gray-800"
                         >
                           <div className="flex items-start gap-4 mb-3">
-                            <div className="text-2xl flex-shrink-0">{template.icon}</div>
+                            <div className="text-2xl flex-shrink-0">
+                              {template.icon}
+                            </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium text-base mb-1">
                                 {template.name}
@@ -1031,7 +1153,7 @@ export default function FormBuilderPage() {
                               </p>
                             </div>
                           </div>
-                          
+
                           {/* Separator line */}
                           <div className="border-t border-gray-200 dark:border-gray-700 mt-3 pt-3">
                             <div className="flex items-center gap-2">
@@ -1310,7 +1432,9 @@ export default function FormBuilderPage() {
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => window.open(generateSinglePageUrl(), "_blank")}
+                    onClick={() =>
+                      window.open(generateSinglePageUrl(), "_blank")
+                    }
                     className="flex-1"
                     variant="outline"
                   >
@@ -1318,7 +1442,9 @@ export default function FormBuilderPage() {
                     Open Single Page
                   </Button>
                   <Button
-                    onClick={() => window.open(generateMultiStepUrl(), "_blank")}
+                    onClick={() =>
+                      window.open(generateMultiStepUrl(), "_blank")
+                    }
                     className="flex-1"
                     variant="outline"
                   >
@@ -1326,6 +1452,77 @@ export default function FormBuilderPage() {
                     Open Multi-Step
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Generate Short Link Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Generate Short Link</CardTitle>
+                <CardDescription>
+                  Create shareable short links for your forms
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button
+                  onClick={() => setShortLinkModalOpen(true)}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <LinkIcon className="h-4 w-4 mr-2" />
+                  Create New Short Link
+                </Button>
+                
+                {existingShortLinks.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Existing Short Links</Label>
+                    {existingShortLinks.map((link) => (
+                      <div key={link.id} className="p-3 border rounded-lg space-y-3">
+                        <div>
+                          <div className="flex items-center space-x-2 flex-wrap">
+                            <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                              {link.short_code}
+                            </code>
+                            <Badge variant="secondary" className="text-xs">
+                              {link.form_type}
+                            </Badge>
+                            <span className="text-xs text-gray-500">
+                              {themes.find(t => t.id === link.theme)?.name || 'Default'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1 break-all">
+                            https://forms.jsonpost.com/s/{link.short_code}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-end space-x-1 pt-2 border-t">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              navigator.clipboard.writeText(`https://forms.jsonpost.com/s/${link.short_code}`)
+                            }
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(`https://forms.jsonpost.com/s/${link.short_code}`, "_blank")}
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteShortLink(link.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -1392,6 +1589,61 @@ export default function FormBuilderPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Short Link Modal */}
+      <Dialog open={shortLinkModalOpen} onOpenChange={setShortLinkModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Short Link</DialogTitle>
+            <DialogDescription>
+              Generate a short link for your form with custom settings.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Form Type</Label>
+              <Select value={shortLinkFormType} onValueChange={(value: "single-page" | "multi-step") => setShortLinkFormType(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select form type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="single-page">Single Page</SelectItem>
+                  <SelectItem value="multi-step">Multi-Step</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Theme</Label>
+              <Select value={shortLinkTheme} onValueChange={setShortLinkTheme}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  {themes.map((theme) => (
+                    <SelectItem key={theme.id} value={theme.id}>
+                      {theme.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShortLinkModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={createShortLink}
+              disabled={isGeneratingShortLink}
+            >
+              {isGeneratingShortLink ? "Creating..." : "Create Short Link"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1410,7 +1662,9 @@ function StepEditorDialog({
     return {
       ...step,
       validation: step.validation ? { ...step.validation } : undefined,
-      options: step.options ? step.options.map(opt => ({ ...opt })) : undefined,
+      options: step.options
+        ? step.options.map((opt) => ({ ...opt }))
+        : undefined,
       labels: step.labels ? { ...step.labels } : undefined,
       scale: step.scale ? { ...step.scale } : undefined,
       acceptedTypes: step.acceptedTypes ? [...step.acceptedTypes] : undefined,
@@ -1423,7 +1677,10 @@ function StepEditorDialog({
   const originalId = step.id;
 
   const handleSave = () => {
-    console.log('StepEditorDialog handleSave called with editedStep:', editedStep);
+    console.log(
+      "StepEditorDialog handleSave called with editedStep:",
+      editedStep
+    );
     // Create a step with the original ID for matching, but with all the new properties
     const stepToSave = { ...editedStep, originalId };
     onSave(stepToSave);
@@ -1438,7 +1695,11 @@ function StepEditorDialog({
     setEditedStep((prev) => ({ ...prev, options: newOptions }));
   };
 
-  const updateOption = (index: number, field: "value" | "label", value: string) => {
+  const updateOption = (
+    index: number,
+    field: "value" | "label",
+    value: string
+  ) => {
     const newOptions = [...(editedStep.options || [])];
     newOptions[index] = { ...newOptions[index], [field]: value };
     setEditedStep((prev) => ({ ...prev, options: newOptions }));
