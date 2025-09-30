@@ -1715,38 +1715,20 @@ export async function POST(
         });
       }
 
-      // Check if this is an AJAX request (has XMLHttpRequest header or Accept: application/json)
-      const isAjaxRequest = request.headers.get('x-requested-with') === 'XMLHttpRequest' ||
-                           request.headers.get('accept')?.includes('application/json')
+      // Only redirect for multipart/form-data submissions, return JSON for all other content types
+      const isMultipartFormData = contentType.includes('multipart/form-data')
       
       logger.debug('Determining response type', {
-        isAjaxRequest: isAjaxRequest,
-        xRequestedWith: request.headers.get('x-requested-with'),
-        acceptHeader: request.headers.get('accept'),
+        contentType: contentType,
+        isMultipartFormData: isMultipartFormData,
         submissionId: submission.id
       });
 
-      if (isAjaxRequest) {
-        // For AJAX requests, return JSON response instead of redirect to avoid CORS issues
+      if (isMultipartFormData) {
+        // For multipart/form-data submissions, use redirect with CORS headers
         const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
         
-        logger.info('Returning AJAX response with redirect URL', {
-          corsOrigin: corsOrigin,
-          redirectUrl: endpoint.redirect_url,
-          submissionId: submission.id
-        });
-
-        return createCorsResponse({
-           success: true,
-           message: 'Form submitted successfully',
-           submission_id: submission.id,
-           redirect_url: endpoint.redirect_url
-         }, 200, corsOrigin)
-      } else {
-        // For regular form submissions, use redirect with CORS headers
-        const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
-        
-        logger.info('Returning redirect response', {
+        logger.info('Returning redirect response for multipart form submission', {
           corsOrigin: corsOrigin,
           redirectUrl: endpoint.redirect_url,
           submissionId: submission.id
@@ -1761,6 +1743,23 @@ export async function POST(
             'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
           }
         })
+      } else {
+        // For JSON and other content types, return JSON response with redirect URL
+        const corsOrigin = requestOrigin === 'null' ? 'null' : (requestOrigin || (allowedDomains && allowedDomains.length > 0 ? allowedDomains[0] : '*'))
+        
+        logger.info('Returning JSON response with redirect URL for non-multipart submission', {
+          corsOrigin: corsOrigin,
+          redirectUrl: endpoint.redirect_url,
+          contentType: contentType,
+          submissionId: submission.id
+        });
+
+        return createCorsResponse({
+           success: true,
+           message: 'Form submitted successfully',
+           submission_id: submission.id,
+           redirect_url: endpoint.redirect_url
+         }, 200, corsOrigin)
       }
     }
 
