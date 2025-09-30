@@ -16,7 +16,7 @@ export function Header() {
         </Link>
         <div className="flex items-center space-x-3">
           <Button variant="ghost" asChild>
-            <Link href="/features-and-screenshots">Features</Link>
+            <Link href="/features-and-screenshots">Features & Screenshots</Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/auth/login">Sign In</Link>

@@ -58,8 +58,8 @@ export default function Home() {
 
               {/* Main heading directly after badge */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent text-center leading-tight">
-                Build Beautiful Forms. <br className="hidden sm:block" />
-                Handle Submissions.
+                The Complete Platform for <br className="hidden sm:block" />
+                Building and Managing Forms.
               </h1>
             </div>
 

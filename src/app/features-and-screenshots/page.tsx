@@ -47,6 +47,10 @@ import {
   UserPlus,
   CreditCard,
   HelpCircle,
+  Wrench,
+  RefreshCw,
+  Route,
+  Palette,
 } from "lucide-react";
 
 export default function FeaturesAndScreenshotsPage() {
@@ -87,8 +91,334 @@ export default function FeaturesAndScreenshotsPage() {
         </div>
       </section>
 
+      {/* Screenshots Section */}
+      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Application Screenshots</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              See JSONPost in action with real screenshots of the dashboard and key features
+            </p>
+          </div>
+
+          <div className="space-y-12">
+            {/* Dashboard Screenshot */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/dashboard-screenshot.png"
+                  alt="JSONPost Dashboard Screenshot"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Main Dashboard</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Get a comprehensive overview of all your form endpoints in one place with quick stats and easy project access.
+                </p>
+              </div>
+            </div>
+
+            {/* Typeform Style Forms Screenshot */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/typeform-style-forms-screenshot.png"
+                  alt="JSONPost Typeform Style Forms Screenshot"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Beautiful Form Interfaces</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Create stunning, modern forms with our Typeform-style interface that provides excellent user experience and higher completion rates.
+                </p>
+              </div>
+            </div>
+
+            {/* Endpoint Detail Screenshot */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/endpoint-detail-screenshot.png"
+                  alt="JSONPost Endpoint Detail Screenshot"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Endpoint Configuration</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Configure every aspect of your form endpoints with detailed settings for webhooks, email notifications, and validation rules.
+                </p>
+              </div>
+            </div>
+
+            {/* All Submissions Screenshot */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/all-submissions-screenshot.png"
+                  alt="JSONPost All Submissions Screenshot"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Submissions Management</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  View and manage all your form submissions in one organized interface with advanced filtering and search capabilities.
+                </p>
+              </div>
+            </div>
+
+            {/* Submission Detail Screenshot */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative aspect-video bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/submission-detail-screenshot.png"
+                  alt="JSONPost Submission Detail Screenshot"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Detailed Submission View</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Dive deep into individual submissions with comprehensive details including form data, metadata, timestamps, and file attachments.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Advanced Features Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Advanced Features</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Powerful features that make JSONPost the most comprehensive form backend solution
+            </p>
+          </div>
+
+          <div className="space-y-12">
+            {/* Autoresponder */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700" style={{ height: 'auto', minHeight: '200px' }}>
+                <Image
+                  src="/screenshots/autoresponder.png"
+                  alt="JSONPost Autoresponder Feature"
+                  width={800}
+                  height={400}
+                  className="w-full h-auto object-contain"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Smart Autoresponder</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Set up intelligent autoresponder emails that are sent automatically to users after form submission with customizable templates.
+                </p>
+              </div>
+            </div>
+
+            {/* Form Builder */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700" style={{ height: 'auto', minHeight: '200px' }}>
+                <Image
+                  src="/screenshots/form-builder.png"
+                  alt="JSONPost Form Builder Feature"
+                  width={800}
+                  height={400}
+                  className="w-full h-auto object-contain"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Visual Form Builder</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Create beautiful forms without writing code using our intuitive drag-and-drop form builder with various field types.
+                </p>
+              </div>
+            </div>
+
+            {/* Google Sheets Integration */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700" style={{ height: 'auto', minHeight: '200px' }}>
+                <Image
+                  src="/screenshots/google-sheets.png"
+                  alt="JSONPost Google Sheets Integration"
+                  width={800}
+                  height={400}
+                  className="w-full h-auto object-contain"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">Google Sheets Integration</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Automatically sync form submissions to Google Sheets in real-time for easy data analysis and collaboration.
+                </p>
+              </div>
+            </div>
+
+            {/* JSON Schema Validation */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700" style={{ height: 'auto', minHeight: '200px' }}>
+                <Image
+                  src="/screenshots/json-schema-validation-feature.png"
+                  alt="JSONPost JSON Schema Validation Feature"
+                  width={800}
+                  height={400}
+                  className="w-full h-auto object-contain"
+                />
+              </div>
+              <div className="p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+                <h3 className="text-2xl font-bold mb-3">JSON Schema Validation</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">
+                  Validate incoming form data against custom JSON schemas to ensure data integrity and prevent invalid submissions.
+                </p>
+              </div>
+            </div>
+
+            {/* JSON Transformer */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/json-transformer-feature.png"
+                  alt="JSONPost JSON Transformer Feature"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Data Transformation</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Transform and restructure form data before processing with our flexible JSON transformer.
+                </p>
+              </div>
+            </div>
+
+            {/* Multi-file Uploads */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/multi-file-uploads-feature.png"
+                  alt="JSONPost Multi-file Uploads Feature"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Multi-file Upload Support</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Handle multiple file uploads with ease, supporting various file types and automatic storage.
+                </p>
+              </div>
+            </div>
+
+            {/* Multiple Themes */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/multiple-themes.png"
+                  alt="JSONPost Multiple Themes Feature"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Multiple Themes & Styling</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Choose from beautiful pre-designed themes or create custom styling to match your brand.
+                </p>
+              </div>
+            </div>
+
+            {/* Security Features */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/security.png"
+                  alt="JSONPost Security Features"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Advanced Security</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Enterprise-grade security with spam protection, rate limiting, and CAPTCHA integration.
+                </p>
+              </div>
+            </div>
+
+            {/* Variable Paths */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/variable-paths-feature.png"
+                  alt="JSONPost Variable Paths Feature"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Variable Paths</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Create dynamic form endpoints with variable paths for flexible data routing.
+                </p>
+              </div>
+            </div>
+            {/* Webhook Configuration */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/webhook-config-feature.png"
+                  alt="JSONPost Webhook Configuration Feature"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Advanced Webhook Configuration</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Set up sophisticated webhook integrations with custom headers and authentication.
+                </p>
+              </div>
+            </div>
+
+            {/* Zapier Integration */}
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="relative bg-gray-100 dark:bg-gray-700">
+                <Image
+                  src="/screenshots/zapier-integration-feature.png"
+                  alt="JSONPost Zapier Integration Feature"
+                  width={800}
+                  height={600}
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+                <h3 className="text-xl font-bold mb-2">Zapier Integration</h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Connect your forms to thousands of applications through seamless Zapier integration.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Core Features Section */}
-      <section id="core-features" className="py-20 px-4">
+      <section id="core-features" className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Core Features</h2>
@@ -358,160 +688,6 @@ export default function FeaturesAndScreenshotsPage() {
                 </ul>
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Screenshots Section */}
-      <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Application Screenshots</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              See JSONPost in action with real screenshots of the dashboard and key features
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-12">
-            {/* Dashboard Screenshot */}
-            <div className="space-y-6">
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
-                    Main Dashboard
-                  </CardTitle>
-                  <CardDescription>
-                    Overview of all your projects with quick stats and recent activity
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                    <Image
-                      src="/screenshots/dashboard-screenshot.png"
-                      alt="JSONPost Dashboard Screenshot"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-blue-600 mb-1">Project Overview</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Manage all projects</div>
-                </div>
-                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600 mb-1">Quick Stats</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Real-time metrics</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Endpoint Detail Screenshot */}
-            <div className="space-y-6">
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Settings className="w-5 h-5 mr-2 text-purple-600" />
-                    Endpoint Configuration
-                  </CardTitle>
-                  <CardDescription>
-                    Detailed endpoint settings with webhooks, email notifications, and validation
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                    <Image
-                      src="/screenshots/endpoint-detail-screenshot.png"
-                      alt="JSONPost Endpoint Detail Screenshot"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-purple-600 mb-1">Configuration</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Endpoint settings</div>
-                </div>
-                <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-orange-600 mb-1">Integrations</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Webhooks & email</div>
-                </div>
-              </div>
-            </div>
-
-            {/* All Submissions Screenshot */}
-            <div className="space-y-6">
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Database className="w-5 h-5 mr-2 text-green-600" />
-                    Submissions Overview
-                  </CardTitle>
-                  <CardDescription>
-                    View and manage all form submissions with filtering and search capabilities
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                    <Image
-                      src="/screenshots/all-submissions-screenshot.png"
-                      alt="JSONPost All Submissions Screenshot"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-green-600 mb-1">Data Management</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">View all submissions</div>
-                </div>
-                <div className="bg-teal-50 dark:bg-teal-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-teal-600 mb-1">Search & Filter</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Find specific data</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Submission Detail Screenshot */}
-            <div className="space-y-6">
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Eye className="w-5 h-5 mr-2 text-indigo-600" />
-                    Individual Submission
-                  </CardTitle>
-                  <CardDescription>
-                    Detailed view of individual submissions with metadata and file attachments
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="relative aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
-                    <Image
-                      src="/screenshots/submission-detail-screenshot.png"
-                      alt="JSONPost Submission Detail Screenshot"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-indigo-600 mb-1">Detailed View</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Complete submission data</div>
-                </div>
-                <div className="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-lg text-center">
-                  <div className="text-2xl font-bold text-pink-600 mb-1">Metadata</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Timestamps & IP info</div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
