@@ -1072,7 +1072,12 @@ export default function FormBuilderPage() {
                 Back to Endpoint
               </Button>
             </Link>
-            <Button onClick={saveForm} disabled={isSaving} size="sm">
+            <Button 
+              onClick={saveForm} 
+              disabled={isSaving} 
+              size="sm"
+              variant={hasUnsavedChanges ? "destructive" : "default"}
+            >
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Form"}
             </Button>
@@ -1258,7 +1263,12 @@ export default function FormBuilderPage() {
                 <div className="flex items-center gap-2">
                   {formSchema.steps.length > 0 && (
                     <>
-                      <Button onClick={saveForm} disabled={isSaving} size="sm">
+                      <Button 
+                        onClick={saveForm} 
+                        disabled={isSaving} 
+                        size="sm"
+                        variant={hasUnsavedChanges ? "destructive" : "default"}
+                      >
                         <Save className="h-4 w-4 mr-2" />
                         {isSaving ? "Saving..." : "Save Form"}
                       </Button>
