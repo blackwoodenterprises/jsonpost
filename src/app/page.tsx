@@ -2127,8 +2127,8 @@ def contact():
                   frameworks like React or Vue, you can use fetch() or axios to
                   submit form data to your endpoint.
                 </CardDescription>
-                <div className="mt-4 p-4 bg-gray-100 dark:bg-slate-600 rounded-lg">
-                  <code className="text-sm text-gray-800 dark:text-gray-200">
+                <div className="mt-4 p-4 bg-gray-100 dark:bg-slate-600 rounded-lg overflow-x-auto">
+                  <code className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
                     &lt;form
                     action=&quot;https://jsonpost.com/api/submit/your-project/contact&quot;
                     method=&quot;POST&quot;&gt;
@@ -2153,8 +2153,8 @@ def contact():
                   with your form data. We provide examples and starter code for
                   popular frameworks.
                 </CardDescription>
-                <div className="mt-4 p-4 bg-gray-100 dark:bg-slate-600 rounded-lg">
-                  <code className="text-sm text-gray-800 dark:text-gray-200">
+                <div className="mt-4 p-4 bg-gray-100 dark:bg-slate-600 rounded-lg overflow-x-auto">
+                  <code className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-all">
                     fetch(&apos;https://jsonpost.com/api/submit/your-project/contact&apos;,
                     &#123; method: &apos;POST&apos;, body: formData &#125;)
                   </code>
