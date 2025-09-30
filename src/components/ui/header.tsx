@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Code } from "lucide-react";
+import { Code, Menu, X } from "lucide-react";
+import { useState } from "react";
 
 export function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
@@ -14,7 +17,9 @@ export function Header() {
           </div>
           <span className="text-xl font-bold">JSONPost</span>
         </Link>
-        <div className="flex items-center space-x-3">
+        
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-3">
           <Button variant="ghost" asChild>
             <Link href="/features-and-screenshots">Features & Screenshots</Link>
           </Button>
@@ -25,6 +30,42 @@ export function Header() {
             <Link href="/auth/signup">Get Started</Link>
           </Button>
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden p-2"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {isMenuOpen ? (
+            <X className="w-6 h-6" />
+          ) : (
+            <Menu className="w-6 h-6" />
+          )}
+        </button>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white dark:bg-gray-900 border-b shadow-lg md:hidden">
+            <div className="container mx-auto px-4 py-4 space-y-3">
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/features-and-screenshots" onClick={() => setIsMenuOpen(false)}>
+                  Features & Screenshots
+                </Link>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
+                  Sign In
+                </Link>
+              </Button>
+              <Button className="w-full" asChild>
+                <Link href="/auth/signup" onClick={() => setIsMenuOpen(false)}>
+                  Get Started
+                </Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

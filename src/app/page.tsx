@@ -1540,8 +1540,8 @@ export default function Home() {
 
               <TabsContent value="html" className="space-y-4">
                 <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
-                  <pre className="text-green-400 text-sm">
-                    <code>{`<form action="http://jsonpost.com/api/submit/project-id/contact-form" method="POST">
+                  <pre className="text-green-400 text-sm overflow-x-auto">
+                    <code className="whitespace-pre-wrap break-all">{`<form action="http://jsonpost.com/api/submit/project-id/contact-form" method="POST">
   <input type="text" name="name" placeholder="Your Name" required>
   <input type="email" name="email" placeholder="Your Email" required>
   <textarea name="message" placeholder="Your Message"></textarea>
@@ -1556,8 +1556,8 @@ export default function Home() {
 
               <TabsContent value="ajax" className="space-y-4">
                 <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
-                  <pre className="text-green-400 text-sm">
-                    <code>{`fetch('http://jsonpost.com/api/submit/project-id/contact-form', {
+                  <pre className="text-green-400 text-sm overflow-x-auto">
+                    <code className="whitespace-pre-wrap break-all">{`fetch('http://jsonpost.com/api/submit/project-id/contact-form', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -1576,8 +1576,8 @@ export default function Home() {
 
               <TabsContent value="jquery" className="space-y-4">
                 <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
-                  <pre className="text-green-400 text-sm">
-                    <code>{`$.ajax({
+                  <pre className="text-green-400 text-sm overflow-x-auto">
+                    <code className="whitespace-pre-wrap break-all">{`$.ajax({
   url: 'http://jsonpost.com/api/submit/project-id/contact-form',
   method: 'POST',
   contentType: 'application/json',
@@ -1599,8 +1599,8 @@ export default function Home() {
 
               <TabsContent value="react" className="space-y-4">
                 <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
-                  <pre className="text-green-400 text-sm">
-                    <code>{`const handleSubmit = async (e) => {
+                  <pre className="text-green-400 text-sm overflow-x-auto">
+                    <code className="whitespace-pre-wrap break-all">{`const handleSubmit = async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   
@@ -1629,8 +1629,8 @@ export default function Home() {
 
               <TabsContent value="server" className="space-y-4">
                 <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-6 overflow-x-auto">
-                  <pre className="text-green-400 text-sm">
-                    <code>{`// Node.js / Express
+                  <pre className="text-green-400 text-sm overflow-x-auto">
+                    <code className="whitespace-pre-wrap break-all">{`// Node.js / Express
 app.post('/contact', async (req, res) => {
   const response = await fetch('http://jsonpost.com/api/submit/project-id/contact-form', {
     method: 'POST',
