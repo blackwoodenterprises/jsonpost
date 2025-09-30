@@ -357,6 +357,8 @@ export default function FormBuilderPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [hasRestoredAutoSave, setHasRestoredAutoSave] = useState(false);
   
   // Short link state
   const [shortLinkModalOpen, setShortLinkModalOpen] = useState(false);
@@ -378,7 +380,7 @@ export default function FormBuilderPage() {
 
   // Auto-save to localStorage whenever form data changes
   useEffect(() => {
-    if (formSchema.steps.length > 0 && !isLoading) {
+    if (formSchema.steps.length > 0 && !isLoading && !isInitializing && hasUnsavedChanges) {
       const autoSaveData = {
         formSchema,
         selectedTheme,
@@ -386,9 +388,8 @@ export default function FormBuilderPage() {
         lastSaveTimestamp: Date.now(), // Track when this auto-save was created
       };
       localStorage.setItem(autoSaveKey, JSON.stringify(autoSaveData));
-      setHasUnsavedChanges(true);
     }
-  }, [formSchema, selectedTheme, autoSaveKey, isLoading]);
+  }, [formSchema, selectedTheme, autoSaveKey, isLoading, isInitializing, hasUnsavedChanges]);
 
   // Load auto-saved data on component mount
   useEffect(() => {
@@ -480,7 +481,9 @@ export default function FormBuilderPage() {
           const lastSaveTime = lastSaveTimestamp
             ? parseInt(lastSaveTimestamp)
             : 0;
-          const isNewerThanLastSave = autoSaveTime > lastSaveTime;
+          // Only restore auto-save if it was created AFTER the last save
+          // Add a small buffer (1000ms) to account for timing differences
+          const isNewerThanLastSave = autoSaveTime > (lastSaveTime + 1000);
 
           hasAutoSave = isRecentAutoSave && isNewerThanLastSave;
 
@@ -527,7 +530,8 @@ export default function FormBuilderPage() {
           submitEndpoint: submitUrl,
         });
         setSelectedTheme(parsed.selectedTheme);
-        setHasUnsavedChanges(true);
+        setHasRestoredAutoSave(true); // Mark that we've restored auto-save data
+        setHasUnsavedChanges(true); // Mark as having unsaved changes since we restored auto-save data
 
         toast({
           title: "Auto-saved data restored",
@@ -572,6 +576,7 @@ export default function FormBuilderPage() {
       console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
+      setIsInitializing(false); // Mark initialization as complete
     }
   }, [user?.id, projectId, endpointId]);
 
@@ -903,9 +908,10 @@ export default function FormBuilderPage() {
 
       if (error) throw error;
 
-      // Clear auto-saved data after successful save
+      // Clear auto-saved data and reset flags after successful save
       localStorage.removeItem(autoSaveKey);
       setHasUnsavedChanges(false);
+      setHasRestoredAutoSave(false); // Reset the restored flag
 
       // Store the save timestamp to prevent localStorage from overriding recent saves
       const saveTimestamp = Date.now();
@@ -1240,12 +1246,13 @@ export default function FormBuilderPage() {
                   <Switch
                     id="jsonpost-branding"
                     checked={formSchema.jsonpost_branding ?? true}
-                    onCheckedChange={(checked: boolean) =>
+                    onCheckedChange={(checked: boolean) => {
                       setFormSchema((prev) => ({
                         ...prev,
                         jsonpost_branding: checked,
-                      }))
-                    }
+                      }));
+                      setHasUnsavedChanges(true);
+                    }}
                   />
                 </div>
               </CardContent>
