@@ -80,6 +80,10 @@ interface Endpoint {
   form_json: Json | null;
   theme_id: string | null;
   path: string;
+  branding_logo?: string | null;
+  branding_cover?: string | null;
+  redirect_url?: string | null;
+  jsonpost_branding?: boolean | null;
 }
 
 interface FormStep {
@@ -120,6 +124,10 @@ interface FormSchema {
   description: string;
   submitEndpoint: string;
   steps: FormStep[];
+  branding_logo?: string;
+  branding_cover?: string;
+  redirect_url?: string;
+  jsonpost_branding?: boolean;
 }
 
 const TEMPLATE_GALLERY = [
@@ -335,7 +343,13 @@ export default function FormBuilderPage() {
     description: "Form description",
     submitEndpoint: "",
     steps: [],
+    branding_logo: "",
+    branding_cover: "",
+    redirect_url: "",
+    jsonpost_branding: true,
   });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string>("default");
   const [editingStep, setEditingStep] = useState<FormStep | null>(null);
   const [selectedStepType, setSelectedStepType] = useState<string>("");
@@ -533,11 +547,19 @@ export default function FormBuilderPage() {
           setFormSchema({
             ...existingFormSchema,
             submitEndpoint: submitUrl,
+            branding_logo: endpointData.branding_logo || "",
+            branding_cover: endpointData.branding_cover || "",
+            redirect_url: endpointData.redirect_url || "",
+            jsonpost_branding: endpointData.jsonpost_branding ?? true,
           });
         } else {
           setFormSchema((prev) => ({
             ...prev,
             submitEndpoint: submitUrl,
+            branding_logo: endpointData.branding_logo || "",
+            branding_cover: endpointData.branding_cover || "",
+            redirect_url: endpointData.redirect_url || "",
+            jsonpost_branding: endpointData.jsonpost_branding ?? true,
           }));
         }
 
@@ -777,6 +799,61 @@ export default function FormBuilderPage() {
     }
   };
 
+  const handleImageUpload = async (file: File, type: 'logo' | 'cover') => {
+    if (!file) return;
+
+    // Set uploading state
+    if (type === 'logo') {
+      setUploadingLogo(true);
+    } else {
+      setUploadingCover(true);
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('endpointId', endpointId);
+      formData.append('imageType', type);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const { url } = await response.json();
+
+      // Update form schema with the uploaded image URL
+      setFormSchema(prev => ({
+        ...prev,
+        [type === 'logo' ? 'branding_logo' : 'branding_cover']: url
+      }));
+
+      toast({
+        title: "Image uploaded successfully",
+        description: `${type === 'logo' ? 'Logo' : 'Cover image'} has been uploaded.`,
+      });
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload image. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      // Reset uploading state
+      if (type === 'logo') {
+        setUploadingLogo(false);
+      } else {
+        setUploadingCover(false);
+      }
+    }
+  };
+
   const saveForm = async () => {
     if (!endpoint) return;
 
@@ -817,6 +894,10 @@ export default function FormBuilderPage() {
         .update({
           form_json: formSchemaWithoutSubmitEndpoint as unknown as Json,
           theme_id: selectedTheme,
+          branding_logo: formSchema.branding_logo || null,
+          branding_cover: formSchema.branding_cover || null,
+          redirect_url: formSchema.redirect_url || null,
+          jsonpost_branding: formSchema.jsonpost_branding ?? true,
         })
         .eq("id", endpointId);
 
@@ -1033,12 +1114,12 @@ export default function FormBuilderPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Configuration */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Form Settings */}
+            {/* Welcome Step */}
             <Card>
               <CardHeader>
-                <CardTitle>Form Settings</CardTitle>
+                <CardTitle>Welcome Step</CardTitle>
                 <CardDescription>
-                  Configure your form&apos;s basic information
+                  Configure your form&apos;s welcome page with branding and basic information
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1069,6 +1150,97 @@ export default function FormBuilderPage() {
                     }
                     placeholder="Enter form description"
                     rows={3}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="branding-logo">Branding Logo</Label>
+                  <Input
+                    id="branding-logo"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImageUpload(file, 'logo');
+                      }
+                    }}
+                    disabled={uploadingLogo}
+                  />
+                  {uploadingLogo && (
+                    <div className="mt-2 text-sm text-gray-500">
+                      Uploading logo...
+                    </div>
+                  )}
+                  {formSchema.branding_logo && (
+                    <div className="mt-2">
+                      <img
+                        src={formSchema.branding_logo}
+                        alt="Branding Logo"
+                        className="h-16 w-auto object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="branding-cover">Branding Cover Image</Label>
+                  <Input
+                    id="branding-cover"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        handleImageUpload(file, 'cover');
+                      }
+                    }}
+                    disabled={uploadingCover}
+                  />
+                  {uploadingCover && (
+                    <div className="mt-2 text-sm text-gray-500">
+                      Uploading cover image...
+                    </div>
+                  )}
+                  {formSchema.branding_cover && (
+                    <div className="mt-2">
+                      <img
+                        src={formSchema.branding_cover}
+                        alt="Branding Cover"
+                        className="h-32 w-full object-cover rounded"
+                      />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="redirect-url">Redirect URL (after form submission)</Label>
+                  <Input
+                    id="redirect-url"
+                    type="url"
+                    value={formSchema.redirect_url || ""}
+                    onChange={(e) =>
+                      setFormSchema((prev) => ({
+                        ...prev,
+                        redirect_url: e.target.value,
+                      }))
+                    }
+                    placeholder="https://example.com/thank-you"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="jsonpost-branding">Show JSONPost Branding At The Bottom Of The Form</Label>
+                    <p className="text-sm text-gray-500">
+                      Display &quot;Powered by JSONPost&quot; at the bottom of your form
+                    </p>
+                  </div>
+                  <Switch
+                    id="jsonpost-branding"
+                    checked={formSchema.jsonpost_branding ?? true}
+                    onCheckedChange={(checked: boolean) =>
+                      setFormSchema((prev) => ({
+                        ...prev,
+                        jsonpost_branding: checked,
+                      }))
+                    }
                   />
                 </div>
               </CardContent>

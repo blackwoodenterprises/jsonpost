@@ -99,6 +99,9 @@ CREATE TABLE public.endpoints (
   autoresponder_recipient_field text,
   autoresponder_api_key text,
   autoresponder_domain text,
+  branding_logo text,
+  branding_cover text,
+  jsonpost_branding boolean DEFAULT true,
   CONSTRAINT endpoints_pkey PRIMARY KEY (id),
   CONSTRAINT endpoints_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
 );

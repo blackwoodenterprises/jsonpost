@@ -221,6 +221,8 @@ export type Database = {
           autoresponder_recipient_field: string | null
           autoresponder_subject: string | null
           autoresponder_text_template: string | null
+          branding_cover: string | null
+          branding_logo: string | null
           cors_enabled: boolean | null
           created_at: string | null
           description: string | null
@@ -237,6 +239,7 @@ export type Database = {
           id: string
           json_schema: Json | null
           json_validation_enabled: boolean | null
+          jsonpost_branding: boolean | null
           max_file_size_mb: number | null
           max_files_per_submission: number | null
           method: string
@@ -272,6 +275,8 @@ export type Database = {
           autoresponder_recipient_field?: string | null
           autoresponder_subject?: string | null
           autoresponder_text_template?: string | null
+          branding_cover?: string | null
+          branding_logo?: string | null
           cors_enabled?: boolean | null
           created_at?: string | null
           description?: string | null
@@ -288,6 +293,7 @@ export type Database = {
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
+          jsonpost_branding?: boolean | null
           max_file_size_mb?: number | null
           max_files_per_submission?: number | null
           method?: string
@@ -323,6 +329,8 @@ export type Database = {
           autoresponder_recipient_field?: string | null
           autoresponder_subject?: string | null
           autoresponder_text_template?: string | null
+          branding_cover?: string | null
+          branding_logo?: string | null
           cors_enabled?: boolean | null
           created_at?: string | null
           description?: string | null
@@ -339,6 +347,7 @@ export type Database = {
           id?: string
           json_schema?: Json | null
           json_validation_enabled?: boolean | null
+          jsonpost_branding?: boolean | null
           max_file_size_mb?: number | null
           max_files_per_submission?: number | null
           method?: string

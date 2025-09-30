@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
         endpoints!inner(
           form_json,
           path,
-          project_id
+          project_id,
+          branding_logo,
+          branding_cover,
+          jsonpost_branding,
+          redirect_url
         )
       `)
       .eq('short_code', shortCode)
@@ -44,7 +48,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const endpoint = shortLink.endpoints as { form_json: Json; path: string; project_id: string };
+    const endpoint = shortLink.endpoints as { 
+      form_json: Json; 
+      path: string; 
+      project_id: string;
+      branding_logo: string | null;
+      branding_cover: string | null;
+      jsonpost_branding: boolean | null;
+      redirect_url: string | null;
+    };
 
     if (!endpoint.form_json) {
       return NextResponse.json(
@@ -56,10 +68,14 @@ export async function GET(request: NextRequest) {
     // Construct the submit endpoint URL dynamically with project_id and path
     const submitEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/submit/${endpoint.project_id}/${endpoint.path}`;
     
-    // Add the submitEndpoint to the form schema
+    // Add the submitEndpoint and branding fields to the form schema
     const formSchemaWithSubmitEndpoint = {
       ...(endpoint.form_json as Record<string, unknown>),
-      submitEndpoint
+      submitEndpoint,
+      branding_logo: endpoint.branding_logo,
+      branding_cover: endpoint.branding_cover,
+      jsonpost_branding: endpoint.jsonpost_branding ?? true,
+      redirect_url: endpoint.redirect_url
     };
 
     // Return the complete response with form schema, form type, and theme

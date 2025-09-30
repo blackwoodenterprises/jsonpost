@@ -19,10 +19,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch the endpoint with the form_json, path, and project_id
+    // Fetch the endpoint with the form_json, path, project_id, and branding fields
     const { data: endpoint, error } = await supabase
       .from('endpoints')
-      .select('form_json, theme_id, path, project_id')
+      .select('form_json, theme_id, path, project_id, branding_logo, branding_cover, jsonpost_branding, redirect_url')
       .eq('id', uuid)
       .single();
 
@@ -44,10 +44,14 @@ export async function GET(request: NextRequest) {
     // Construct the submit endpoint URL dynamically with project_id and path
     const submitEndpoint = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/submit/${endpoint.project_id}/${endpoint.path}`;
     
-    // Add the submitEndpoint to the form schema
+    // Add the submitEndpoint and branding fields to the form schema
     const formSchemaWithSubmitEndpoint = {
       ...endpoint.form_json,
-      submitEndpoint
+      submitEndpoint,
+      branding_logo: endpoint.branding_logo,
+      branding_cover: endpoint.branding_cover,
+      jsonpost_branding: endpoint.jsonpost_branding ?? true,
+      redirect_url: endpoint.redirect_url
     };
 
     // Return the form JSON with the dynamic submit endpoint
