@@ -311,6 +311,17 @@ export default function AutoresponderSettingsPage() {
                   Autoresponder is enabled. Configure the settings below to customize your email responses.
                 </p>
               )}
+              {!formData.enabled && (
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Autoresponder is disabled. Click save to apply this change.
+                  </p>
+                  <Button onClick={handleSave} disabled={saving} variant="outline">
+                    <Save className="h-4 w-4 mr-2" />
+                    {saving ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 

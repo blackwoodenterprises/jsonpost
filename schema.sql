@@ -13,7 +13,7 @@ CREATE TABLE public.autoresponder_logs (
   sent_at timestamp with time zone,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT autoresponder_logs_pkey PRIMARY KEY (id),
-  CONSTRAINT autoresponder_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id),
+  CONSTRAINT autoresponder_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id) ON DELETE CASCADE,
   CONSTRAINT autoresponder_logs_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id)
 );
 CREATE TABLE public.email_logs (
@@ -27,7 +27,7 @@ CREATE TABLE public.email_logs (
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT email_logs_pkey PRIMARY KEY (id),
   CONSTRAINT email_logs_endpoint_email_id_fkey FOREIGN KEY (endpoint_email_id) REFERENCES public.endpoint_emails(id),
-  CONSTRAINT email_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
+  CONSTRAINT email_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id) ON DELETE CASCADE
 );
 CREATE TABLE public.endpoint_emails (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -116,7 +116,7 @@ CREATE TABLE public.file_uploads (
   storage_bucket text NOT NULL DEFAULT 'form-uploads'::text,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT file_uploads_pkey PRIMARY KEY (id),
-  CONSTRAINT file_uploads_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
+  CONSTRAINT file_uploads_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id) ON DELETE CASCADE
 );
 CREATE TABLE public.monthly_submission_counts (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -200,7 +200,7 @@ CREATE TABLE public.webhook_logs (
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT webhook_logs_pkey PRIMARY KEY (id),
   CONSTRAINT webhook_logs_endpoint_webhook_id_fkey FOREIGN KEY (endpoint_webhook_id) REFERENCES public.endpoint_webhooks(id),
-  CONSTRAINT webhook_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id)
+  CONSTRAINT webhook_logs_submission_id_fkey FOREIGN KEY (submission_id) REFERENCES public.submissions(id) ON DELETE CASCADE
 );
 CREATE TABLE public.zapier_subscriptions (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
