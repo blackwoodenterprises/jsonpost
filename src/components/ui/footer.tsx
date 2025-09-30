@@ -14,7 +14,10 @@ export function Footer() {
               <span className="text-xl font-bold">JSONPost</span>
             </div>
             <p className="text-gray-400 text-sm">
-              Headless form backend for developers who want to ship fast.
+              The Complete Platform for Building and Managing Forms. Create
+              forms with our builder and gallery. Single page forms or
+              conversational-style multi-step forms. JSONPost takes care of
+              storage, notifications, and integrations.
             </p>
           </div>
           <div>
@@ -36,12 +39,18 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/free-html-form-generator" className="hover:text-white">
+                <Link
+                  href="/free-html-form-generator"
+                  className="hover:text-white"
+                >
                   Free HTML Form Generator
                 </Link>
               </li>
               <li>
-                <Link href="/free-json-schema-builder" className="hover:text-white">
+                <Link
+                  href="/free-json-schema-builder"
+                  className="hover:text-white"
+                >
                   Free JSON Schema Builder
                 </Link>
               </li>
