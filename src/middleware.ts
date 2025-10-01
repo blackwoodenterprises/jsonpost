@@ -194,7 +194,11 @@ export async function middleware(request: NextRequest) {
     '/api/webhook/dodo-payments',
     '/api/forms/form-schema',
     '/api/forms/shortlink-schema',
-    '/api/google-sheets'
+    '/api/google-sheets',
+    '/api/n8n/auth/validate',
+    '/api/n8n/projects/endpoints',
+    '/api/n8n/subscribe',
+    '/api/n8n/unsubscribe'
   ]
   
   // If user is not signed in and the current path is not /auth/ or a public path, redirect the user to /auth/login

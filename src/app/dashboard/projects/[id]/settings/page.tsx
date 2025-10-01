@@ -28,6 +28,9 @@ import {
   ExternalLink,
   CheckCircle,
   XCircle,
+  Zap,
+  Copy,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -39,6 +42,7 @@ interface Project {
   created_at: string | null;
   user_id: string;
   api_key?: string;
+  n8n_api_key?: string | null;
   google_sheets_access_token?: string | null;
   google_sheets_refresh_token?: string | null;
   google_sheets_token_expires_at?: string | null;
@@ -62,6 +66,20 @@ export default function ProjectSettingsPage() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [isConnectingGoogleSheets, setIsConnectingGoogleSheets] = useState(false);
   const [isDisconnectingGoogleSheets, setIsDisconnectingGoogleSheets] = useState(false);
+  
+  // n8n state
+  const [showN8nApiKey, setShowN8nApiKey] = useState(false);
+  const [isRegeneratingN8nKey, setIsRegeneratingN8nKey] = useState(false);
+  const [n8nSubscriptions, setN8nSubscriptions] = useState<Array<{
+    id: string;
+    endpoint_id: string;
+    endpoint_name?: string;
+    target_url: string;
+    event_type: string;
+    is_active: boolean;
+    created_at: string;
+  }>>([]);
+  const [loadingN8nSubscriptions, setLoadingN8nSubscriptions] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -290,6 +308,71 @@ export default function ProjectSettingsPage() {
     }
   };
 
+  const copyN8nApiKey = () => {
+    if (project?.n8n_api_key) {
+      navigator.clipboard.writeText(project.n8n_api_key);
+    }
+  };
+
+  const copyProjectId = () => {
+    navigator.clipboard.writeText(projectId);
+  };
+
+  const handleRegenerateN8nApiKey = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to regenerate the n8n API key? This will invalidate the current key and may break existing n8n integrations."
+      )
+    ) {
+      return;
+    }
+
+    setIsRegeneratingN8nKey(true);
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/n8n/api-key/regenerate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to regenerate n8n API key');
+      }
+
+      // Refresh project data to get the new API key
+      await fetchProject();
+
+      console.log("n8n API key regenerated successfully");
+    } catch (error) {
+      console.error("Error regenerating n8n API key:", error);
+    } finally {
+      setIsRegeneratingN8nKey(false);
+    }
+  };
+
+  const fetchN8nSubscriptions = useCallback(async () => {
+    if (!project) return;
+
+    setLoadingN8nSubscriptions(true);
+    try {
+      // This will be implemented when we create the API endpoint
+      // For now, we'll just set empty array
+      setN8nSubscriptions([]);
+    } catch (error) {
+      console.error("Error fetching n8n subscriptions:", error);
+    } finally {
+      setLoadingN8nSubscriptions(false);
+    }
+  }, [project]);
+
+  useEffect(() => {
+    if (project) {
+      fetchN8nSubscriptions();
+    }
+  }, [project, fetchN8nSubscriptions]);
+
   const maskApiKey = (key: string) => {
     if (!key) return "";
     return key.substring(0, 8) + "..." + key.substring(key.length - 4);
@@ -465,6 +548,125 @@ export default function ProjectSettingsPage() {
                   </p>
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* n8n Integration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Zap className="h-5 w-5 mr-2" />
+                n8n Integration
+              </CardTitle>
+              <CardDescription>
+                Connect your project to n8n for advanced workflow automation
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* API Key Section */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">API Key</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      value={
+                        showN8nApiKey
+                          ? project.n8n_api_key || ""
+                          : maskApiKey(project.n8n_api_key || "")
+                      }
+                      readOnly
+                      className="bg-gray-50 dark:bg-gray-800 font-mono"
+                      type={showN8nApiKey ? "text" : "password"}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowN8nApiKey(!showN8nApiKey)}
+                    >
+                      {showN8nApiKey ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={copyN8nApiKey}
+                      disabled={!project.n8n_api_key}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleRegenerateN8nApiKey}
+                    disabled={isRegeneratingN8nKey}
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 mr-2 ${isRegeneratingN8nKey ? "animate-spin" : ""}`}
+                    />
+                    {isRegeneratingN8nKey ? "Regenerating..." : "Regenerate API Key"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Setup Instructions */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Setup Instructions</h4>
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                  <p>1. Copy the API key above</p>
+                  <p>2. In n8n, add JSONPost trigger node</p>
+                  <p>3. Paste the API key in the credentials</p>
+                  <p>4. Select which endpoints to listen to</p>
+                </div>
+                <div className="mt-4 flex items-center space-x-2">
+                  <Label className="text-sm font-medium">Project ID:</Label>
+                  <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono">
+                    {projectId}
+                  </code>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={copyProjectId}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Active n8n Webhooks */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                  <Activity className="h-4 w-4 mr-2" />
+                  Active n8n Webhooks
+                </h4>
+                {loadingN8nSubscriptions ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : n8nSubscriptions.length > 0 ? (
+                  <div className="space-y-2">
+                    {n8nSubscriptions.map((subscription, index) => (
+                      <div key={index} className="flex items-center justify-between py-2 px-3 bg-gray-50 dark:bg-gray-800 rounded">
+                        <span className="text-sm">{subscription.endpoint_name}</span>
+                        <span className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Active
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 py-4">
+                    No active n8n webhooks. Set up n8n trigger nodes to see them here.
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
 

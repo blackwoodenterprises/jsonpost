@@ -1609,6 +1609,172 @@ export async function POST(
         }
       }
 
+      // Send to n8n webhooks if configured
+      logger.info('Checking for n8n webhook subscriptions', {
+        endpointId: endpoint.id,
+        submissionId: submission.id
+      });
+
+      try {
+        // Get active n8n subscriptions for this endpoint
+        const { data: n8nSubscriptions, error: n8nError } = await supabase
+          .from('n8n_subscriptions')
+          .select('*')
+          .eq('endpoint_id', endpoint.id)
+          .eq('is_active', true);
+
+        if (n8nError) {
+          logger.error('Failed to fetch n8n subscriptions', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            error: n8nError
+          });
+        } else if (n8nSubscriptions && n8nSubscriptions.length > 0) {
+          logger.info('Found active n8n subscriptions', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            subscriptionCount: n8nSubscriptions.length,
+            webhookUrls: n8nSubscriptions.map(sub => sub.webhook_url)
+          });
+
+          // Prepare payload for n8n (similar to Zapier but with n8n-specific format)
+          const n8nPayload = {
+            ...flattenFormDataForZapier(submissionData),
+            _meta: {
+              submission_id: submission.id,
+              endpoint_id: endpoint.id,
+              project_id: projectId,
+              endpoint_name: endpoint.name,
+              submitted_at: submission.created_at,
+              client_ip: getClientIP(request),
+              user_agent: request.headers.get('user-agent') || 'Unknown'
+            }
+          };
+
+          logger.debug('Prepared n8n payload', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            payloadKeys: Object.keys(n8nPayload),
+            metaData: n8nPayload._meta
+          });
+
+          // Send to each n8n webhook
+          const n8nResults = await Promise.allSettled(
+            n8nSubscriptions.map(async (subscription) => {
+              logger.info('Sending data to n8n webhook', {
+                endpointId: endpoint.id,
+                submissionId: submission.id,
+                webhookUrl: subscription.webhook_url,
+                subscriptionId: subscription.id
+              });
+
+              try {
+                const n8nResponse = await fetch(subscription.webhook_url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'JSONPost-n8n-Integration/1.0'
+                  },
+                  body: JSON.stringify(n8nPayload),
+                  signal: AbortSignal.timeout(30000) // 30 second timeout
+                });
+
+                if (n8nResponse.ok) {
+                  const responseText = await n8nResponse.text();
+                  logger.success('n8n webhook delivered successfully', {
+                    endpointId: endpoint.id,
+                    submissionId: submission.id,
+                    webhookUrl: subscription.webhook_url,
+                    subscriptionId: subscription.id,
+                    status: n8nResponse.status,
+                    responseBody: responseText.substring(0, 500) // Log first 500 chars
+                  });
+                  return { success: true, subscription, response: responseText };
+                } else {
+                  const errorText = await n8nResponse.text();
+                  logger.error('n8n webhook delivery failed', {
+                    endpointId: endpoint.id,
+                    submissionId: submission.id,
+                    webhookUrl: subscription.webhook_url,
+                    subscriptionId: subscription.id,
+                    status: n8nResponse.status,
+                    error: errorText
+                  });
+                  return { success: false, subscription, error: errorText };
+                }
+              } catch (webhookError) {
+                logger.error('n8n webhook request failed', {
+                  endpointId: endpoint.id,
+                  submissionId: submission.id,
+                  webhookUrl: subscription.webhook_url,
+                  subscriptionId: subscription.id,
+                  error: webhookError,
+                  errorMessage: webhookError instanceof Error ? webhookError.message : 'Unknown error'
+                });
+                return { success: false, subscription, error: webhookError };
+              }
+            })
+          );
+
+          // Process n8n results and update submission status
+          const successfulN8nDeliveries = n8nResults.filter(result => 
+            result.status === 'fulfilled' && result.value.success
+          ).length;
+          
+          const failedN8nDeliveries = n8nResults.filter(result => 
+            result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.success)
+          ).length;
+
+          logger.info('n8n webhook delivery summary', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            totalSubscriptions: n8nSubscriptions.length,
+            successful: successfulN8nDeliveries,
+            failed: failedN8nDeliveries
+          });
+
+          // Update submission with n8n status
+          const n8nStatus = failedN8nDeliveries === 0 ? 'success' : 
+                           successfulN8nDeliveries === 0 ? 'failure' : 'partial';
+          
+          await supabase
+            .from('submissions')
+            .update({ n8n_status: n8nStatus })
+            .eq('id', submission.id);
+
+          logger.success('Submission n8n status updated', {
+            submissionId: submission.id,
+            n8nStatus: n8nStatus
+          });
+        } else {
+          logger.debug('No active n8n subscriptions found', {
+            endpointId: endpoint.id,
+            submissionId: submission.id
+          });
+        }
+      } catch (n8nError) {
+        logger.error('n8n webhook integration error', {
+          endpointId: endpoint.id,
+          submissionId: submission.id,
+          error: n8nError,
+          errorMessage: n8nError instanceof Error ? n8nError.message : 'Unknown error'
+        });
+
+        // Update submission with n8n failure status
+        try {
+          await supabase
+            .from('submissions')
+            .update({ n8n_status: 'failure' })
+            .eq('id', submission.id);
+        } catch (updateError) {
+          logger.error('Failed to update n8n failure status', {
+            endpointId: endpoint.id,
+            submissionId: submission.id,
+            error: updateError
+          });
+        }
+      }
+
       // Send autoresponder email if configured
       logger.info('Checking for autoresponder configuration', {
         endpointId: endpoint.id,

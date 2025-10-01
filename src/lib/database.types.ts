@@ -540,6 +540,7 @@ export type Database = {
           google_sheets_token_expires_at: string | null
           google_sheets_user_email: string | null
           id: string
+          n8n_api_key: string | null
           name: string
           updated_at: string | null
           user_id: string
@@ -554,6 +555,7 @@ export type Database = {
           google_sheets_token_expires_at?: string | null
           google_sheets_user_email?: string | null
           id?: string
+          n8n_api_key?: string | null
           name: string
           updated_at?: string | null
           user_id: string
@@ -568,6 +570,7 @@ export type Database = {
           google_sheets_token_expires_at?: string | null
           google_sheets_user_email?: string | null
           id?: string
+          n8n_api_key?: string | null
           name?: string
           updated_at?: string | null
           user_id?: string
@@ -634,6 +637,7 @@ export type Database = {
           endpoint_id: string
           id: string
           ip_address: unknown | null
+          n8n_status: string | null
           user_agent: string | null
           zapier_status: string | null
         }
@@ -643,6 +647,7 @@ export type Database = {
           endpoint_id: string
           id?: string
           ip_address?: unknown | null
+          n8n_status?: string | null
           user_agent?: string | null
           zapier_status?: string | null
         }
@@ -652,6 +657,7 @@ export type Database = {
           endpoint_id?: string
           id?: string
           ip_address?: unknown | null
+          n8n_status?: string | null
           user_agent?: string | null
           zapier_status?: string | null
         }
@@ -777,6 +783,61 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      n8n_subscriptions: {
+        Row: {
+          created_at: string | null
+          endpoint_id: string
+          event_type: string
+          id: string
+          is_active: boolean | null
+          project_id: string
+          target_url: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_id: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          project_id: string
+          target_url: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_id?: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          project_id?: string
+          target_url?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "n8n_subscriptions_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoint_security_view"
+            referencedColumns: ["endpoint_id"]
+          },
+          {
+            foreignKeyName: "n8n_subscriptions_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "n8n_subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
