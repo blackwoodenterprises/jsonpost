@@ -26,8 +26,15 @@ export function DashboardHeader({
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const handleSignOut = async () => {
-    await signOut();
-    router.push("/");
+    try {
+      await signOut();
+      // Use window.location.href for full page navigation to bypass middleware
+      window.location.href = "/";
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Still redirect to homepage even if there's an error
+      window.location.href = "/";
+    }
   };
 
   // Fetch user profile to get plan information
