@@ -9,7 +9,8 @@ const supabase = createClient(
 
 export async function POST(request: NextRequest) {
   try {
-    const { n8n_api_key, endpoint_id, webhook_url } = await request.json();
+    const n8n_api_key = request.headers.get('x-n8n-api-key');
+    const { endpoint_id, webhook_url } = await request.json();
 
     if (!n8n_api_key || !endpoint_id || !webhook_url) {
       return NextResponse.json(

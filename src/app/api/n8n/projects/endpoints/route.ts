@@ -9,8 +9,7 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const n8n_api_key = searchParams.get('n8n_api_key');
+    const n8n_api_key = request.headers.get('x-n8n-api-key');
 
     if (!n8n_api_key) {
       return NextResponse.json(
