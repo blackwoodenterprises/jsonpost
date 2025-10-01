@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+
 import {
   Card,
   CardContent,
@@ -13,24 +14,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
   FileSpreadsheet,
-  RefreshCw,
   Save,
   ExternalLink,
   CheckCircle,
   XCircle,
-  AlertCircle,
   Trash2,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
@@ -51,7 +44,7 @@ interface Endpoint {
   google_sheets_enabled?: boolean | null;
   google_sheets_spreadsheet_id?: string | null;
   google_sheets_sheet_name?: string | null;
-  google_sheets_column_mappings?: Record<string, string> | null;
+  google_sheets_selected_variables?: string[] | null;
 }
 
 interface GoogleSheet {
@@ -69,9 +62,9 @@ interface SheetInfo {
 interface GoogleSheetsClientProps {
   initialProject: Project;
   initialEndpoint: Endpoint;
-  initialSpreadsheets: GoogleSheet[];
-  initialAvailableSheets: SheetInfo[];
-  initialSheetHeaders: string[];
+  initialSpreadsheets?: GoogleSheet[];
+  initialAvailableSheets?: SheetInfo[];
+  initialSheetHeaders?: string[];
   projectId: string;
   endpointId: string;
 }
@@ -87,267 +80,72 @@ export default function GoogleSheetsClient({
 }: GoogleSheetsClientProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, session } = useAuth();
 
   const [project] = useState<Project>(initialProject);
   const [endpoint, setEndpoint] = useState<Endpoint>(initialEndpoint);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Google Sheets state
-  const [spreadsheets, setSpreadsheets] = useState<GoogleSheet[]>(initialSpreadsheets);
-  const [selectedSpreadsheetId, setSelectedSpreadsheetId] = useState<string>(
-    initialEndpoint.google_sheets_spreadsheet_id || ""
+  // Google Sheets state - simplified for new approach
+  const [selectedVariables, setSelectedVariables] = useState<string[]>(
+    initialEndpoint.google_sheets_selected_variables || []
   );
-  const [availableSheets, setAvailableSheets] = useState<SheetInfo[]>(initialAvailableSheets);
-  const [selectedSheetName, setSelectedSheetName] = useState<string>(
-    initialEndpoint.google_sheets_sheet_name || ""
-  );
-  const [sheetHeaders, setSheetHeaders] = useState<string[]>(initialSheetHeaders);
-  const [columnMapping, setColumnMapping] = useState<Record<string, string>>(
-    (initialEndpoint.google_sheets_column_mappings as Record<string, string>) || {}
-  );
+  const [isCreatingSpreadsheet, setIsCreatingSpreadsheet] = useState(false);
 
-  // Loading states
-  const [isLoadingSpreadsheets, setIsLoadingSpreadsheets] = useState(false);
-  const [isLoadingSheets, setIsLoadingSheets] = useState(false);
-  const [isLoadingHeaders, setIsLoadingHeaders] = useState(false);
-
-  const loadSpreadsheets = async () => {
-    if (!project?.google_sheets_access_token || !session?.access_token) return;
-
-    setIsLoadingSpreadsheets(true);
-    try {
-      const response = await fetch("/api/google-sheets/spreadsheets", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          "X-Project-ID": projectId,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch spreadsheets");
-      }
-
-      const data = await response.json();
-      setSpreadsheets(data.spreadsheets || []);
-    } catch (error) {
-      console.error("Error loading spreadsheets:", error);
+  const handleCreateSpreadsheet = async () => {
+    if (!endpoint || selectedVariables.length === 0) {
       toast({
-        title: "Error loading spreadsheets",
-        description: "Failed to load spreadsheets. Please try again.",
+        title: "No variables selected",
+        description: "Please select at least one variable to include in the spreadsheet.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoadingSpreadsheets(false);
-    }
-  };
-
-  const loadSheets = async (spreadsheetId: string) => {
-    if (!project?.google_sheets_access_token || !spreadsheetId || !session?.access_token) return;
-
-    setIsLoadingSheets(true);
-    try {
-      const response = await fetch(
-        `/api/google-sheets/sheets/${spreadsheetId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "X-Project-ID": projectId,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch sheets");
-      }
-
-      const data = await response.json();
-      setAvailableSheets(data.sheets || []);
-    } catch (error) {
-      console.error("Error loading sheets:", error);
-      toast({
-        title: "Error loading sheets",
-        description: "Failed to load sheets. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingSheets(false);
-    }
-  };
-
-  const loadHeaders = async (spreadsheetId: string, sheetName: string) => {
-    if (!project?.google_sheets_access_token || !spreadsheetId || !sheetName || !session?.access_token)
       return;
+    }
 
-    setIsLoadingHeaders(true);
+    setIsCreatingSpreadsheet(true);
     try {
-      const response = await fetch(
-        `/api/google-sheets/headers/${spreadsheetId}/${encodeURIComponent(sheetName)}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "X-Project-ID": projectId,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch headers");
-      }
-
-      const data = await response.json();
-      setSheetHeaders(data.headers || []);
-    } catch (error) {
-      console.error("Error loading headers:", error);
-      toast({
-        title: "Error loading headers",
-        description: "Failed to load headers. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingHeaders(false);
-    }
-  };
-
-  const refreshColumnsAndSync = async () => {
-    if (!selectedSpreadsheetId || !selectedSheetName || !session?.access_token) return;
-
-    setIsLoadingHeaders(true);
-    try {
-      // Fetch the latest headers from Google Sheets
-      const response = await fetch(
-        `/api/google-sheets/headers/${selectedSpreadsheetId}/${encodeURIComponent(selectedSheetName)}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "X-Project-ID": projectId,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch headers");
-      }
-
-      const data = await response.json();
-      const newHeaders = data.headers || [];
-      
-      // Update the sheet headers state
-      setSheetHeaders(newHeaders);
-
-      // Check for new columns that aren't in the current mapping
-      const currentMappedColumns = Object.keys(columnMapping);
-      const newColumns = newHeaders.filter((header: string) => 
-        !currentMappedColumns.includes(header)
-      );
-
-      if (newColumns.length > 0) {
-        toast({
-          title: "New columns detected",
-          description: `Found ${newColumns.length} new column(s). They are now available for mapping.`,
-        });
-      } else {
-        toast({
-          title: "Columns refreshed",
-          description: "No new columns found.",
-        });
-      }
-    } catch (error) {
-      console.error("Error refreshing columns:", error);
-      toast({
-        title: "Error refreshing columns",
-        description: "Failed to refresh columns. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingHeaders(false);
-    }
-  };
-
-  const handleSpreadsheetChange = async (spreadsheetId: string) => {
-    setSelectedSpreadsheetId(spreadsheetId);
-    setSelectedSheetName("");
-    setSheetHeaders([]);
-    setColumnMapping({});
-
-    if (spreadsheetId) {
-      await loadSheets(spreadsheetId);
-    }
-  };
-
-  const handleSheetChange = async (sheetName: string) => {
-    setSelectedSheetName(sheetName);
-    setSheetHeaders([]);
-    setColumnMapping({});
-
-    if (selectedSpreadsheetId && sheetName) {
-      await loadHeaders(selectedSpreadsheetId, sheetName);
-    }
-  };
-
-  const handleColumnMappingChange = (
-    columnHeader: string,
-    variablePath: string
-  ) => {
-    setColumnMapping((prev) => {
-      const newMapping = { ...prev };
-      if (variablePath === "__no_mapping__") {
-        // Remove the mapping if "No mapping" is selected
-        delete newMapping[columnHeader];
-      } else {
-        newMapping[columnHeader] = variablePath;
-      }
-      return newMapping;
-    });
-  };
-
-  const handleSave = async () => {
-    if (!endpoint) return;
-
-    setIsSaving(true);
-    try {
-      const response = await fetch(`/api/endpoints/${endpointId}/google-sheets`, {
+      const response = await fetch(`/api/google-sheets/create-spreadsheet`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          google_sheets_enabled: true,
-          google_sheets_spreadsheet_id: selectedSpreadsheetId,
-          google_sheets_sheet_name: selectedSheetName,
-          google_sheets_column_mappings:
-            Object.keys(columnMapping).length > 0 ? columnMapping : null,
+          endpointId: endpointId,
+          endpointName: endpoint.name,
+          selectedVariables: selectedVariables,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save configuration");
+        throw new Error("Failed to create spreadsheet");
       }
 
-      const updatedEndpoint = await response.json();
-      setEndpoint(updatedEndpoint);
+      const result = await response.json();
+      
+      // Update local endpoint state
+      setEndpoint({
+        ...endpoint,
+        google_sheets_enabled: true,
+        google_sheets_spreadsheet_id: result.spreadsheetId,
+        google_sheets_sheet_name: "Sheet1",
+        google_sheets_selected_variables: selectedVariables,
+      });
 
-      // Show success message
       toast({
-        title: "Configuration saved successfully!",
-        description: "Your Google Sheets integration has been configured.",
+        title: "Spreadsheet created successfully!",
+        description: `Created "${result.title}" and configured the integration.`,
       });
 
       // Refresh the page to get updated data
       router.refresh();
     } catch (error) {
-      console.error("Error saving Google Sheets configuration:", error);
+      console.error("Error creating spreadsheet:", error);
       toast({
-        title: "Error saving configuration",
-        description: "Failed to save the configuration. Please try again.",
+        title: "Error creating spreadsheet",
+        description: "Failed to create the spreadsheet. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsSaving(false);
+      setIsCreatingSpreadsheet(false);
     }
   };
 
@@ -356,65 +154,30 @@ export default function GoogleSheetsClient({
 
     setIsSaving(true);
     try {
-      console.log("Starting Google Sheets disconnect process", {
-        endpointId,
-        timestamp: new Date().toISOString()
-      });
-
       const response = await fetch(`/api/endpoints/${endpointId}/google-sheets`, {
-        method: "POST",
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          google_sheets_enabled: false,
-          google_sheets_spreadsheet_id: null,
-          google_sheets_sheet_name: null,
-          google_sheets_column_mappings: null,
-        }),
-      });
-
-      console.log("Disconnect API response:", {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Disconnect API error:", {
-          status: response.status,
-          statusText: response.statusText,
-          errorText
-        });
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`;
         
-        let errorMessage = "Failed to disconnect Google Sheets";
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorMessage;
-          if (errorData.details) {
-            errorMessage += `: ${errorData.details}`;
-          }
-        } catch {
-          // If parsing fails, use the raw error text
-          if (errorText) {
-            errorMessage += `: ${errorText}`;
-          }
+        if (response.status === 404) {
+          throw new Error("Endpoint not found. Please refresh the page and try again.");
         }
         
         throw new Error(errorMessage);
       }
 
       const updatedEndpoint = await response.json();
-      console.log("Successfully disconnected, updated endpoint:", updatedEndpoint);
       
       setEndpoint(updatedEndpoint);
 
       // Reset state
-      setSelectedSpreadsheetId("");
-      setSelectedSheetName("");
-      setSheetHeaders([]);
-      setColumnMapping({});
+      setSelectedVariables([]);
 
       toast({
         title: "Google Sheets disconnected",
@@ -442,6 +205,27 @@ export default function GoogleSheetsClient({
       project?.google_sheets_access_token &&
       project?.google_sheets_refresh_token
     );
+  };
+
+  const isSpreadsheetConfigured = () => {
+    return endpoint?.google_sheets_enabled && endpoint?.google_sheets_spreadsheet_id;
+  };
+
+  const handleVariableToggle = (variablePath: string) => {
+    setSelectedVariables(prev => {
+      if (prev.includes(variablePath)) {
+        return prev.filter(v => v !== variablePath);
+      } else {
+        return [...prev, variablePath];
+      }
+    });
+  };
+
+  const getSpreadsheetUrl = () => {
+    if (endpoint?.google_sheets_spreadsheet_id) {
+      return `https://docs.google.com/spreadsheets/d/${endpoint.google_sheets_spreadsheet_id}/edit`;
+    }
+    return null;
   };
 
   return (
@@ -522,207 +306,138 @@ export default function GoogleSheetsClient({
 
           {isGoogleSheetsConnected() && (
             <>
-              {/* Spreadsheet Selection */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Spreadsheet Configuration</CardTitle>
-                  <CardDescription>
-                    Choose the Google Sheets spreadsheet and sheet to connect to this
-                    endpoint
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="spreadsheet">Spreadsheet</Label>
-                      <div className="flex items-center space-x-2">
-                        <Select
-                          value={selectedSpreadsheetId}
-                          onValueChange={handleSpreadsheetChange}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a spreadsheet" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {spreadsheets.map((sheet) => (
-                              <SelectItem
-                                key={sheet.spreadsheetId}
-                                value={sheet.spreadsheetId}
-                              >
-                                {sheet.properties.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+              {/* Current Configuration */}
+              {isSpreadsheetConfigured() && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Current Configuration</CardTitle>
+                    <CardDescription>
+                      Your current Google Sheets integration setup
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50 dark:bg-green-900/20">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            Integration Active
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Submissions are being sent to Google Sheets
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <a
+                            href={getSpreadsheetUrl() || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open Sheet
+                          </a>
+                        </Button>
                         <Button
-                          variant="outline"
+                          variant="destructive"
                           size="sm"
-                          onClick={loadSpreadsheets}
-                          disabled={isLoadingSpreadsheets}
+                          onClick={handleDisconnect}
+                          disabled={isSaving}
                         >
-                          <RefreshCw
-                            className={`h-4 w-4 ${isLoadingSpreadsheets ? "animate-spin" : ""}`}
-                          />
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Disconnect
                         </Button>
                       </div>
                     </div>
 
-                    {selectedSpreadsheetId && (
-                      <div>
-                        <Label htmlFor="sheet">Sheet</Label>
-                        <Select
-                          value={selectedSheetName}
-                          onValueChange={handleSheetChange}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a sheet" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableSheets.map((sheet) => (
-                              <SelectItem key={sheet.name} value={sheet.name}>
-                                {sheet.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    <div>
+                      <Label className="text-sm font-medium">Selected Variables</Label>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {endpoint.google_sheets_selected_variables?.map((variable) => (
+                          <Badge key={variable} variant="secondary">
+                            {variable}
+                          </Badge>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-              {/* Column Mapping */}
-              {selectedSpreadsheetId &&
-                selectedSheetName &&
-                sheetHeaders.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <CardTitle>Column Mapping</CardTitle>
-                          <CardDescription>
-                            Map your spreadsheet columns to endpoint variable paths
-                          </CardDescription>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={refreshColumnsAndSync}
-                          disabled={isLoadingHeaders}
-                        >
-                          <RefreshCw
-                            className={`h-4 w-4 mr-2 ${isLoadingHeaders ? "animate-spin" : ""}`}
-                          />
-                          Refresh Columns
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {endpoint.variable_paths &&
-                      endpoint.variable_paths.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4">
-                          {sheetHeaders.map((header) => (
+              {/* Variable Selection */}
+              {!isSpreadsheetConfigured() && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Create New Spreadsheet</CardTitle>
+                    <CardDescription>
+                      Select which variables to include in your new Google Sheets spreadsheet.
+                      A new spreadsheet will be created in your Google Drive.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-sm font-medium mb-3 block">
+                        Available Variables
+                      </Label>
+                      {endpoint.variable_paths && endpoint.variable_paths.length > 0 ? (
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {endpoint.variable_paths.map((variablePath) => (
                             <div
-                              key={header}
-                              className="flex items-center space-x-4 p-4 border rounded-lg"
+                              key={variablePath}
+                              className="flex items-center space-x-2 p-2 border rounded hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
-                              <div className="flex-1">
-                                <Label className="text-sm font-medium">
-                                  Spreadsheet Column
-                                </Label>
-                                <div className="mt-1">
-                                  <Badge
-                                    variant="secondary"
-                                    className="font-mono"
-                                  >
-                                    {header}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div className="flex-1">
-                                <Label className="text-sm font-medium">
-                                  Variable Path
-                                </Label>
-                                <Select
-                                  value={
-                                    columnMapping[header] || "__no_mapping__"
-                                  }
-                                  onValueChange={(value) =>
-                                    handleColumnMappingChange(header, value)
-                                  }
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select variable path" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="__no_mapping__">
-                                      No mapping
-                                    </SelectItem>
-                                    {endpoint.variable_paths?.map(
-                                      (variablePath) => (
-                                        <SelectItem
-                                          key={variablePath}
-                                          value={variablePath}
-                                        >
-                                          {variablePath}
-                                        </SelectItem>
-                                      )
-                                    )}
-                                  </SelectContent>
-                                </Select>
-                              </div>
+                              <input
+                                type="checkbox"
+                                id={variablePath}
+                                checked={selectedVariables.includes(variablePath)}
+                                onChange={() => handleVariableToggle(variablePath)}
+                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                              />
+                              <Label
+                                htmlFor={variablePath}
+                                className="flex-1 cursor-pointer"
+                              >
+                                {variablePath}
+                              </Label>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-center py-6 text-gray-500">
-                          <AlertCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                          <FileSpreadsheet className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>No variables available for this endpoint</p>
                           <p className="text-sm">
-                            No variable paths configured
-                          </p>
-                          <p className="text-xs">
-                            Configure variable paths in your endpoint settings
-                            first
+                            Submit some data to this endpoint first to see available variables
                           </p>
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
 
-              {/* Actions */}
-              <div className="flex justify-between">
-                <div>
-                  {endpoint.google_sheets_spreadsheet_id && (
+                    {selectedVariables.length > 0 && (
+                      <div>
+                        <Label className="text-sm font-medium">Selected Variables ({selectedVariables.length})</Label>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {selectedVariables.map((variable) => (
+                            <Badge key={variable} variant="secondary">
+                              {variable}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <Button
-                      variant="outline"
-                      onClick={handleDisconnect}
-                      disabled={isSaving}
+                      onClick={handleCreateSpreadsheet}
+                      disabled={isCreatingSpreadsheet || selectedVariables.length === 0}
+                      className="w-full"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Disconnect Sheet
+                      <Plus className="h-4 w-4 mr-2" />
+                      {isCreatingSpreadsheet ? "Creating Spreadsheet..." : "Create Spreadsheet"}
                     </Button>
-                  )}
-                </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" asChild>
-                    <Link
-                      href={`/dashboard/projects/${projectId}/endpoints/${endpointId}`}
-                    >
-                      Cancel
-                    </Link>
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    disabled={
-                      isSaving || !selectedSpreadsheetId || !selectedSheetName
-                    }
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save Configuration"}
-                  </Button>
-                </div>
-              </div>
+                  </CardContent>
+                </Card>
+              )}
             </>
           )}
         </div>

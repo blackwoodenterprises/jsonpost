@@ -234,6 +234,7 @@ export type Database = {
           form_json: Json | null
           google_sheets_column_mappings: Json | null
           google_sheets_enabled: boolean | null
+          google_sheets_selected_variables: string[] | null
           google_sheets_sheet_name: string | null
           google_sheets_spreadsheet_id: string | null
           id: string
@@ -288,6 +289,7 @@ export type Database = {
           form_json?: Json | null
           google_sheets_column_mappings?: Json | null
           google_sheets_enabled?: boolean | null
+          google_sheets_selected_variables?: string[] | null
           google_sheets_sheet_name?: string | null
           google_sheets_spreadsheet_id?: string | null
           id?: string
@@ -342,6 +344,7 @@ export type Database = {
           form_json?: Json | null
           google_sheets_column_mappings?: Json | null
           google_sheets_enabled?: boolean | null
+          google_sheets_selected_variables?: string[] | null
           google_sheets_sheet_name?: string | null
           google_sheets_spreadsheet_id?: string | null
           id?: string

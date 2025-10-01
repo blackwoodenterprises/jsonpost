@@ -171,7 +171,7 @@ export default function ProjectSettingsPage() {
       // Redirect to Google OAuth
       const redirectUri = `${window.location.origin}/api/auth/google-sheets/callback`;
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-      const scope = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.email';
+      const scope = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email';
       const state = projectId;
       
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +

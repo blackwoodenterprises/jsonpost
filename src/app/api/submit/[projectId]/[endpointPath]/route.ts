@@ -1521,15 +1521,16 @@ export async function POST(
         endpointId: endpoint.id,
         hasSpreadsheetId: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id,
         hasSheetName: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name,
-        hasColumnMappings: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings,
+        hasSelectedVariables: !!(endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_selected_variables,
         spreadsheetId: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id,
         sheetName: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name,
-        columnMappings: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings
+        selectedVariables: (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_selected_variables
       });
 
       const googleSheetsEnabled = (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id && 
                                  (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name && 
-                                 (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings;
+                                 (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_selected_variables &&
+                                 ((endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_selected_variables?.length ?? 0) > 0;
 
       if (googleSheetsEnabled) {
         logger.info('Google Sheets configuration found, sending data', {

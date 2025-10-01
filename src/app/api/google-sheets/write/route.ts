@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
     // Check if Google Sheets is configured for this endpoint
     const spreadsheetId = (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_spreadsheet_id;
     const sheetName = (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_sheet_name;
-    const columnMapping = (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_column_mappings;
+    const selectedVariables = (endpoint as Database['public']['Tables']['endpoints']['Row']).google_sheets_selected_variables;
 
-    if (!spreadsheetId || !sheetName || !columnMapping) {
+    if (!spreadsheetId || !sheetName || !selectedVariables || selectedVariables.length === 0) {
       return NextResponse.json(
         { error: "Google Sheets not configured for this endpoint" },
         { status: 400 }
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     console.log("🔍 Google Sheets Debug - Spreadsheet ID:", spreadsheetId);
     console.log("🔍 Google Sheets Debug - Sheet Name:", sheetName);
-    console.log("🔍 Google Sheets Debug - Column Mapping:", columnMapping);
+    console.log("🔍 Google Sheets Debug - Selected Variables:", selectedVariables);
     console.log("🔍 Google Sheets Debug - Submission Data:", submissionData);
 
     // Extract access token (simplified for now due to type issues)
@@ -94,10 +94,8 @@ export async function POST(request: NextRequest) {
 
     console.log("🔍 Google Sheets Debug - Access Token Present:", !!accessToken);
 
-    // Prepare row data based on column mapping
-    const mappingEntries = Object.entries(columnMapping);
-    
-    console.log("🔍 Google Sheets Debug - Mapping Entries:", mappingEntries);
+    // Prepare row data based on selected variables
+    console.log("🔍 Google Sheets Debug - Selected Variables:", selectedVariables);
     
     // First, get the headers to determine the correct order
     const headersResponse = await fetch(
@@ -128,17 +126,18 @@ export async function POST(request: NextRequest) {
     // Create row data in the correct column order
     const rowValues = new Array(headers.length).fill("");
     
-    for (const [columnHeader, variablePath] of mappingEntries) {
-      const columnIndex = headers.indexOf(columnHeader);
-      console.log(`🔍 Google Sheets Debug - Mapping ${variablePath} -> ${columnHeader} (index: ${columnIndex})`);
+    for (const variablePath of selectedVariables) {
+      // For the new approach, we use the variable path as both the column header and the data path
+      const columnIndex = headers.indexOf(variablePath);
+      console.log(`🔍 Google Sheets Debug - Mapping ${variablePath} -> column index: ${columnIndex}`);
       
       if (columnIndex !== -1) {
         // Extract value from submission data using variable path
-        const value = extractValueFromPath(submissionData, variablePath as string);
+        const value = extractValueFromPath(submissionData, variablePath);
         rowValues[columnIndex] = value !== undefined ? String(value) : "";
         console.log(`🔍 Google Sheets Debug - Set value at index ${columnIndex}:`, value);
       } else {
-        console.log(`🔍 Google Sheets Debug - Column "${columnHeader}" not found in headers`);
+        console.log(`🔍 Google Sheets Debug - Column "${variablePath}" not found in headers`);
       }
     }
 

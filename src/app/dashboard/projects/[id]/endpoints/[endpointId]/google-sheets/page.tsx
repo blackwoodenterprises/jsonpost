@@ -20,7 +20,7 @@ interface Endpoint {
   google_sheets_enabled?: boolean | null;
   google_sheets_spreadsheet_id?: string | null;
   google_sheets_sheet_name?: string | null;
-  google_sheets_column_mappings?: Record<string, string> | null;
+  google_sheets_selected_variables?: string[] | null;
 }
 
 interface GoogleSheet {
@@ -97,7 +97,7 @@ async function getServerData(projectId: string, endpointId: string) {
   const { data: endpointData, error: endpointError } = await supabase
     .from("endpoints")
     .select(
-      "id, name, description, variable_paths, google_sheets_enabled, google_sheets_spreadsheet_id, google_sheets_sheet_name, google_sheets_column_mappings"
+      "id, name, description, variable_paths, google_sheets_enabled, google_sheets_spreadsheet_id, google_sheets_sheet_name, google_sheets_selected_variables"
     )
     .eq("id", endpointId)
     .eq("project_id", projectId)
