@@ -45,9 +45,11 @@ import {
   ChevronUp,
   ChevronDown,
   Link as LinkIcon,
+  Code,
 } from "lucide-react";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/dashboard/header";
+import { EmbedModal } from "@/components/dashboard/embed-modal";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import themesData from "@/lib/themes.json";
@@ -374,6 +376,9 @@ export default function FormBuilderPage() {
     created_at: string | null;
     updated_at: string | null;
   }>>([]);
+
+  // Embed modal state
+  const [embedModalOpen, setEmbedModalOpen] = useState(false);
 
   // Auto-save key for localStorage
   const autoSaveKey = `form-builder-${endpointId}`;
@@ -1714,6 +1719,26 @@ export default function FormBuilderPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Embed Form Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Embed Form</CardTitle>
+                <CardDescription>
+                  Generate embed code to integrate your form into websites
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={() => setEmbedModalOpen(true)}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Code className="h-4 w-4 mr-2" />
+                  Generate Embed Code
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
@@ -1833,6 +1858,15 @@ export default function FormBuilderPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Embed Modal */}
+      <EmbedModal
+        isOpen={embedModalOpen}
+        onClose={() => setEmbedModalOpen(false)}
+        endpoint={endpoint}
+        themes={themes}
+        selectedTheme={selectedTheme}
+      />
     </div>
   );
 }

@@ -72,16 +72,19 @@ src/
 ### Key Implementation Details
 
 #### 1. API Key Management
+
 - Each project gets a unique n8n API key stored in `projects.n8n_api_key`
 - Keys are generated using `crypto.randomBytes(32).toString('hex')`
 - Keys can be regenerated while maintaining existing subscriptions
 
 #### 2. Webhook Subscription Management
+
 - Subscriptions stored in `n8n_subscriptions` table
 - Each subscription links a project endpoint to an n8n webhook URL
 - Supports activation/deactivation without deletion
 
 #### 3. Form Submission Integration
+
 - Integrated into existing form submission handler
 - Sends data to all active n8n subscriptions for the endpoint
 - Includes comprehensive error handling and status tracking
@@ -91,6 +94,7 @@ src/
 ### New Tables
 
 #### `n8n_subscriptions`
+
 ```sql
 CREATE TABLE n8n_subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -107,11 +111,13 @@ CREATE TABLE n8n_subscriptions (
 ### Modified Tables
 
 #### `projects` - Added n8n API key
+
 ```sql
 ALTER TABLE projects ADD COLUMN n8n_api_key TEXT;
 ```
 
 #### `submissions` - Added n8n status tracking
+
 ```sql
 ALTER TABLE submissions ADD COLUMN n8n_status TEXT;
 ```
@@ -121,9 +127,11 @@ ALTER TABLE submissions ADD COLUMN n8n_status TEXT;
 ### Authentication Required Endpoints
 
 #### `GET /api/projects/[projectId]/n8n/api-key`
+
 **Purpose**: Retrieve n8n API key for a project
 **Authentication**: User must own the project
 **Response**:
+
 ```json
 {
   "apiKey": "64-character-hex-string"
@@ -131,9 +139,11 @@ ALTER TABLE submissions ADD COLUMN n8n_status TEXT;
 ```
 
 #### `POST /api/projects/[projectId]/n8n/api-key/regenerate`
+
 **Purpose**: Generate new n8n API key
 **Authentication**: User must own the project
 **Response**:
+
 ```json
 {
   "apiKey": "new-64-character-hex-string"
@@ -142,58 +152,244 @@ ALTER TABLE submissions ADD COLUMN n8n_status TEXT;
 
 ### Public n8n API Endpoints
 
+All public n8n API endpoints require the `x-n8n-api-key` header for authentication and support CORS for cross-origin requests.
+
 #### `POST /api/n8n/auth/validate`
-**Purpose**: Validate n8n API key and return project info
-**Headers**: `x-n8n-api-key: your-api-key`
-**Response**:
+
+**Purpose**: Validate n8n API key and return project information
+**Method**: POST
+**Headers**:
+
+- `x-n8n-api-key`: Your 64-character API key (optional for this endpoint)
+- `Content-Type`: application/json
+
+**Request Body**:
+
+```json
+{
+  "n8n_api_key": "your-64-character-api-key"
+}
+```
+
+**Success Response (200)**:
+
 ```json
 {
   "valid": true,
   "project": {
     "id": "uuid",
-    "name": "Project Name"
+    "name": "Project Name",
+    "user_id": "uuid"
   }
 }
 ```
 
+**Error Responses**:
+
+- **400 Bad Request**: Missing API key
+  ```json
+  {
+    "error": "n8n_api_key is required"
+  }
+  ```
+- **401 Unauthorized**: Invalid API key
+  ```json
+  {
+    "error": "Invalid API key"
+  }
+  ```
+- **500 Internal Server Error**: Server error
+  ```json
+  {
+    "error": "Internal server error"
+  }
+  ```
+
 #### `GET /api/n8n/projects/endpoints`
-**Purpose**: Get available endpoints for project
-**Headers**: `x-n8n-api-key: your-api-key`
-**Response**:
+
+**Purpose**: Get available endpoints for the authenticated project
+**Method**: GET
+**Headers**:
+
+- `x-n8n-api-key`: Your 64-character API key (required)
+
+**Success Response (200)**:
+
 ```json
 {
   "endpoints": [
     {
-      "id": "uuid",
-      "name": "Contact Form",
-      "path": "contact"
+      "name": "Contact Form (POST /contact)",
+      "value": "uuid-endpoint-id"
+    },
+    {
+      "name": "Newsletter Signup (POST /newsletter)",
+      "value": "uuid-endpoint-id"
     }
   ]
 }
 ```
 
+**Error Responses**:
+
+- **400 Bad Request**: Missing API key
+  ```json
+  {
+    "error": "n8n_api_key is required"
+  }
+  ```
+- **401 Unauthorized**: Invalid API key
+  ```json
+  {
+    "error": "Invalid API key"
+  }
+  ```
+- **500 Internal Server Error**: Failed to fetch endpoints
+  ```json
+  {
+    "error": "Failed to fetch endpoints"
+  }
+  ```
+
 #### `POST /api/n8n/subscribe`
-**Purpose**: Subscribe to webhook notifications
-**Headers**: `x-n8n-api-key: your-api-key`
-**Body**:
+
+**Purpose**: Subscribe to webhook notifications for form submissions
+**Method**: POST
+**Headers**:
+
+- `x-n8n-api-key`: Your 64-character API key (required)
+- `Content-Type`: application/json
+
+**Request Body** (supports both camelCase and snake_case):
+
 ```json
 {
-  "endpointId": "uuid",
-  "webhookUrl": "https://n8n.instance.com/webhook/uuid",
+  "endpointId": "uuid-endpoint-id",
+  "webhookUrl": "https://your-n8n-instance.com/webhook/uuid",
   "eventType": "form_submission"
 }
 ```
 
-#### `DELETE /api/n8n/unsubscribe`
-**Purpose**: Unsubscribe from webhook notifications
-**Headers**: `x-n8n-api-key: your-api-key`
-**Body**:
+_Alternative snake_case format also supported:_
+
 ```json
 {
-  "endpointId": "uuid",
-  "webhookUrl": "https://n8n.instance.com/webhook/uuid"
+  "endpoint_id": "uuid-endpoint-id",
+  "webhook_url": "https://your-n8n-instance.com/webhook/uuid",
+  "eventType": "form_submission"
 }
 ```
+
+**Success Response (200)**:
+
+```json
+{
+  "success": true,
+  "subscription": {
+    "id": "uuid-subscription-id",
+    "endpoint_name": "Contact Form",
+    "webhook_url": "https://your-n8n-instance.com/webhook/uuid",
+    "is_active": true
+  }
+}
+```
+
+**Error Responses**:
+
+- **400 Bad Request**: Missing required fields
+  ```json
+  {
+    "error": "n8n_api_key, endpoint_id, and webhook_url are required"
+  }
+  ```
+- **401 Unauthorized**: Invalid API key
+  ```json
+  {
+    "error": "Invalid API key"
+  }
+  ```
+- **404 Not Found**: Endpoint not found or doesn't belong to project
+  ```json
+  {
+    "error": "Endpoint not found or doesn't belong to this project"
+  }
+  ```
+- **500 Internal Server Error**: Failed to create subscription
+  ```json
+  {
+    "error": "Failed to create subscription"
+  }
+  ```
+
+#### `DELETE /api/n8n/unsubscribe`
+
+**Purpose**: Unsubscribe from webhook notifications
+**Method**: DELETE
+**Headers**:
+
+- `x-n8n-api-key`: Your 64-character API key (required)
+- `Content-Type`: application/json
+
+**Request Body** (supports both camelCase and snake_case):
+
+```json
+{
+  "endpointId": "uuid-endpoint-id",
+  "webhookUrl": "https://your-n8n-instance.com/webhook/uuid"
+}
+```
+
+_Alternative snake_case format also supported:_
+
+```json
+{
+  "endpoint_id": "uuid-endpoint-id",
+  "webhook_url": "https://your-n8n-instance.com/webhook/uuid"
+}
+```
+
+**Success Response (200)**:
+
+```json
+{
+  "message": "Successfully unsubscribed from webhook"
+}
+```
+
+**Error Responses**:
+
+- **400 Bad Request**: Missing required fields
+  ```json
+  {
+    "error": "n8n_api_key, endpoint_id, and webhook_url are required"
+  }
+  ```
+- **401 Unauthorized**: Invalid API key
+  ```json
+  {
+    "error": "Invalid API key"
+  }
+  ```
+- **404 Not Found**: Subscription not found
+  ```json
+  {
+    "error": "Subscription not found"
+  }
+  ```
+- **500 Internal Server Error**: Failed to delete subscription
+  ```json
+  {
+    "error": "Failed to unsubscribe from webhook"
+  }
+  ```
+
+### CORS Support
+
+All n8n API endpoints include CORS headers to support cross-origin requests:
+
+- `Access-Control-Allow-Origin: *`
+- `Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS`
+- `Access-Control-Allow-Headers: Content-Type, Authorization`
 
 ## n8n Node Development Guide
 
@@ -237,35 +433,32 @@ n8n-nodes-jsonpost/
 #### 1. Credentials File (`credentials/JsonPostApi.credentials.ts`)
 
 ```typescript
-import {
-  ICredentialType,
-  INodeProperties,
-} from 'n8n-workflow';
+import { ICredentialType, INodeProperties } from "n8n-workflow";
 
 export class JsonPostApi implements ICredentialType {
-  name = 'jsonPostApi';
-  displayName = 'JSONPost API';
-  documentationUrl = 'https://jsonpost.io/docs/n8n-integration';
-  
+  name = "jsonPostApi";
+  displayName = "JSONPost API";
+  documentationUrl = "https://jsonpost.io/docs/n8n-integration";
+
   properties: INodeProperties[] = [
     {
-      displayName: 'API Key',
-      name: 'apiKey',
-      type: 'string',
+      displayName: "API Key",
+      name: "apiKey",
+      type: "string",
       typeOptions: {
         password: true,
       },
-      default: '',
+      default: "",
       required: true,
-      description: 'Your JSONPost n8n API key from project settings',
+      description: "Your JSONPost n8n API key from project settings",
     },
     {
-      displayName: 'Base URL',
-      name: 'baseUrl',
-      type: 'string',
-      default: 'https://jsonpost.io',
+      displayName: "Base URL",
+      name: "baseUrl",
+      type: "string",
+      default: "https://jsonpost.io",
       required: true,
-      description: 'JSONPost base URL (use https://jsonpost.io for production)',
+      description: "JSONPost base URL (use https://jsonpost.io for production)",
     },
   ];
 }
@@ -280,84 +473,84 @@ import {
   INodeType,
   INodeTypeDescription,
   NodeOperationError,
-} from 'n8n-workflow';
+} from "n8n-workflow";
 
 export class JsonPost implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'JSONPost',
-    name: 'jsonPost',
-    icon: 'file:jsonpost.svg',
-    group: ['transform'],
+    displayName: "JSONPost",
+    name: "jsonPost",
+    icon: "file:jsonpost.svg",
+    group: ["transform"],
     version: 1,
     subtitle: '={{$parameter["operation"]}}',
-    description: 'Interact with JSONPost form endpoints',
+    description: "Interact with JSONPost form endpoints",
     defaults: {
-      name: 'JSONPost',
+      name: "JSONPost",
     },
-    inputs: ['main'],
-    outputs: ['main'],
+    inputs: ["main"],
+    outputs: ["main"],
     credentials: [
       {
-        name: 'jsonPostApi',
+        name: "jsonPostApi",
         required: true,
       },
     ],
     properties: [
       {
-        displayName: 'Operation',
-        name: 'operation',
-        type: 'options',
+        displayName: "Operation",
+        name: "operation",
+        type: "options",
         noDataExpression: true,
         options: [
           {
-            name: 'Get Endpoints',
-            value: 'getEndpoints',
-            description: 'Get all available form endpoints',
-            action: 'Get all available form endpoints',
+            name: "Get Endpoints",
+            value: "getEndpoints",
+            description: "Get all available form endpoints",
+            action: "Get all available form endpoints",
           },
           {
-            name: 'Subscribe to Webhook',
-            value: 'subscribe',
-            description: 'Subscribe to form submission webhooks',
-            action: 'Subscribe to form submission webhooks',
+            name: "Subscribe to Webhook",
+            value: "subscribe",
+            description: "Subscribe to form submission webhooks",
+            action: "Subscribe to form submission webhooks",
           },
           {
-            name: 'Unsubscribe from Webhook',
-            value: 'unsubscribe',
-            description: 'Unsubscribe from form submission webhooks',
-            action: 'Unsubscribe from form submission webhooks',
+            name: "Unsubscribe from Webhook",
+            value: "unsubscribe",
+            description: "Unsubscribe from form submission webhooks",
+            action: "Unsubscribe from form submission webhooks",
           },
         ],
-        default: 'getEndpoints',
+        default: "getEndpoints",
       },
       {
-        displayName: 'Endpoint',
-        name: 'endpointId',
-        type: 'options',
+        displayName: "Endpoint",
+        name: "endpointId",
+        type: "options",
         typeOptions: {
-          loadOptionsMethod: 'getEndpoints',
+          loadOptionsMethod: "getEndpoints",
         },
         displayOptions: {
           show: {
-            operation: ['subscribe', 'unsubscribe'],
+            operation: ["subscribe", "unsubscribe"],
           },
         },
-        default: '',
+        default: "",
         required: true,
-        description: 'The form endpoint to subscribe to',
+        description: "The form endpoint to subscribe to",
       },
       {
-        displayName: 'Webhook URL',
-        name: 'webhookUrl',
-        type: 'string',
+        displayName: "Webhook URL",
+        name: "webhookUrl",
+        type: "string",
         displayOptions: {
           show: {
-            operation: ['subscribe', 'unsubscribe'],
+            operation: ["subscribe", "unsubscribe"],
           },
         },
-        default: '',
+        default: "",
         required: true,
-        description: 'The webhook URL to receive form submissions',
+        description: "The webhook URL to receive form submissions",
       },
     ],
   };
@@ -365,15 +558,15 @@ export class JsonPost implements INodeType {
   methods = {
     loadOptions: {
       async getEndpoints(this: IExecuteFunctions) {
-        const credentials = await this.getCredentials('jsonPostApi');
+        const credentials = await this.getCredentials("jsonPostApi");
         const baseUrl = credentials.baseUrl as string;
         const apiKey = credentials.apiKey as string;
 
         const options = {
-          method: 'GET',
+          method: "GET",
           url: `${baseUrl}/api/n8n/projects/endpoints`,
           headers: {
-            'x-n8n-api-key': apiKey,
+            "x-n8n-api-key": apiKey,
           },
         };
 
@@ -384,7 +577,10 @@ export class JsonPost implements INodeType {
             value: endpoint.id,
           }));
         } catch (error) {
-          throw new NodeOperationError(this.getNode(), `Failed to load endpoints: ${error.message}`);
+          throw new NodeOperationError(
+            this.getNode(),
+            `Failed to load endpoints: ${error.message}`
+          );
         }
       },
     },
@@ -393,9 +589,9 @@ export class JsonPost implements INodeType {
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData();
     const returnData: INodeExecutionData[] = [];
-    const operation = this.getNodeParameter('operation', 0) as string;
-    
-    const credentials = await this.getCredentials('jsonPostApi');
+    const operation = this.getNodeParameter("operation", 0) as string;
+
+    const credentials = await this.getCredentials("jsonPostApi");
     const baseUrl = credentials.baseUrl as string;
     const apiKey = credentials.apiKey as string;
 
@@ -403,46 +599,44 @@ export class JsonPost implements INodeType {
       try {
         let responseData;
 
-        if (operation === 'getEndpoints') {
+        if (operation === "getEndpoints") {
           const options = {
-            method: 'GET',
+            method: "GET",
             url: `${baseUrl}/api/n8n/projects/endpoints`,
             headers: {
-              'x-n8n-api-key': apiKey,
+              "x-n8n-api-key": apiKey,
             },
           };
           responseData = await this.helpers.request(options);
-
-        } else if (operation === 'subscribe') {
-          const endpointId = this.getNodeParameter('endpointId', i) as string;
-          const webhookUrl = this.getNodeParameter('webhookUrl', i) as string;
+        } else if (operation === "subscribe") {
+          const endpointId = this.getNodeParameter("endpointId", i) as string;
+          const webhookUrl = this.getNodeParameter("webhookUrl", i) as string;
 
           const options = {
-            method: 'POST',
+            method: "POST",
             url: `${baseUrl}/api/n8n/subscribe`,
             headers: {
-              'x-n8n-api-key': apiKey,
-              'Content-Type': 'application/json',
+              "x-n8n-api-key": apiKey,
+              "Content-Type": "application/json",
             },
             body: {
               endpointId,
               webhookUrl,
-              eventType: 'form_submission',
+              eventType: "form_submission",
             },
             json: true,
           };
           responseData = await this.helpers.request(options);
-
-        } else if (operation === 'unsubscribe') {
-          const endpointId = this.getNodeParameter('endpointId', i) as string;
-          const webhookUrl = this.getNodeParameter('webhookUrl', i) as string;
+        } else if (operation === "unsubscribe") {
+          const endpointId = this.getNodeParameter("endpointId", i) as string;
+          const webhookUrl = this.getNodeParameter("webhookUrl", i) as string;
 
           const options = {
-            method: 'DELETE',
+            method: "DELETE",
             url: `${baseUrl}/api/n8n/unsubscribe`,
             headers: {
-              'x-n8n-api-key': apiKey,
-              'Content-Type': 'application/json',
+              "x-n8n-api-key": apiKey,
+              "Content-Type": "application/json",
             },
             body: {
               endpointId,
@@ -456,7 +650,6 @@ export class JsonPost implements INodeType {
         returnData.push({
           json: responseData,
         });
-
       } catch (error) {
         if (this.continueOnFail()) {
           returnData.push({
@@ -485,46 +678,46 @@ import {
   INodeTypeDescription,
   IWebhookResponseData,
   NodeOperationError,
-} from 'n8n-workflow';
+} from "n8n-workflow";
 
 export class JsonPostTrigger implements INodeType {
   description: INodeTypeDescription = {
-    displayName: 'JSONPost Trigger',
-    name: 'jsonPostTrigger',
-    icon: 'file:jsonpost.svg',
-    group: ['trigger'],
+    displayName: "JSONPost Trigger",
+    name: "jsonPostTrigger",
+    icon: "file:jsonpost.svg",
+    group: ["trigger"],
     version: 1,
-    description: 'Trigger workflow on JSONPost form submissions',
+    description: "Trigger workflow on JSONPost form submissions",
     defaults: {
-      name: 'JSONPost Trigger',
+      name: "JSONPost Trigger",
     },
     inputs: [],
-    outputs: ['main'],
+    outputs: ["main"],
     credentials: [
       {
-        name: 'jsonPostApi',
+        name: "jsonPostApi",
         required: true,
       },
     ],
     webhooks: [
       {
-        name: 'default',
-        httpMethod: 'POST',
-        responseMode: 'onReceived',
-        path: 'webhook',
+        name: "default",
+        httpMethod: "POST",
+        responseMode: "onReceived",
+        path: "webhook",
       },
     ],
     properties: [
       {
-        displayName: 'Form Endpoint',
-        name: 'endpointId',
-        type: 'options',
+        displayName: "Form Endpoint",
+        name: "endpointId",
+        type: "options",
         typeOptions: {
-          loadOptionsMethod: 'getEndpoints',
+          loadOptionsMethod: "getEndpoints",
         },
-        default: '',
+        default: "",
         required: true,
-        description: 'The form endpoint to listen for submissions',
+        description: "The form endpoint to listen for submissions",
       },
     ],
   };
@@ -532,15 +725,15 @@ export class JsonPostTrigger implements INodeType {
   methods = {
     loadOptions: {
       async getEndpoints(this: IHookFunctions) {
-        const credentials = await this.getCredentials('jsonPostApi');
+        const credentials = await this.getCredentials("jsonPostApi");
         const baseUrl = credentials.baseUrl as string;
         const apiKey = credentials.apiKey as string;
 
         const options = {
-          method: 'GET',
+          method: "GET",
           url: `${baseUrl}/api/n8n/projects/endpoints`,
           headers: {
-            'x-n8n-api-key': apiKey,
+            "x-n8n-api-key": apiKey,
           },
         };
 
@@ -551,7 +744,10 @@ export class JsonPostTrigger implements INodeType {
             value: endpoint.id,
           }));
         } catch (error) {
-          throw new NodeOperationError(this.getNode(), `Failed to load endpoints: ${error.message}`);
+          throw new NodeOperationError(
+            this.getNode(),
+            `Failed to load endpoints: ${error.message}`
+          );
         }
       },
     },
@@ -563,32 +759,32 @@ export class JsonPostTrigger implements INodeType {
       default: {
         async checkExists(this: IHookFunctions): Promise<boolean> {
           // Check if webhook subscription exists
-          const webhookUrl = this.getNodeWebhookUrl('default');
-          const endpointId = this.getNodeParameter('endpointId') as string;
-          
+          const webhookUrl = this.getNodeWebhookUrl("default");
+          const endpointId = this.getNodeParameter("endpointId") as string;
+
           // Implementation to check if subscription exists
           // Return true if exists, false otherwise
           return false;
         },
 
         async create(this: IHookFunctions): Promise<boolean> {
-          const webhookUrl = this.getNodeWebhookUrl('default');
-          const endpointId = this.getNodeParameter('endpointId') as string;
-          const credentials = await this.getCredentials('jsonPostApi');
+          const webhookUrl = this.getNodeWebhookUrl("default");
+          const endpointId = this.getNodeParameter("endpointId") as string;
+          const credentials = await this.getCredentials("jsonPostApi");
           const baseUrl = credentials.baseUrl as string;
           const apiKey = credentials.apiKey as string;
 
           const options = {
-            method: 'POST',
+            method: "POST",
             url: `${baseUrl}/api/n8n/subscribe`,
             headers: {
-              'x-n8n-api-key': apiKey,
-              'Content-Type': 'application/json',
+              "x-n8n-api-key": apiKey,
+              "Content-Type": "application/json",
             },
             body: {
               endpointId,
               webhookUrl,
-              eventType: 'form_submission',
+              eventType: "form_submission",
             },
             json: true,
           };
@@ -597,23 +793,26 @@ export class JsonPostTrigger implements INodeType {
             await this.helpers.request(options);
             return true;
           } catch (error) {
-            throw new NodeOperationError(this.getNode(), `Failed to create webhook: ${error.message}`);
+            throw new NodeOperationError(
+              this.getNode(),
+              `Failed to create webhook: ${error.message}`
+            );
           }
         },
 
         async delete(this: IHookFunctions): Promise<boolean> {
-          const webhookUrl = this.getNodeWebhookUrl('default');
-          const endpointId = this.getNodeParameter('endpointId') as string;
-          const credentials = await this.getCredentials('jsonPostApi');
+          const webhookUrl = this.getNodeWebhookUrl("default");
+          const endpointId = this.getNodeParameter("endpointId") as string;
+          const credentials = await this.getCredentials("jsonPostApi");
           const baseUrl = credentials.baseUrl as string;
           const apiKey = credentials.apiKey as string;
 
           const options = {
-            method: 'DELETE',
+            method: "DELETE",
             url: `${baseUrl}/api/n8n/unsubscribe`,
             headers: {
-              'x-n8n-api-key': apiKey,
-              'Content-Type': 'application/json',
+              "x-n8n-api-key": apiKey,
+              "Content-Type": "application/json",
             },
             body: {
               endpointId,
@@ -626,7 +825,10 @@ export class JsonPostTrigger implements INodeType {
             await this.helpers.request(options);
             return true;
           } catch (error) {
-            throw new NodeOperationError(this.getNode(), `Failed to delete webhook: ${error.message}`);
+            throw new NodeOperationError(
+              this.getNode(),
+              `Failed to delete webhook: ${error.message}`
+            );
           }
         },
       },
@@ -635,7 +837,7 @@ export class JsonPostTrigger implements INodeType {
 
   async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
     const bodyData = this.getBodyData();
-    
+
     return {
       workflowData: [
         [
@@ -678,14 +880,10 @@ export class JsonPostTrigger implements INodeType {
     "lintfix": "eslint nodes credentials package.json --fix",
     "prepublishOnly": "npm run build && npm run lint -s"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "n8n": {
     "n8nNodesApiVersion": 1,
-    "credentials": [
-      "dist/credentials/JsonPostApi.credentials.js"
-    ],
+    "credentials": ["dist/credentials/JsonPostApi.credentials.js"],
     "nodes": [
       "dist/nodes/JsonPost/JsonPost.node.js",
       "dist/nodes/JsonPost/JsonPostTrigger.node.js"
@@ -728,20 +926,15 @@ export class JsonPostTrigger implements INodeType {
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "credentials/**/*",
-    "nodes/**/*"
-  ],
-  "exclude": [
-    "dist/**/*",
-    "node_modules/**/*"
-  ]
+  "include": ["credentials/**/*", "nodes/**/*"],
+  "exclude": ["dist/**/*", "node_modules/**/*"]
 }
 ```
 
 ## Authentication Flow
 
 ### 1. API Key Generation
+
 ```mermaid
 sequenceDiagram
     participant User
@@ -758,6 +951,7 @@ sequenceDiagram
 ```
 
 ### 2. n8n Node Authentication
+
 ```mermaid
 sequenceDiagram
     participant n8n Node
@@ -774,6 +968,7 @@ sequenceDiagram
 ## Webhook Management
 
 ### Subscription Flow
+
 ```mermaid
 sequenceDiagram
     participant n8n Trigger
@@ -788,6 +983,7 @@ sequenceDiagram
 ```
 
 ### Form Submission Flow
+
 ```mermaid
 sequenceDiagram
     participant User
@@ -812,12 +1008,14 @@ sequenceDiagram
 ### Local Development Setup
 
 1. **JSONPost Development**:
+
 ```bash
 # Start JSONPost development server
 npm run dev
 ```
 
 2. **n8n Node Development**:
+
 ```bash
 # Build the node
 npm run build
@@ -830,6 +1028,7 @@ npm link n8n-nodes-jsonpost
 ```
 
 3. **Testing with n8n**:
+
 ```bash
 # Start n8n with custom nodes
 N8N_CUSTOM_EXTENSIONS=n8n-nodes-jsonpost n8n start
@@ -838,11 +1037,13 @@ N8N_CUSTOM_EXTENSIONS=n8n-nodes-jsonpost n8n start
 ### Production Deployment
 
 1. **Publish n8n Node**:
+
 ```bash
 npm publish
 ```
 
 2. **Install in n8n**:
+
 ```bash
 npm install n8n-nodes-jsonpost
 ```
