@@ -1,0 +1,33 @@
+We need to go through this entire repository and document it extensively and properly. There is already an old and outdated documentation in README.md , N8N_INTEGRATION_DOCUMENTATION.md and FORM_SUBMISSION_LOGIC.md . Review these but these are old and lot of things have changed. Documentation needs to be updated and comprehensive.
+
+We need to make a new documentation folder called /dev_docs in this repository and add many files documenting various sections of how the application works. You need to study the architecture of the application and document all the parts and how they work such that future development becomes easier.
+
+Database schema is given in schema.sql
+
+Here are some pointers.
+
+1. Main website at / with many public pages. Check from middleware.ts. There are various pages and tools on the homepage main website which need to be documented.
+2. User signup and login.
+3. /dashboard is main dashboard route for logged in users. Users first create projects at /dashboard/projects/new . Users can see project details at /dashboard/projects/[projectId]. Users can also go to project settings page at /dashboard/projects/[projectId]/settings page. On project settings page, user is able to configure google sheets integration and also n8n integration (generate api keys).
+4. User can create new endpoints at /dashboard/projects/[projectId]/endpoints/new with various settings.
+5. User can go to endpoint details page /dashboard/projects/[projectId]/endpoints/[endpointId]. Users can also edit endpoint configuration.
+6. Users can also view submissions on project details page and endpoint details page. There are also separate routes for full-page submissions viewing. There is also a page for viewing single submissions which needs to be documented.
+7. Users are able to configure autoresponder emails. Users configure this on a separate page.
+8. Users are able to configure google sheets from various places in the app. Document this properly in a separate file.
+9. Users are able to configure webhooks using svix. And old normal webhook functionality is also there but deprecated. Users are also able to do JSON transformation before posting to external webhooks. 
+10. Users are able to extract variable paths from latest json submission and use it at various places in the app.
+11. Document the form builder extensively in a separate file. All features on that page should be documented. That page has lots of features.
+12. On the billing and usage page, users are able to switch , upgrade and downgrade their plans and also checkout with dodopayments. Document how dodopayments works in a separate file.
+13. Users are also able to integrate zapier by getting the keys on the profile page. 
+
+There are various backend routes. The main one is main submission endpoint. This has extensive logic and needs to be studied and documented separately in a file.
+
+There are many other api routes you need to study and document.
+
+There are api routes which return form json schema to the frontend. There are also many demo forms form_definitions folder.
+
+Authentication flow should be documented separately. Any potential security flaws and vulnerability must also be scanned in all the backend api routes and files. You must also document any features which i didn’t list above but is in the code. Anythings that needs to be upgraded to latest nextjs and supabase standards and have been done in the wrong way. What is the correct way of handling authentication and backend data fetching. You need to put all of these in a file.
+
+Organize the documentation in separate files in the /dev_docs folder for future reference.
+
+Don’t make any changes to the actual code. Just write documentation in /dev_docs folder.

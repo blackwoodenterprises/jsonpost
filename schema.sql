@@ -130,6 +130,18 @@ CREATE TABLE public.monthly_submission_counts (
   CONSTRAINT monthly_submission_counts_pkey PRIMARY KEY (id),
   CONSTRAINT monthly_submission_counts_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
 );
+CREATE TABLE public.n8n_subscriptions (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  project_id uuid NOT NULL,
+  endpoint_id uuid NOT NULL,
+  webhook_url text NOT NULL,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT n8n_subscriptions_pkey PRIMARY KEY (id),
+  CONSTRAINT n8n_subscriptions_endpoint_id_fkey FOREIGN KEY (endpoint_id) REFERENCES public.endpoints(id),
+  CONSTRAINT n8n_subscriptions_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id)
+);
 CREATE TABLE public.profiles (
   id uuid NOT NULL,
   email text NOT NULL,
@@ -163,6 +175,7 @@ CREATE TABLE public.projects (
   google_sheets_token_expires_at timestamp with time zone,
   google_sheets_connected_at timestamp with time zone,
   google_sheets_user_email text,
+  n8n_api_key text DEFAULT encode(gen_random_bytes(32), 'hex'::text) UNIQUE,
   CONSTRAINT projects_pkey PRIMARY KEY (id),
   CONSTRAINT projects_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
 );
