@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormEmbed SDK - Complete Documentation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3a7685; padding-bottom: 10px; }
+    h2 { color: #34495e; margin-top: 40px; }
+    h3 { color: #5a6c7d; margin-top: 30px; }
+    .example {
+      background: #f7f9fa;
+      border-left: 4px solid #3a7685;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    pre {
+      background: #2c3e50;
+      color: #ecf0f1;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code { font-family: 'Courier New', monospace; font-size: 14px; }
+    .note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 15px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    th { background: #3a7685; color: white; }
+    .demo-btn {
+      padding: 12px 24px;
+      background: #3a7685;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin: 5px;
+    }
+    .demo-btn:hover { background: #2c5d6a; }
+  </style>
+</head>
+<body>
+  <h1>FormEmbed SDK - Complete Documentation</h1>
+  
+  <p>Embed your JSONPost forms anywhere with a simple JavaScript snippet.</p>
+
+  <h2>Installation</h2>
+  <div class="example">
+    <p>Add the SDK to your HTML:</p>
+    <pre><code>&lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;</code></pre>
+  </div>
+
+  <h2>Quick Start Examples</h2>
+
+  <h3>1. Modal Popup</h3>
+  <div class="example">
+    <p>Opens a centered modal dialog with your form:</p>
+    <pre><code>&lt;script&gt;
+  const modal = FormEmbed.createModal('ec14584c-be46-486d-bb51-1733801d7bc3', {
+    theme: 'bumblebee',
+    width: 800,
+    height: 600
+  });
+  
+  modal.open();
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <h3>2. Chatbox / Popover</h3>
+  <div class="example">
+    <p>Floating chat icon that opens a popover window:</p>
+    <pre><code>&lt;script&gt;
+  FormEmbed.createChatbox('ec14584c-be46-486d-bb51-1733801d7bc3', {
+    theme: 'bumblebee',
+    position: 'bottom-right',
+    buttonIcon: 'https://your-icon.png',
+    buttonColor: '#3a7685',
+    width: 400,
+    height: 600
+  });
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <h3>3. Side Drawer</h3>
+  <div class="example">
+    <p>Slides in from left or right side:</p>
+    <pre><code>&lt;script&gt;
+  FormEmbed.createDrawer('ec14584c-be46-486d-bb51-1733801d7bc3', {
+    theme: 'bumblebee',
+    side: 'right',
+    width: 500,
+    buttonText: 'Feedback',
+    buttonColor: '#3a7685'
+  });
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <h3>4. Button Trigger</h3>
+  <div class="example">
+    <p>Trigger modal or drawer from any button:</p>
+    <pre><code>&lt;button id="my-button"&gt;Open Survey&lt;/button&gt;
+
+&lt;script&gt;
+  FormEmbed.createButton('ec14584c-be46-486d-bb51-1733801d7bc3', {
+    theme: 'bumblebee',
+    buttonSelector: '#my-button',
+    openAs: 'modal',
+    width: 800,
+    height: 600
+  });
+&lt;/script&gt;</code></pre>
+  </div>
+
+  <h2>Configuration Options</h2>
+
+  <h3>Modal Options</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>theme</td><td>string</td><td>'light'</td><td>DaisyUI theme name</td></tr>
+      <tr><td>width</td><td>number|string</td><td>800</td><td>Modal width (px or %)</td></tr>
+      <tr><td>height</td><td>number|string</td><td>600</td><td>Modal height (px or vh)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Chatbox Options</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>theme</td><td>string</td><td>'light'</td><td>DaisyUI theme name</td></tr>
+      <tr><td>position</td><td>string</td><td>'bottom-right'</td><td>'bottom-right' or 'bottom-left'</td></tr>
+      <tr><td>buttonIcon</td><td>string</td><td>(default)</td><td>URL to custom icon image</td></tr>
+      <tr><td>buttonColor</td><td>string</td><td>'#3a7685'</td><td>Button background color</td></tr>
+      <tr><td>width</td><td>number|string</td><td>400</td><td>Window width</td></tr>
+      <tr><td>height</td><td>number|string</td><td>600</td><td>Window height</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Drawer Options</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>theme</td><td>string</td><td>'light'</td><td>DaisyUI theme name</td></tr>
+      <tr><td>side</td><td>string</td><td>'right'</td><td>'left' or 'right'</td></tr>
+      <tr><td>width</td><td>number|string</td><td>500</td><td>Drawer width</td></tr>
+      <tr><td>buttonText</td><td>string</td><td>'Open Form'</td><td>Side tab button text</td></tr>
+      <tr><td>buttonColor</td><td>string</td><td>'#3a7685'</td><td>Button color</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Button Options</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>theme</td><td>string</td><td>'light'</td><td>DaisyUI theme name</td></tr>
+      <tr><td>buttonSelector</td><td>string</td><td>null</td><td>CSS selector for existing button</td></tr>
+      <tr><td>buttonText</td><td>string</td><td>'Open Form'</td><td>Text for new button</td></tr>
+      <tr><td>openAs</td><td>string</td><td>'modal'</td><td>'modal' or 'drawer'</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Mobile Behavior</h2>
+  <div class="note">
+    <strong>Important:</strong> On mobile devices (width &lt; 768px), all embed modes automatically convert to fullscreen modals. Borders and rounded corners are removed for edge-to-edge display.
+  </div></code></pre>
+
+
+
+  <h2>API Methods</h2>
+
+  <h3>Modal Methods</h3>
+  <pre><code>const modal = FormEmbed.createModal(formId, options);
+
+modal.open();    // Open the modal
+modal.close();   // Close the modal
+modal.toggle();  // Toggle open/closed state</code></pre>
+
+  <h3>Chatbox Methods</h3>
+  <pre><code>const chatbox = FormEmbed.createChatbox(formId, options);
+
+chatbox.open();    // Open the chatbox window
+chatbox.close();   // Close the chatbox window
+chatbox.toggle();  // Toggle open/closed state
+chatbox.destroy(); // Remove chatbox and button from page</code></pre>
+
+  <h3>Drawer Methods</h3>
+  <pre><code>const drawer = FormEmbed.createDrawer(formId, options);
+
+drawer.open();    // Open the drawer
+drawer.close();   // Close the drawer
+drawer.toggle();  // Toggle open/closed state
+drawer.destroy(); // Remove drawer and button from page</code></pre>
+
+  <h2>Complete Examples</h2>
+
+  <h3>Example 1: Modal on Button Click</h3>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Customer Feedback&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Welcome to Our Site&lt;/h1&gt;
+  &lt;button id="feedback-btn"&gt;Give Feedback&lt;/button&gt;
+  
+  &lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    const modal = FormEmbed.createModal('ec14584c-be46-486d-bb51-1733801d7bc3', {
+      theme: 'bumblebee',
+      width: 700,
+      height: '80vh'
+    });
+    
+    document.getElementById('feedback-btn').onclick = () =&gt; modal.open();
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h3>Example 2: Auto-Open Modal After Delay</h3>
+  <pre><code>&lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // Open modal after 3 seconds
+  setTimeout(() =&gt; {
+    FormEmbed.createModal('ec14584c-be46-486d-bb51-1733801d7bc3', {
+      theme: 'corporate',
+      width: '80%',
+      height: 600
+    }).open();
+  }, 3000);
+&lt;/script&gt;</code></pre>
+
+  <h3>Example 3: Chatbox with Custom Icon</h3>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Support Chat&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Need Help?&lt;/h1&gt;
+  
+  &lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    FormEmbed.createChatbox('ec14584c-be46-486d-bb51-1733801d7bc3', {
+      theme: 'dark',
+      position: 'bottom-right',
+      buttonIcon: 'https://example.com/chat-icon.png',
+      buttonColor: '#0066cc',
+      width: 450,
+      height: 650
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h3>Example 4: Drawer from Left Side</h3>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Feedback Form&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;We Value Your Feedback&lt;/h1&gt;
+  
+  &lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    FormEmbed.createDrawer('ec14584c-be46-486d-bb51-1733801d7bc3', {
+      theme: 'emerald',
+      side: 'left',
+      width: 550,
+      buttonText: 'Contact Us',
+      buttonColor: '#10b981'
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h3>Example 5: Multiple Forms on Same Page</h3>
+  <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Multiple Forms&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;button id="survey-btn"&gt;Take Survey&lt;/button&gt;
+  &lt;button id="contact-btn"&gt;Contact Us&lt;/button&gt;
+  
+  &lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;
+  &lt;script&gt;
+    // Survey form as modal
+    FormEmbed.createButton('form-id-1', {
+      theme: 'bumblebee',
+      buttonSelector: '#survey-btn',
+      openAs: 'modal',
+      width: 800,
+      height: 600
+    });
+    
+    // Contact form as drawer
+    FormEmbed.createButton('form-id-2', {
+      theme: 'emerald',
+      buttonSelector: '#contact-btn',
+      openAs: 'drawer',
+      side: 'right',
+      width: 500
+    });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+  <h3>Example 6: Exit Intent Popup</h3>
+  <pre><code>&lt;script src="https://forms.jsonpost.com/embed/v1/embed.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  let modalShown = false;
+  
+  document.addEventListener('mouseleave', (e) =&gt; {
+    if (e.clientY &lt; 0 &amp;&amp; !modalShown) {
+      FormEmbed.createModal('ec14584c-be46-486d-bb51-1733801d7bc3', {
+        theme: 'valentine',
+        width: 600,
+        height: 500
+      }).open();
+      modalShown = true;
+    }
+  });
+&lt;/script&gt;</code></pre>
+
+  <h2>Available Themes</h2>
+  <div class="example">
+    <p>Use any DaisyUI theme name:</p>
+    <ul style="columns: 3; column-gap: 20px; list-style: none; padding: 0;">
+      <li>✓ light</li>
+      <li>✓ dark</li>
+      <li>✓ cupcake</li>
+      <li>✓ bumblebee</li>
+      <li>✓ emerald</li>
+      <li>✓ corporate</li>
+      <li>✓ synthwave</li>
+      <li>✓ retro</li>
+      <li>✓ cyberpunk</li>
+      <li>✓ valentine</li>
+      <li>✓ halloween</li>
+      <li>✓ garden</li>
+      <li>✓ forest</li>
+      <li>✓ aqua</li>
+      <li>✓ lofi</li>
+      <li>✓ pastel</li>
+      <li>✓ fantasy</li>
+      <li>✓ wireframe</li>
+      <li>✓ black</li>
+      <li>✓ luxury</li>
+      <li>✓ dracula</li>
+      <li>✓ cmyk</li>
+      <li>✓ autumn</li>
+      <li>✓ business</li>
+      <li>✓ acid</li>
+      <li>✓ lemonade</li>
+      <li>✓ night</li>
+      <li>✓ coffee</li>
+      <li>✓ winter</li>
+      <li>✓ dim</li>
+      <li>✓ nord</li>
+      <li>✓ sunset</li>
+    </ul>
+  </div>
+
+  <h2>Troubleshooting</h2>
+  
+  <h3>Form not loading?</h3>
+  <ul>
+    <li>Verify your form ID is correct</li>
+    <li>Check browser console for errors</li>
+    <li>Ensure the SDK script loads before your code</li>
+    <li>Check if your page blocks iframes (CSP headers)</li>
+  </ul>
+
+  <h3>Modal not centered?</h3>
+  <ul>
+    <li>Try percentage-based dimensions: <code>width: '80%'</code></li>
+    <li>Check for CSS conflicts (z-index, position)</li>
+    <li>Verify no parent elements have <code>overflow: hidden</code></li>
+  </ul>
+
+  <h3>Chatbox button not appearing?</h3>
+  <ul>
+    <li>Check if z-index conflicts exist</li>
+    <li>Verify button icon URL is accessible (CORS)</li>
+    <li>Check browser console for errors</li>
+    <li>Ensure SDK is loaded</li>
+  </ul>
+
+  <h3>Drawer not sliding in?</h3>
+  <ul>
+    <li>Check for CSS transitions being disabled</li>
+    <li>Verify no conflicting styles on body</li>
+    <li>Test in different browsers</li>
+  </ul>
+
+  <h2>Best Practices</h2>
+  <ul>
+    <li><strong>Load SDK once:</strong> Include the script tag only once per page</li>
+    <li><strong>Wait for DOM:</strong> Initialize embeds after DOM is ready or use <code>defer</code></li>
+    <li><strong>Mobile-first:</strong> Test on mobile - embeds auto-adapt to fullscreen</li>
+    <li><strong>Theme consistency:</strong> Match form theme to your site design</li>
+    <li><strong>Performance:</strong> Lazy load embeds (don't auto-open immediately)</li>
+    <li><strong>Accessibility:</strong> Provide keyboard navigation (ESC to close)</li>
+    <li><strong>User experience:</strong> Don't show modal immediately on page load</li>
+  </ul>
+
+  <h2>Browser Support</h2>
+  <ul>
+    <li>Chrome/Edge (latest 2 versions)</li>
+    <li>Firefox (latest 2 versions)</li>
+    <li>Safari (latest 2 versions)</li>
+    <li>Mobile browsers (iOS Safari, Chrome Mobile)</li>
+  </ul>
+
+  <h2>Security & Privacy</h2>
+  <ul>
+    <li>Forms load in sandboxed iframes</li>
+    <li>No cookies or localStorage used by SDK</li>
+    <li>HTTPS-only form loading</li>
+    <li>No tracking or analytics in SDK</li>
+  </ul>
+
+  <h2>Live Demos</h2>
+  <button class="demo-btn" id="demo-modal">Try Modal</button>
+  <button class="demo-btn" id="demo-drawer">Try Drawer</button>
+  <button class="demo-btn" id="demo-chatbox">Add Chatbox</button>
+
+  <script src="https://forms.jsonpost.com/embed/v1/embed.js"></script>
+  <script>
+    document.getElementById('demo-modal').onclick = () => {
+      FormEmbed.createModal('ec14584c-be46-486d-bb51-1733801d7bc3', {
+        theme: 'bumblebee',
+        width: 800,
+        height: 600
+      }).open();
+    };
+
+    document.getElementById('demo-drawer').onclick = () => {
+      FormEmbed.createDrawer('ec14584c-be46-486d-bb51-1733801d7bc3', {
+        theme: 'bumblebee',
+        side: 'right',
+        width: 500
+      }).open();
+    };
+
+    let chatboxCreated = false;
+    document.getElementById('demo-chatbox').onclick = function() {
+      if (!chatboxCreated) {
+        FormEmbed.createChatbox('ec14584c-be46-486d-bb51-1733801d7bc3', {
+          theme: 'bumblebee',
+          position: 'bottom-right'
+        });
+        chatboxCreated = true;
+        this.textContent = 'Chatbox Added!';
+      }
+    };
+  </script>
+</body>
+</html>

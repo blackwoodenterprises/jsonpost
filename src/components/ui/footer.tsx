@@ -52,6 +52,12 @@ export function Footer() {
                   Free JSON Schema Builder
                 </Link>
               </li>
+
+              <li>
+                <Link href="/embed" className="hover:text-white">
+                  Embedding In Your Webpages
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

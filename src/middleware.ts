@@ -178,6 +178,7 @@ export async function middleware(request: NextRequest) {
     '/free-html-form-generator',
     '/free-json-schema-builder',
     '/features-and-screenshots',
+    '/embed',
     '/status',
     '/help',
     '/terms-of-service',
