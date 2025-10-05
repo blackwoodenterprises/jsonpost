@@ -39,28 +39,27 @@ export default function DocsPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4">
-              <FileText className="w-4 h-4 mr-1" />
+            <Badge className="mb-6 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-4 py-2">
+              <FileText className="w-4 h-4 mr-2" />
               Developer Documentation
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              JSONPost Integration Guide
+            <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-slate-900 via-emerald-700 to-slate-800 dark:from-white dark:via-emerald-400 dark:to-slate-200 bg-clip-text text-transparent leading-tight">
+              Complete Integration Guide
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-              Complete developer documentation for integrating JSONPost headless
-              form backend into your frontend applications. Get started in
-              minutes with our simple API.
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-4xl mx-auto leading-relaxed">
+              Everything you need to integrate JSONPost's powerful form builder and backend automation platform. 
+              From simple contact forms to complex multi-step workflows - get started in minutes.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild>
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30" asChild>
                 <Link href="#quick-start">
                   Quick Start <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800" asChild>
                 <Link href="/auth/signup">Get API Key</Link>
               </Button>
             </div>
@@ -2598,25 +2597,26 @@ export default function DocsPage() {
       </section>
 
       {/* Getting Started CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-            Create your free JSONPost account and start collecting form
-            submissions in minutes.
+          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-emerald-700 to-slate-800 dark:from-white dark:via-emerald-400 dark:to-slate-200 bg-clip-text text-transparent">
+            Ready to Get Started?
+          </h2>
+          <p className="text-xl text-slate-600 dark:text-slate-300 mb-8">
+            Create your free JSONPost account and start building powerful forms with automation in minutes.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
+            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30" asChild>
               <Link href="/auth/signup">
                 Create Free Account <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild>
+            <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800" asChild>
               <Link href="/dashboard">View Dashboard</Link>
             </Button>
           </div>
 
-          <div className="mt-8 text-sm text-gray-500 dark:text-gray-400">
+          <div className="mt-8 text-sm text-slate-500 dark:text-slate-400">
             No credit card required • Free tier includes {PLANS.FREE.limits.submissions} submissions/month
           </div>
         </div>

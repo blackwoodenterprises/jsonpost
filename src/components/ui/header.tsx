@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Code, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,9 +13,13 @@ export function Header() {
     <header className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <Code className="w-5 h-5 text-white" />
-          </div>
+          <Image 
+            src="/logo.png" 
+            alt="JSONPost Logo" 
+            width={32} 
+            height={32} 
+            className="rounded-lg"
+          />
           <span className="text-xl font-bold">JSONPost</span>
         </Link>
         
@@ -26,7 +31,7 @@ export function Header() {
           <Button variant="ghost" asChild>
             <Link href="/auth/login">Sign In</Link>
           </Button>
-          <Button asChild>
+          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" asChild>
             <Link href="/auth/signup">Get Started</Link>
           </Button>
         </div>
@@ -58,7 +63,7 @@ export function Header() {
                   Sign In
                 </Link>
               </Button>
-              <Button className="w-full" asChild>
+              <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" asChild>
                 <Link href="/auth/signup" onClick={() => setIsMenuOpen(false)}>
                   Get Started
                 </Link>

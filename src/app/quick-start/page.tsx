@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -42,39 +43,34 @@ export default function QuickStartPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full text-sm font-medium text-blue-800 dark:text-blue-200 mb-6">
-              <Sparkles className="w-4 h-4 mr-2" />
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-2 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 rounded-full text-sm font-medium mb-6">
+              <Zap className="w-4 h-4 mr-2" />
               Quick Start Guide
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-              Get Started with JSONPost <br className="hidden sm:block" />
-              in Under 5 Minutes
+            <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-slate-900 via-emerald-700 to-slate-800 dark:from-white dark:via-emerald-400 dark:to-slate-200 bg-clip-text text-transparent leading-tight">
+              Get Started in Minutes
             </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-              See how easy it is to set up form handling for your website. From
-              creating your account to collecting your first submission - we'll
-              show you every step with real screenshots.
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-4xl mx-auto leading-relaxed">
+              Transform your forms from simple HTML to powerful automation workflows. 
+              No backend coding required - just point, configure, and collect.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30"
                 asChild
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 <Link href="/auth/signup">
-                  Start Free Account <ArrowRight className="w-4 h-4 ml-2" />
+                  Start Building <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="#dashboard-section">See How It Works</Link>
+              <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800" asChild>
+                <Link href="/docs">View Documentation</Link>
               </Button>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-              Free forever • No credit card required • 500 submissions/month
-            </p>
           </div>
         </div>
       </section>
@@ -446,52 +442,52 @@ export default function QuickStartPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-full text-sm font-medium text-blue-800 dark:text-blue-200 mb-6">
+            <Badge className="mb-6 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 px-4 py-2">
               <Sparkles className="w-4 h-4 mr-2" />
               Ready to Get Started?
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-              Start Collecting Form Submissions Today
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-slate-900 via-emerald-700 to-slate-800 dark:from-white dark:via-emerald-400 dark:to-slate-200 bg-clip-text text-transparent">
+              Start Building Today
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-              Join thousands of developers who trust JSONPost for their form
-              handling needs. Set up your first endpoint in under 5 minutes.
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">
+              Join thousands of developers who trust JSONPost for their form automation needs. 
+              Set up your first workflow in under 5 minutes.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button
                 size="lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30"
                 asChild
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 <Link href="/auth/signup">
                   Create Free Account <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" className="border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-800" asChild>
                 <Link href="/docs">View Documentation</Link>
               </Button>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 text-center">
               <div className="flex items-center justify-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm text-slate-600 dark:text-slate-300">
                   Free forever plan
                 </span>
               </div>
               <div className="flex items-center justify-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm text-slate-600 dark:text-slate-300">
                   No credit card required
                 </span>
               </div>
               <div className="flex items-center justify-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                <span className="text-sm text-slate-600 dark:text-slate-300">
                   500 submissions/month
                 </span>
               </div>

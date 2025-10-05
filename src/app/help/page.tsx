@@ -14,7 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
-import { HelpCircle, Send, ChevronDown, ChevronRight } from "lucide-react";
+import { HelpCircle, Send, ChevronDown, ChevronRight, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const faqs = [
   {
@@ -97,24 +98,34 @@ export default function HelpCenter() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <Header />
       
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <HelpCircle className="w-6 h-6 text-white" />
-            </div>
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-950 py-20 sm:py-32">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-slate-100/50 opacity-40"></div>
+        
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="flex items-center justify-center mb-6">
+            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 px-4 py-2 text-sm font-medium">
+              <HelpCircle className="w-4 h-4 mr-2" />
+              Support Center
+            </Badge>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          
+          <h1 className="text-5xl sm:text-6xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
             Help Center
+            <Sparkles className="inline-block w-8 h-8 ml-3 text-emerald-500" />
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300">
+          
+          <p className="text-xl sm:text-2xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             Find answers to common questions or get in touch with our support team
           </p>
         </div>
+      </section>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
         {/* FAQs Section */}
         <Card className="mb-12">
@@ -127,22 +138,22 @@ export default function HelpCenter() {
           <CardContent>
             <div className="space-y-4">
               {faqs.map((faq, index) => (
-                <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-4">
+                <div key={index} className="border-b border-slate-200 dark:border-slate-700 pb-4">
                   <button
-                    className="flex items-center justify-between w-full text-left py-2 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    className="flex items-center justify-between w-full text-left py-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
                   >
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <span className="font-medium text-slate-900 dark:text-white">
                       {faq.question}
                     </span>
                     {openFaq === index ? (
-                      <ChevronDown className="w-5 h-5 text-gray-500" />
+                      <ChevronDown className="w-5 h-5 text-slate-500" />
                     ) : (
-                      <ChevronRight className="w-5 h-5 text-gray-500" />
+                      <ChevronRight className="w-5 h-5 text-slate-500" />
                     )}
                   </button>
                   {openFaq === index && (
-                    <div className="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <div className="mt-2 text-slate-600 dark:text-slate-300 leading-relaxed">
                       {faq.answer}
                     </div>
                   )}
@@ -162,8 +173,8 @@ export default function HelpCenter() {
           </CardHeader>
           <CardContent>
             {submitStatus === "success" && (
-              <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                <p className="text-green-800 dark:text-green-200">
+              <div className="mb-6 p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                <p className="text-emerald-800 dark:text-emerald-200">
                   Thank you for your message! We&apos;ll get back to you within 24 hours.
                 </p>
               </div>

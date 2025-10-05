@@ -59,14 +59,14 @@ export default function FeaturesAndScreenshotsPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <section className="py-20 px-4 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/20 dark:to-green-900/20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">
               <Sparkles className="w-4 h-4 mr-1" />
               Complete Feature Overview
             </Badge>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-900 via-emerald-800 to-green-800 dark:from-white dark:via-emerald-200 dark:to-green-200 bg-clip-text text-transparent">
               JSONPost Features &<br className="hidden sm:block" />
               Screenshots
             </h1>
@@ -77,7 +77,7 @@ export default function FeaturesAndScreenshotsPage() {
               <Button
                 size="lg"
                 asChild
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
                 <Link href="/auth/signup">
                   Try All Features Free <ArrowRight className="w-4 h-4 ml-2" />
@@ -794,7 +794,7 @@ export default function FeaturesAndScreenshotsPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20">
+      <section className="py-20 px-4 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-emerald-900/20 dark:to-green-900/20">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
@@ -804,7 +804,7 @@ export default function FeaturesAndScreenshotsPage() {
             <Button
               size="lg"
               asChild
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >
               <Link href="/auth/signup">
                 Start Free Account <ArrowRight className="w-4 h-4 ml-2" />
