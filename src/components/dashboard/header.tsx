@@ -61,9 +61,9 @@ export function DashboardHeader({
       case 'FREE':
         return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
       case 'PRO':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
       case 'GROWTH':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+        return 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100';
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
     }
@@ -76,9 +76,11 @@ export function DashboardHeader({
           {/* Left side - Logo */}
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Code className="w-5 h-5 text-white" />
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="JSONPost Logo" 
+                className="w-8 h-8 rounded-lg"
+              />
               <span className="text-xl font-bold">JSONPost</span>
             </Link>
             {/* Plan Badge */}
@@ -96,20 +98,16 @@ export function DashboardHeader({
             {/* User Menu */}
             <div className="relative">
               <Button
-                variant="default"
+                variant="ghost"
                 size="sm"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="flex items-center space-x-2 bg-primary text-primary-foreground hover:bg-primary/90 border border-primary/20 shadow-sm transition-all duration-200 hover:shadow-md"
+                className="w-10 h-10 p-0 rounded-full bg-emerald-600 hover:bg-emerald-700 border-2 border-emerald-500 shadow-sm transition-all duration-200 hover:shadow-md hover:scale-105"
               >
-                <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-primary-foreground">
+                <div className="w-full h-full rounded-full flex items-center justify-center">
+                  <span className="text-sm font-semibold text-white">
                     {user?.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <span className="hidden sm:block text-sm font-medium">
-                  {user?.email?.split('@')[0]}
-                </span>
-                <ChevronDown className="w-4 h-4" />
               </Button>
 
               {/* User Dropdown */}
@@ -118,8 +116,8 @@ export function DashboardHeader({
                   <div className="py-1">
                     <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-600">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                          <span className="text-sm font-semibold text-primary-foreground">
+                        <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-semibold text-white">
                             {user?.email?.charAt(0).toUpperCase()}
                           </span>
                         </div>

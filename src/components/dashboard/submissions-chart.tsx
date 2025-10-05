@@ -129,7 +129,7 @@ export function SubmissionsChart({ userId }: SubmissionsChartProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
+            <TrendingUp className="h-5 w-5 text-emerald-600" />
             <CardTitle className="text-xl">Submissions Overview</CardTitle>
           </div>
           <div className="flex space-x-2">
@@ -164,7 +164,7 @@ export function SubmissionsChart({ userId }: SubmissionsChartProps) {
       <CardContent>
         {loading ? (
           <div className="h-64 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
           </div>
         ) : data.length === 0 ? (
           <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -210,7 +210,7 @@ export function SubmissionsChart({ userId }: SubmissionsChartProps) {
                 />
                 <Bar 
                   dataKey="submissions" 
-                  fill="#3b82f6"
+                  fill="#059669"
                   radius={[4, 4, 0, 0]}
                   className="hover:opacity-80 transition-opacity"
                 />

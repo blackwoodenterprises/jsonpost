@@ -388,7 +388,7 @@ export default function ProjectSettingsPage() {
   if (loading || isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -647,7 +647,7 @@ export default function ProjectSettingsPage() {
                 </h4>
                 {loadingN8nSubscriptions ? (
                   <div className="flex items-center justify-center py-4">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
                   </div>
                 ) : n8nSubscriptions.length > 0 ? (
                   <div className="space-y-2">

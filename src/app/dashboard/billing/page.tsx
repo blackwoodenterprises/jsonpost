@@ -153,7 +153,7 @@ export default function BillingPage() {
         <DashboardHeader />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               Loading billing information...
             </p>
@@ -301,7 +301,7 @@ export default function BillingPage() {
                 key={plan.id}
                 className={`relative ${
                   profile.plan === plan.id
-                    ? "ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-950"
+                    ? "ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950"
                     : ""
                 }`}
               >
@@ -320,7 +320,7 @@ export default function BillingPage() {
                     {profile.plan === plan.id && (
                       <Badge
                         variant="default"
-                        className="bg-blue-100 text-blue-800"
+                        className="bg-emerald-100 text-emerald-800"
                       >
                         Current
                       </Badge>
