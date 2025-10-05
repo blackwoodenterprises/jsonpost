@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +80,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
       <div className="w-full max-w-md space-y-6">
         {/* JSONPost Logo */}
         <div className="text-center">
@@ -87,9 +88,13 @@ export default function LoginForm() {
             href="/"
             className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity"
           >
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Code className="w-6 h-6 text-white" />
-            </div>
+            <Image 
+              src="/logo.png" 
+              alt="JSONPost Logo" 
+              width={40} 
+              height={40} 
+              className="rounded-lg"
+            />
             <span className="text-2xl font-bold">JSONPost</span>
           </Link>
         </div>

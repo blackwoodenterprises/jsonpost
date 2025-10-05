@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,7 +119,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
         <div className="w-full max-w-md space-y-6">
           {/* JSONPost Logo */}
           <div className="text-center">
@@ -126,9 +127,13 @@ export default function SignupPage() {
               href="/"
               className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Code className="w-6 h-6 text-white" />
-              </div>
+              <Image 
+                src="/logo.png" 
+                alt="JSONPost Logo" 
+                width={40} 
+                height={40} 
+                className="rounded-lg"
+              />
               <span className="text-2xl font-bold">JSONPost</span>
             </Link>
           </div>
@@ -170,7 +175,7 @@ export default function SignupPage() {
             {/* Back to Homepage Button */}
             <Link
               href="/"
-              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors mb-6 group"
+              className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors mb-6 group"
             >
               <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
               Back to Homepage
@@ -178,16 +183,20 @@ export default function SignupPage() {
 
             {/* Logo */}
             <div className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Code className="w-6 h-6 text-white" />
-              </div>
+              <Image 
+                src="/logo.png" 
+                alt="JSONPost Logo" 
+                width={40} 
+                height={40} 
+                className="rounded-lg"
+              />
               <span className="text-2xl font-bold">JSONPost</span>
             </div>
 
             {/* Main Heading */}
             <h1 className="text-3xl font-bold mb-4 leading-tight">
               Start Building Forms
-              <span className="block text-blue-600">In Minutes</span>
+              <span className="block text-emerald-600">In Minutes</span>
             </h1>
 
             <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
@@ -197,7 +206,7 @@ export default function SignupPage() {
 
             {/* Free Plan Features */}
             <div className="space-y-6">
-              <div className="inline-flex items-center px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-sm font-medium mb-4 text-blue-800 dark:text-blue-200">
+              <div className="inline-flex items-center px-3 py-1.5 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-sm font-medium mb-4 text-emerald-800 dark:text-emerald-200">
                 <Star className="w-4 h-4 mr-2" />
                 Free Plan Includes
               </div>
@@ -265,9 +274,13 @@ export default function SignupPage() {
                 href="/"
                 className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity"
               >
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Code className="w-6 h-6 text-white" />
-                </div>
+                <Image 
+                  src="/logo.png" 
+                  alt="JSONPost Logo" 
+                  width={40} 
+                  height={40} 
+                  className="rounded-lg"
+                />
                 <span className="text-2xl font-bold">JSONPost</span>
               </Link>
             </div>
@@ -346,7 +359,7 @@ export default function SignupPage() {
                         placeholder="Enter your email address"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="pl-10 h-11 text-sm border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
+                        className="pl-10 h-11 text-sm border border-gray-300 dark:border-gray-600 focus:border-emerald-500 dark:focus:border-emerald-400"
                         required
                       />
                     </div>
@@ -368,7 +381,7 @@ export default function SignupPage() {
                         placeholder="Create a secure password"
                         value={formData.password}
                         onChange={handleInputChange}
-                        className="pl-10 pr-10 h-11 text-sm border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
+                        className="pl-10 pr-10 h-11 text-sm border border-gray-300 dark:border-gray-600 focus:border-emerald-500 dark:focus:border-emerald-400"
                         required
                       />
                       <Button
@@ -403,7 +416,7 @@ export default function SignupPage() {
                         placeholder="Confirm your password"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        className="pl-10 pr-10 h-11 text-sm border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
+                        className="pl-10 pr-10 h-11 text-sm border border-gray-300 dark:border-gray-600 focus:border-emerald-500 dark:focus:border-emerald-400"
                         required
                       />
                       <Button
@@ -432,7 +445,7 @@ export default function SignupPage() {
 
                   <Button
                     type="submit"
-                    className="w-full h-11 text-sm bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 font-medium"
+                    className="w-full h-11 text-sm bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 font-medium"
                     disabled={emailLoading || googleLoading}
                   >
                     {emailLoading ? (
@@ -483,14 +496,14 @@ export default function SignupPage() {
                   By creating an account, you agree to our{" "}
                   <Link
                     href="/terms-of-service"
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-emerald-600 hover:underline font-medium"
                   >
                     Terms of Service
                   </Link>{" "}
                   and{" "}
                   <Link
                     href="/privacy-policy"
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-emerald-600 hover:underline font-medium"
                   >
                     Privacy Policy
                   </Link>
@@ -501,7 +514,7 @@ export default function SignupPage() {
                   Already have an account?{" "}
                   <Link
                     href="/auth/login"
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-emerald-600 hover:underline font-medium"
                   >
                     Sign in here
                   </Link>
