@@ -11,6 +11,7 @@ const staticRoutes = [
   '/blog',
   '/free-html-form-generator',
   '/free-json-schema-builder',
+  '/free-typeform-alternative',
   '/help',
   '/quick-start',
   '/privacy-policy',

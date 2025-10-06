@@ -50,6 +50,8 @@ import {
   Lightbulb,
 } from "lucide-react";
 
+export { metadata } from "./metadata";
+
 export default function FreeTypeformAlternativePage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -845,10 +847,11 @@ export default function FreeTypeformAlternativePage() {
                     <p className="text-slate-700 dark:text-slate-300">
                       <strong>JSONPost is the modern choice</strong> for
                       developers, marketers, and founders who want full control
-                      over their forms. It bridges the gap between &ldquo;simple form
-                      builder&rdquo; and &ldquo;full-stack form platform&rdquo; — giving you the
-                      flexibility to embed forms anywhere, automate everything,
-                      and scale without vendor lock-in.
+                      over their forms. It bridges the gap between &ldquo;simple
+                      form builder&rdquo; and &ldquo;full-stack form
+                      platform&rdquo; — giving you the flexibility to embed
+                      forms anywhere, automate everything, and scale without
+                      vendor lock-in.
                     </p>
                   </div>
                 </div>
@@ -865,8 +868,8 @@ export default function FreeTypeformAlternativePage() {
             Ready to Try the Better Alternative?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of developers and marketers who&rsquo;ve made the switch to
-            JSONPost
+            Join thousands of developers and marketers who&rsquo;ve made the
+            switch to JSONPost
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">

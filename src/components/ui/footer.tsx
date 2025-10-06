@@ -59,7 +59,10 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/free-typeform-alternative" className="hover:text-white">
+                <Link
+                  href="/free-typeform-alternative"
+                  className="hover:text-white"
+                >
                   Free Typeform Alternative
                 </Link>
               </li>
