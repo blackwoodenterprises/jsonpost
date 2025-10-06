@@ -57,12 +57,17 @@ export default function Home() {
             </Badge>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white mb-6 leading-tight tracking-tight">
-              Build Beautiful Forms.<br />
-              <span className="text-emerald-600 dark:text-emerald-500">Automate Everything.</span>
+              Build Beautiful Forms.
+              <br />
+              <span className="text-emerald-600 dark:text-emerald-500">
+                Automate Everything.
+              </span>
             </h1>
 
             <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Create stunning conversational forms, multi-step wizards, and single-page forms with our visual builder. Connect to Google Sheets, Zapier, n8n, webhooks, and more—no backend required.
+              Create stunning conversational forms, multi-step wizards, and
+              single-page forms with our visual builder. Connect to Google
+              Sheets, Zapier, n8n, webhooks, and more—no backend required.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -72,7 +77,8 @@ export default function Home() {
                 asChild
               >
                 <Link href="/auth/signup">
-                  Start Building for Free <ArrowRight className="w-5 h-5 ml-2" />
+                  Start Building for Free{" "}
+                  <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
               <Button
@@ -81,7 +87,11 @@ export default function Home() {
                 className="text-lg px-8 py-6 border-2 border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600"
                 asChild
               >
-                <Link href="https://forms.jsonpost.com" target="_blank" rel="noopener noreferrer">
+                <Link
+                  href="https://forms.jsonpost.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Browse Gallery <Globe className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
@@ -114,7 +124,8 @@ export default function Home() {
               What You Can Do with JSONPost
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Everything you need to build, deploy, and automate forms—all in one platform
+              Everything you need to build, deploy, and automate forms—all in
+              one platform
             </p>
           </div>
 
@@ -127,7 +138,9 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Visual Form Builder</CardTitle>
                 <CardDescription>
-                  Drag-and-drop builder with 16 field types, 29 themes, and 14 pre-built templates. Create forms in minutes without writing code.
+                  Drag-and-drop builder with 16 field types, 29 themes, and 14
+                  pre-built templates. Create forms in minutes without writing
+                  code.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -140,7 +153,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Conversational Forms</CardTitle>
                 <CardDescription>
-                  Build chat-like conversational forms that feel natural and increase completion rates by up to 40%.
+                  Build chat-like conversational forms that feel natural and
+                  increase completion rates by up to 40%.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -153,7 +167,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Multi-Step Wizards</CardTitle>
                 <CardDescription>
-                  Break complex forms into simple steps. Perfect for surveys, registrations, and applications with progress tracking.
+                  Break complex forms into simple steps. Perfect for surveys,
+                  registrations, and applications with progress tracking.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -166,7 +181,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Google Sheets Sync</CardTitle>
                 <CardDescription>
-                  Automatically push submissions to Google Sheets. No Zapier needed. OAuth authentication with automatic token refresh.
+                  Automatically push submissions to Google Sheets. No Zapier
+                  needed. OAuth authentication with automatic token refresh.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -177,9 +193,12 @@ export default function Home() {
                 <div className="w-12 h-12 bg-violet-100 dark:bg-violet-950 rounded-xl flex items-center justify-center mb-4">
                   <Zap className="w-6 h-6 text-violet-600 dark:text-violet-400" />
                 </div>
-                <CardTitle className="text-xl">Zapier & n8n Integration</CardTitle>
+                <CardTitle className="text-xl">
+                  Zapier & n8n Integration
+                </CardTitle>
                 <CardDescription>
-                  Native support for Zapier and n8n. Connect to 5000+ apps and build complex automation workflows.
+                  Native support for Zapier and n8n. Connect to 5000+ apps and
+                  build complex automation workflows.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -192,7 +211,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Powerful Webhooks</CardTitle>
                 <CardDescription>
-                  Send data to any endpoint with Svix webhooks (signatures + retries) or direct webhooks. JSON transformation included.
+                  Send data to any endpoint with Svix webhooks (signatures +
+                  retries) or direct webhooks. JSON transformation included.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -205,7 +225,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Email Automation</CardTitle>
                 <CardDescription>
-                  Instant notifications to your team and automated responses to users. Custom templates and multiple recipients supported.
+                  Instant notifications to your team and automated responses to
+                  users. Custom templates and multiple recipients supported.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -218,7 +239,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">File Upload Handling</CardTitle>
                 <CardDescription>
-                  Accept file uploads with validation and secure storage. No need to set up AWS S3 or configure storage yourself.
+                  Accept file uploads with validation and secure storage. No
+                  need to set up AWS S3 or configure storage yourself.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -231,7 +253,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">29 Beautiful Themes</CardTitle>
                 <CardDescription>
-                  Choose from 29 professionally designed themes. From minimal to bold, light to dark—match your brand perfectly.
+                  Choose from 29 professionally designed themes. From minimal to
+                  bold, light to dark—match your brand perfectly.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -244,7 +267,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Flexible Embedding</CardTitle>
                 <CardDescription>
-                  Embed as modal popup, floating chatbox, side drawer, or button trigger. Works on any website—no backend required.
+                  Embed as modal popup, floating chatbox, side drawer, or button
+                  trigger. Works on any website—no backend required.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -255,9 +279,12 @@ export default function Home() {
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-950 rounded-xl flex items-center justify-center mb-4">
                   <Shield className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
-                <CardTitle className="text-xl">Built-in Spam Protection</CardTitle>
+                <CardTitle className="text-xl">
+                  Built-in Spam Protection
+                </CardTitle>
                 <CardDescription>
-                  Honeypot fields and intelligent rate limiting (5 req/10s, 100 req/min). Block spam before it hits your inbox.
+                  Honeypot fields and intelligent rate limiting (5 req/10s, 100
+                  req/min). Block spam before it hits your inbox.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -270,7 +297,8 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-xl">Submission Analytics</CardTitle>
                 <CardDescription>
-                  Track submissions, conversion rates, and form performance. Export data as CSV or JSON anytime you need.
+                  Track submissions, conversion rates, and form performance.
+                  Export data as CSV or JSON anytime you need.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -286,7 +314,8 @@ export default function Home() {
               Build Any Type of Form
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              From simple contact forms to complex multi-step surveys—we&apos;ve got you covered
+              From simple contact forms to complex multi-step surveys—we&apos;ve
+              got you covered
             </p>
           </div>
 
@@ -298,7 +327,9 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="text-2xl">Conversational Forms</CardTitle>
                 <CardDescription className="text-base">
-                  Chat-like interface that asks one question at a time. Perfect for mobile users and increases engagement by making forms feel like conversations.
+                  Chat-like interface that asks one question at a time. Perfect
+                  for mobile users and increases engagement by making forms feel
+                  like conversations.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -326,7 +357,8 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="text-2xl">Multi-Step Wizards</CardTitle>
                 <CardDescription className="text-base">
-                  Break long forms into logical steps with progress indicators. Ideal for registrations, applications, and complex surveys.
+                  Break long forms into logical steps with progress indicators.
+                  Ideal for registrations, applications, and complex surveys.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -354,7 +386,8 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="text-2xl">Single-Page Forms</CardTitle>
                 <CardDescription className="text-base">
-                  Classic all-in-one forms with all fields visible. Best for contact forms, feedback, and quick data collection.
+                  Classic all-in-one forms with all fields visible. Best for
+                  contact forms, feedback, and quick data collection.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -378,7 +411,11 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <Button size="lg" variant="outline" asChild className="border-2">
-              <Link href="https://forms.jsonpost.com" target="_blank" rel="noopener noreferrer">
+              <Link
+                href="https://forms.jsonpost.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Explore Form Gallery <Globe className="w-5 h-5 ml-2" />
               </Link>
             </Button>
@@ -394,7 +431,8 @@ export default function Home() {
               Connect to Everything
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Native integrations with your favorite tools. No complex setup, no middleware needed.
+              Native integrations with your favorite tools. No complex setup, no
+              middleware needed.
             </p>
           </div>
 
@@ -406,7 +444,8 @@ export default function Home() {
                 </div>
                 <CardTitle>Google Sheets</CardTitle>
                 <CardDescription>
-                  Auto-sync submissions to spreadsheets with OAuth authentication
+                  Auto-sync submissions to spreadsheets with OAuth
+                  authentication
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -516,9 +555,12 @@ export default function Home() {
                 <Clock className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">5-Minute Setup</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  5-Minute Setup
+                </h3>
                 <p className="text-slate-600 dark:text-slate-300">
-                  Create a form, get your endpoint, and start receiving submissions in minutes—not hours or days.
+                  Create a form, get your endpoint, and start receiving
+                  submissions in minutes—not hours or days.
                 </p>
               </div>
             </div>
@@ -528,9 +570,12 @@ export default function Home() {
                 <Shield className="w-6 h-6 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Enterprise Security</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  Enterprise Security
+                </h3>
                 <p className="text-slate-600 dark:text-slate-300">
-                  SSL/TLS encryption, AES-256 data encryption, SOC 2 Type II compliance, and GDPR-ready out of the box.
+                  SSL/TLS encryption, AES-256 data encryption, SOC 2 Type II
+                  compliance, and GDPR-ready out of the box.
                 </p>
               </div>
             </div>
@@ -540,9 +585,12 @@ export default function Home() {
                 <TrendingUp className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Scales Automatically</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  Scales Automatically
+                </h3>
                 <p className="text-slate-600 dark:text-slate-300">
-                  From 10 to 10,000 submissions per day. Infrastructure scales automatically with no configuration needed.
+                  From 10 to 10,000 submissions per day. Infrastructure scales
+                  automatically with no configuration needed.
                 </p>
               </div>
             </div>
@@ -552,9 +600,12 @@ export default function Home() {
                 <Code className="w-6 h-6 text-rose-600 dark:text-rose-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Developer-Friendly API</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  Developer-Friendly API
+                </h3>
                 <p className="text-slate-600 dark:text-slate-300">
-                  Clean REST API with JSON/FormData support. Works with React, Vue, Next.js, and any framework you love.
+                  Clean REST API with JSON/FormData support. Works with React,
+                  Vue, Next.js, and any framework you love.
                 </p>
               </div>
             </div>
@@ -564,9 +615,12 @@ export default function Home() {
                 <Database className="w-6 h-6 text-violet-600 dark:text-violet-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">Your Data, Your Control</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  Your Data, Your Control
+                </h3>
                 <p className="text-slate-600 dark:text-slate-300">
-                  Export everything as CSV or JSON. No vendor lock-in. Delete anytime with one click.
+                  Export everything as CSV or JSON. No vendor lock-in. Delete
+                  anytime with one click.
                 </p>
               </div>
             </div>
@@ -576,9 +630,12 @@ export default function Home() {
                 <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">No Backend Required</h3>
+                <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  No Backend Required
+                </h3>
                 <p className="text-slate-600 dark:text-slate-300">
-                  No servers to manage, no databases to configure, no infrastructure to maintain. We handle everything.
+                  No servers to manage, no databases to configure, no
+                  infrastructure to maintain. We handle everything.
                 </p>
               </div>
             </div>
@@ -591,20 +648,36 @@ export default function Home() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">10,000+</div>
-              <div className="text-slate-600 dark:text-slate-300">Forms Created</div>
+              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">
+                300+
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                Forms Created
+              </div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">100+</div>
-              <div className="text-slate-600 dark:text-slate-300">Active Users</div>
+              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">
+                100+
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                Active Users
+              </div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">99.9%</div>
-              <div className="text-slate-600 dark:text-slate-300">Uptime SLA</div>
+              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">
+                99.9%
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                Uptime SLA
+              </div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">4.9/5</div>
-              <div className="text-slate-600 dark:text-slate-300">User Rating</div>
+              <div className="text-4xl font-bold text-emerald-600 dark:text-emerald-500 mb-2">
+                4.9/5
+              </div>
+              <div className="text-slate-600 dark:text-slate-300">
+                User Rating
+              </div>
             </div>
           </div>
 
@@ -613,15 +686,24 @@ export default function Home() {
               <CardHeader>
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 fill-amber-400 text-amber-400"
+                    />
                   ))}
                 </div>
                 <CardDescription className="text-base">
-                  &ldquo;JSONPost saved us weeks of development time. The form builder is intuitive, and the Google Sheets integration works flawlessly. Highly recommended!&rdquo;
+                  &ldquo;JSONPost saved us weeks of development time. The form
+                  builder is intuitive, and the Google Sheets integration works
+                  flawlessly. Highly recommended!&rdquo;
                 </CardDescription>
                 <div className="mt-4">
-                  <p className="font-semibold text-slate-900 dark:text-white">Sarah Chen</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Product Manager, TechCorp</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    Sarah Chen
+                  </p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Product Manager, TechCorp
+                  </p>
                 </div>
               </CardHeader>
             </Card>
@@ -630,15 +712,24 @@ export default function Home() {
               <CardHeader>
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 fill-amber-400 text-amber-400"
+                    />
                   ))}
                 </div>
                 <CardDescription className="text-base">
-                  &ldquo;As a freelance developer, JSONPost is a game-changer. I can deliver complex forms to clients without building backends. The conversational forms are amazing!&rdquo;
+                  &ldquo;As a freelance developer, JSONPost is a game-changer. I
+                  can deliver complex forms to clients without building
+                  backends. The conversational forms are amazing!&rdquo;
                 </CardDescription>
                 <div className="mt-4">
-                  <p className="font-semibold text-slate-900 dark:text-white">Marcus Rodriguez</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Freelance Developer</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    Marcus Rodriguez
+                  </p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Freelance Developer
+                  </p>
                 </div>
               </CardHeader>
             </Card>
@@ -647,15 +738,24 @@ export default function Home() {
               <CardHeader>
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 fill-amber-400 text-amber-400"
+                    />
                   ))}
                 </div>
                 <CardDescription className="text-base">
-                  &ldquo;The Zapier integration alone is worth it. We automated our entire lead generation workflow in an afternoon. Customer support is excellent too.&rdquo;
+                  &ldquo;The Zapier integration alone is worth it. We automated
+                  our entire lead generation workflow in an afternoon. Customer
+                  support is excellent too.&rdquo;
                 </CardDescription>
                 <div className="mt-4">
-                  <p className="font-semibold text-slate-900 dark:text-white">Emily Watson</p>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Marketing Director, GrowthLab</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    Emily Watson
+                  </p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Marketing Director, GrowthLab
+                  </p>
                 </div>
               </CardHeader>
             </Card>
@@ -671,32 +771,86 @@ export default function Home() {
               Perfect for Every Use Case
             </h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              From simple contact forms to complex workflows—JSONPost adapts to your needs
+              From simple contact forms to complex workflows—JSONPost adapts to
+              your needs
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[
-              { icon: Mail, title: "Contact Forms", desc: "Connect with website visitors" },
-              { icon: MessageSquare, title: "Feedback Collection", desc: "Gather user insights" },
-              { icon: FileText, title: "Lead Generation", desc: "Capture qualified leads" },
-              { icon: Users, title: "Event Registration", desc: "Manage attendees easily" },
-              { icon: Star, title: "Customer Surveys", desc: "Measure satisfaction" },
-              { icon: Webhook, title: "Support Tickets", desc: "Streamline customer support" },
-              { icon: Database, title: "Job Applications", desc: "Hire top talent faster" },
-              { icon: CheckCircle, title: "Order Forms", desc: "Process orders smoothly" },
-              { icon: Settings, title: "Booking Forms", desc: "Schedule appointments" },
-              { icon: BarChart3, title: "Market Research", desc: "Collect valuable data" },
-              { icon: Globe, title: "Newsletter Signups", desc: "Grow your audience" },
-              { icon: Sparkles, title: "And Much More...", desc: "Unlimited possibilities" }
+              {
+                icon: Mail,
+                title: "Contact Forms",
+                desc: "Connect with website visitors",
+              },
+              {
+                icon: MessageSquare,
+                title: "Feedback Collection",
+                desc: "Gather user insights",
+              },
+              {
+                icon: FileText,
+                title: "Lead Generation",
+                desc: "Capture qualified leads",
+              },
+              {
+                icon: Users,
+                title: "Event Registration",
+                desc: "Manage attendees easily",
+              },
+              {
+                icon: Star,
+                title: "Customer Surveys",
+                desc: "Measure satisfaction",
+              },
+              {
+                icon: Webhook,
+                title: "Support Tickets",
+                desc: "Streamline customer support",
+              },
+              {
+                icon: Database,
+                title: "Job Applications",
+                desc: "Hire top talent faster",
+              },
+              {
+                icon: CheckCircle,
+                title: "Order Forms",
+                desc: "Process orders smoothly",
+              },
+              {
+                icon: Settings,
+                title: "Booking Forms",
+                desc: "Schedule appointments",
+              },
+              {
+                icon: BarChart3,
+                title: "Market Research",
+                desc: "Collect valuable data",
+              },
+              {
+                icon: Globe,
+                title: "Newsletter Signups",
+                desc: "Grow your audience",
+              },
+              {
+                icon: Sparkles,
+                title: "And Much More...",
+                desc: "Unlimited possibilities",
+              },
             ].map((useCase, idx) => (
-              <Card key={idx} className="border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all duration-300">
+              <Card
+                key={idx}
+                className="border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all duration-300"
+              >
                 <CardHeader>
                   <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-950 rounded-lg flex items-center justify-center mb-3">
                     <useCase.icon className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <CardTitle className="text-lg">{useCase.title}</CardTitle>
-                  <CardDescription className="text-sm">{useCase.desc}</CardDescription>
+                  <CardDescription className="text-sm">
+                    {useCase.desc}
+                  </CardDescription>
                 </CardHeader>
               </Card>
             ))}
@@ -737,11 +891,13 @@ export default function Home() {
                     "99.9% uptime with auto-scaling",
                     "SOC 2 & GDPR compliant",
                     "24/7 monitoring & support",
-                    "Start free, scale as you grow"
+                    "Start free, scale as you grow",
                   ].map((item, idx) => (
                     <li key={idx} className="flex items-start gap-3">
                       <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-700 dark:text-slate-200">{item}</span>
+                      <span className="text-slate-700 dark:text-slate-200">
+                        {item}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -768,11 +924,13 @@ export default function Home() {
                     "Manage servers & scaling",
                     "Handle security & compliance",
                     "Monitor & debug issues 24/7",
-                    "Ongoing maintenance costs"
+                    "Ongoing maintenance costs",
                   ].map((item, idx) => (
                     <li key={idx} className="flex items-start gap-3">
                       <X className="w-5 h-5 text-slate-400 dark:text-slate-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-600 dark:text-slate-400">{item}</span>
+                      <span className="text-slate-600 dark:text-slate-400">
+                        {item}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -781,7 +939,11 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg" asChild>
+            <Button
+              size="lg"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg"
+              asChild
+            >
               <Link href="/auth/signup">
                 Get Started Free <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
@@ -810,19 +972,30 @@ export default function Home() {
                   {PLANS.FREE.name.toUpperCase()}
                 </Badge>
                 <div className="mb-4">
-                  <span className="text-4xl font-bold text-slate-900 dark:text-white">${PLANS.FREE.price}</span>
-                  <span className="text-slate-600 dark:text-slate-400">/month</span>
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">
+                    ${PLANS.FREE.price}
+                  </span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    /month
+                  </span>
                 </div>
-                <CardDescription className="text-base">Perfect for personal projects and testing</CardDescription>
+                <CardDescription className="text-base">
+                  Perfect for personal projects and testing
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full mb-6 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900" asChild>
+                <Button
+                  className="w-full mb-6 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900"
+                  asChild
+                >
                   <Link href="/auth/signup">Start Free</Link>
                 </Button>
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span>{PLANS.FREE.limits.submissions} submissions/month</span>
+                    <span>
+                      {PLANS.FREE.limits.submissions} submissions/month
+                    </span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
@@ -830,7 +1003,9 @@ export default function Home() {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span>{PLANS.FREE.limits.endpoints} endpoints per project</span>
+                    <span>
+                      {PLANS.FREE.limits.endpoints} endpoints per project
+                    </span>
                   </li>
                   {PLANS.FREE.features.slice(3).map((feature, index) => (
                     <li key={index} className="flex items-center gap-2">
@@ -845,26 +1020,39 @@ export default function Home() {
             {/* PRO Plan - Highlighted */}
             <Card className="border-emerald-500 dark:border-emerald-600 shadow-2xl shadow-emerald-500/20 relative hover:shadow-emerald-500/30 transition-all duration-300 scale-105">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <Badge className="bg-emerald-600 text-white px-4 py-1">MOST POPULAR</Badge>
+                <Badge className="bg-emerald-600 text-white px-4 py-1">
+                  MOST POPULAR
+                </Badge>
               </div>
               <CardHeader>
                 <Badge className="w-fit mb-4 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                   {PLANS.PRO.name.toUpperCase()}
                 </Badge>
                 <div className="mb-4">
-                  <span className="text-4xl font-bold text-slate-900 dark:text-white">${PLANS.PRO.price}</span>
-                  <span className="text-slate-600 dark:text-slate-400">/month</span>
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">
+                    ${PLANS.PRO.price}
+                  </span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    /month
+                  </span>
                 </div>
-                <CardDescription className="text-base">For growing businesses and agencies</CardDescription>
+                <CardDescription className="text-base">
+                  For growing businesses and agencies
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full mb-6 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30" asChild>
+                <Button
+                  className="w-full mb-6 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/30"
+                  asChild
+                >
                   <Link href="/auth/signup">Start Pro Trial</Link>
                 </Button>
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span className="font-semibold">{PLANS.PRO.limits.submissions} submissions/month</span>
+                    <span className="font-semibold">
+                      {PLANS.PRO.limits.submissions} submissions/month
+                    </span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
@@ -891,19 +1079,30 @@ export default function Home() {
                   {PLANS.GROWTH.name.toUpperCase()}
                 </Badge>
                 <div className="mb-4">
-                  <span className="text-4xl font-bold text-slate-900 dark:text-white">${PLANS.GROWTH.price}</span>
-                  <span className="text-slate-600 dark:text-slate-400">/month</span>
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">
+                    ${PLANS.GROWTH.price}
+                  </span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    /month
+                  </span>
                 </div>
-                <CardDescription className="text-base">For high-volume applications</CardDescription>
+                <CardDescription className="text-base">
+                  For high-volume applications
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button className="w-full mb-6 bg-amber-600 hover:bg-amber-700 text-white" asChild>
+                <Button
+                  className="w-full mb-6 bg-amber-600 hover:bg-amber-700 text-white"
+                  asChild
+                >
                   <Link href="/auth/signup">Start Growth</Link>
                 </Button>
                 <ul className="space-y-3 text-sm">
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
-                    <span className="font-semibold">{PLANS.GROWTH.limits.submissions} submissions/month</span>
+                    <span className="font-semibold">
+                      {PLANS.GROWTH.limits.submissions} submissions/month
+                    </span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-emerald-600" />
@@ -926,7 +1125,13 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <p className="text-slate-600 dark:text-slate-400 mb-4">
-              Need more? <Link href="/help" className="text-emerald-600 hover:text-emerald-700 font-semibold">Contact us for Enterprise plans</Link>
+              Need more?{" "}
+              <Link
+                href="/help"
+                className="text-emerald-600 hover:text-emerald-700 font-semibold"
+              >
+                Contact us for Enterprise plans
+              </Link>
             </p>
           </div>
         </div>
@@ -939,7 +1144,8 @@ export default function Home() {
             Ready to Build Amazing Forms?
           </h2>
           <p className="text-xl text-emerald-50 mb-10 max-w-2xl mx-auto">
-            Join hundreds of developers, agencies, and businesses using JSONPost to handle forms without the backend complexity.
+            Join hundreds of developers, agencies, and businesses using JSONPost
+            to handle forms without the backend complexity.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button
@@ -957,7 +1163,11 @@ export default function Home() {
               className="text-lg px-8 py-6 border-2 border-white text-white bg-transparent hover:bg-white hover:text-emerald-700 hover:border-white"
               asChild
             >
-              <Link href="https://forms.jsonpost.com" target="_blank" rel="noopener noreferrer">
+              <Link
+                href="https://forms.jsonpost.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Browse Gallery <Globe className="w-5 h-5 ml-2" />
               </Link>
             </Button>
