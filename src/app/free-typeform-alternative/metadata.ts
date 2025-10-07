@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "JSONPost",
     images: [
       {
-        url: "/og_images/typeform_alternatives_ogimage.png",
+        url: "/og-images/typeform_alternatives_ogimage.png",
         width: 1682,
         height: 820,
         alt: "JSONPost - Free Typeform Alternative with Better Features",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "JSONPost vs Typeform – Best Free Typeform Alternative for Developers (2025)",
     description: "Looking for a fast, privacy-friendly Typeform alternative? JSONPost lets you build forms, automate workflows, and integrate with Google Sheets — free.",
-    images: ["/og_images/typeform_alternatives_ogimage.png"],
+    images: ["/og-images/typeform_alternatives_ogimage.png"],
     creator: "@ubergeekady",
   },
   alternates: {
