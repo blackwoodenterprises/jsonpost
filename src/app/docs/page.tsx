@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unescaped-entities, react/jsx-no-comment-textnodes */
 import Link from "next/link";
+import { metadata } from "./metadata";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,6 +33,8 @@ import {
   Lock,
   Upload,
 } from "lucide-react";
+
+export { metadata };
 
 export default function DocsPage() {
   return (

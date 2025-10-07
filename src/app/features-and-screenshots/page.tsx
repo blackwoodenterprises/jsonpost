@@ -1,6 +1,7 @@
 /* eslint-disable react/no-unescaped-entities, react/jsx-no-comment-textnodes */
 import Link from "next/link";
 import Image from "next/image";
+import { metadata } from "./metadata";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -52,6 +53,8 @@ import {
   Route,
   Palette,
 } from "lucide-react";
+
+export { metadata };
 
 export default function FeaturesAndScreenshotsPage() {
   return (

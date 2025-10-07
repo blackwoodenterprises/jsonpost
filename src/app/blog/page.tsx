@@ -8,6 +8,8 @@ import fs from 'fs';
 import path from 'path';
 import metadata from '@/content/blog/metadata.json';
 
+export { metadata } from "./metadata";
+
 // Get blog posts with metadata from JSON file
 function getBlogPosts() {
   const blogDir = path.join(process.cwd(), 'src/content/blog');

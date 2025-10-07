@@ -36,6 +36,9 @@ import {
   Layers,
   FileText,
 } from "lucide-react";
+import { metadata } from "./metadata";
+
+export { metadata };
 
 export default function QuickStartPage() {
   return (
@@ -112,7 +115,7 @@ export default function QuickStartPage() {
               </div>
               <h3 className="text-xl font-semibold mb-4">Point Your Form</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Update your form's action URL to point to your JSONPost
+                Update your form&apos;s action URL to point to your JSONPost
                 endpoint. Works with any HTML form or JavaScript.
               </p>
             </div>
@@ -149,7 +152,7 @@ export default function QuickStartPage() {
                 Your Project Dashboard
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                After signing up, you'll land on your clean, intuitive dashboard
+                After signing up, you&apos;ll land on your clean, intuitive dashboard
                 where you can manage all your projects and see submission
                 statistics at a glance.
               </p>
@@ -396,14 +399,14 @@ export default function QuickStartPage() {
                 <div className="bg-gray-900 rounded-lg p-4 text-sm font-mono overflow-x-auto">
                   <div className="text-gray-400">&lt;form</div>
                   <div className="text-blue-400 ml-2">
-                    action="https://jsonpost.com/api/submit/your-project/contact"
+                    action=&quot;https://jsonpost.com/api/submit/your-project/contact&quot;
                   </div>
-                  <div className="text-blue-400 ml-2">method="POST"&gt;</div>
+                  <div className="text-blue-400 ml-2">method=&quot;POST&quot;&gt;</div>
                   <div className="text-green-400 ml-2">
-                    &lt;input name="email" type="email" /&gt;
+                    &lt;input name=&quot;email&quot; type=&quot;email&quot; /&gt;
                   </div>
                   <div className="text-green-400 ml-2">
-                    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+                    &lt;button type=&quot;submit&quot;&gt;Submit&lt;/button&gt;
                   </div>
                   <div className="text-gray-400">&lt;/form&gt;</div>
                 </div>
@@ -423,12 +426,11 @@ export default function QuickStartPage() {
               <CardContent>
                 <div className="bg-gray-900 rounded-lg p-4 text-sm font-mono overflow-x-auto">
                   <div className="text-blue-400">
-                    fetch('https://jsonpost.com/api/submit/your-project/contact',{" "}
-                    {`{`}
+                    fetch(&apos;https://jsonpost.com/api/submit/your-project/contact&apos;, {`{`}
                   </div>
-                  <div className="text-white ml-2">method: 'POST',</div>
+                  <div className="text-white ml-2">method: &apos;POST&apos;,</div>
                   <div className="text-white ml-2">
-                    headers: {`{`} 'Content-Type': 'application/json' {`}`},
+                    headers: {`{`} &apos;Content-Type&apos;: &apos;application/json&apos; {`}`},
                   </div>
                   <div className="text-white ml-2">
                     body: JSON.stringify(formData)

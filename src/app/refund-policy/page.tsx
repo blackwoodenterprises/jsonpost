@@ -7,6 +7,8 @@ import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { RefreshCw, Sparkles } from "lucide-react";
 
+export { metadata } from "./metadata";
+
 export default function RefundPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">

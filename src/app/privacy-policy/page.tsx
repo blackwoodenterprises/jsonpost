@@ -9,6 +9,8 @@ import { Footer } from "@/components/ui/footer";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Sparkles } from "lucide-react";
 
+export { metadata } from "./metadata";
+
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
