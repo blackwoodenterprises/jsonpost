@@ -12,6 +12,8 @@ const staticRoutes = [
   '/free-html-form-generator',
   '/free-json-schema-builder',
   '/free-typeform-alternative',
+  '/features-and-screenshots',
+  '/embed',
   '/help',
   '/quick-start',
   '/privacy-policy',
@@ -40,12 +42,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Generate static routes
   const staticUrls: MetadataRoute.Sitemap = staticRoutes.map(route => {
     const priority = route === '' ? 1.0 : 0.8
-    const changeFrequency = route === '' ? 'weekly' : 'monthly'
+    const changeFrequency = 'daily'
     
     return {
       url: `${BASE_URL}${route}`,
       lastModified: currentDate,
-      changeFrequency: changeFrequency as 'weekly' | 'monthly',
+      changeFrequency: changeFrequency as 'daily',
       priority: priority,
     }
   })
@@ -57,7 +59,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return {
       url: `${BASE_URL}/blog/${post.slug}`,
       lastModified: lastModified,
-      changeFrequency: 'monthly' as const,
+      changeFrequency: 'daily' as const,
       priority: 0.7,
     }
   })
